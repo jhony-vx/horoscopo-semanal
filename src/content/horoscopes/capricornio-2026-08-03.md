@@ -1,20 +1,20 @@
-﻿---
+---
 weekStart: '2026-08-03'
 weekEnd: '2026-08-09'
 status: published
 sign: capricornio
-rank: 11
-summary: 'Ajustar la carga no es retroceder: esta semana avanzas mejor cuando distingues responsabilidad de exceso.'
+rank: 6
+summary: 'La disciplina juega a tu favor: una decisión sobre hogar, recursos o responsabilidades puede quedar mejor encaminada.'
 ---
 
 ## El tono de tu semana
 
-Has estado sosteniendo mucho y quizá nadie sepa cuánto. Reconocerlo no te hace menos fuerte; te permite repartir mejor tus esfuerzos. Una prioridad menos puede darte el espacio que necesitas para pensar con visión.
+El trígono entre el Sol y Saturno, tu planeta regente, favorece consolidar una responsabilidad y revisar cómo se conectan hogar, recursos compartidos y metas a largo plazo. No necesitas resolverlo todo de golpe: una estructura realista te dará más seguridad que una promesa ambiciosa.
 
 ## Amor y vínculos
 
-Baja la guardia en los momentos que no requieren soluciones. Tu compañía puede ser más valiosa que tus consejos. Si estás empezando una relación, permite que también exista el juego y no solo los planes a futuro.
+En el amor, la estabilidad se construye con presencia y no solo con soluciones. Si estás en pareja, comparte tu preocupación antes de encerrarte en el silencio. Si estás soltero, busca una relación que respete tus tiempos y no te obligue a demostrar fortaleza todo el tiempo.
 
 ## Trabajo y bienestar
 
-Define qué se debe hacer hoy y qué puede esperar. Delegar o pedir un plazo razonable será una decisión inteligente. Elige una actividad que te recuerde que tu vida no es solo una lista de metas.
+Revisa una meta financiera o profesional con números concretos. Venus en Libra favorece tratar con tacto a colegas y aliados. El avance puede ser menos visible que el esfuerzo, pero será más firme si mantienes una rutina que puedas sostener incluso en semanas exigentes.

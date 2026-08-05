@@ -1,20 +1,20 @@
-﻿---
+---
 weekStart: '2026-08-03'
 weekEnd: '2026-08-09'
 status: published
 sign: sagitario
-rank: 4
-summary: 'Una semana expansiva te recuerda que avanzar también puede sentirse ligero cuando eliges una meta que te entusiasma.'
+rank: 8
+summary: 'Tu visión se amplía, pero el progreso depende de aterrizarla: una experiencia o aprendizaje puede abrirte una ruta práctica.'
 ---
 
 ## El tono de tu semana
 
-Vuelven las ganas de aprender, moverte y probar otra forma de hacer las cosas. Tu entusiasmo es contagioso, aunque necesitarás una dosis de realismo para no comprometer más tiempo del que tienes disponible.
+El trígono del Sol con Saturno favorece dar estructura a una idea grande: estudiar, planificar un viaje o ampliar un proyecto puede avanzar si defines etapas. Marte en Géminis acelera las conversaciones, pero también puede llevarte a discutir por reflejo. Elige qué vale la pena defender.
 
 ## Amor y vínculos
 
-La espontaneidad abre puertas, pero la presencia las mantiene abiertas. Organiza un plan sencillo y cumple lo que prometas. Si estás soltero o soltera, una conversación casual puede despertar interés por alguien con una perspectiva distinta.
+Tu sinceridad funciona mejor cuando deja espacio a la otra persona. Si estás en pareja, comparte lo que sueñas sin convertirlo en una exigencia. Si estás soltero, una conexión espontánea puede aparecer en un entorno de aprendizaje o movimiento, siempre que no confundas emoción con promesa.
 
 ## Trabajo y bienestar
 
-Un nuevo curso, contacto o proyecto puede ampliar tus posibilidades. Antes de decir que sí, revisa los detalles. Caminar, cambiar de ambiente y desconectarte de las pantallas te devolverá enfoque.
+Escribe el primer paso de ese proyecto que te entusiasma y ponle un límite de tiempo. Revisa gastos, reservas o compromisos antes de decir que sí a una nueva aventura. El optimismo funciona mejor cuando tiene un presupuesto y una fecha.
