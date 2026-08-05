@@ -4,6 +4,8 @@ Sitio estático de horóscopo semanal en español, construido con Astro, TypeScr
 
 ## Desarrollo local
 
+Requiere Node.js 22.12.0 o superior.
+
 ```bash
 npm install
 npm run dev
@@ -34,5 +36,6 @@ Cloudflare Pages:
 - Build command: `npm run build`
 - Output directory: `dist`
 - Production branch: `main`
+- Node.js: `22.12.0` (definido en `.nvmrc`)
 
 Pages CMS edita los archivos del repositorio mediante GitHub. Cada commit de contenido puede activar un nuevo despliegue automático.
