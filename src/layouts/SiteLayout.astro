@@ -1,0 +1,145 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  eyebrow?: string;
+  noindex?: boolean;
+}
+
+import '../styles/global.css';
+
+const { title, description, noindex = false } = Astro.props;
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://ranking-zodiacal.pages.dev';
+const canonical = new URL(Astro.url.pathname, `${siteUrl}/`).toString();
+const fullTitle = title.includes('Ranking Zodiacal') ? title : `${title} · Ranking Zodiacal`;
+const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
+---
+<!doctype html>
+<html lang="es-PE">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#1B5E20" />
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_PE" />
+    <meta property="og:site_name" content="Ranking Zodiacal" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <title>{fullTitle}</title>
+    {analyticsToken && <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: analyticsToken })}></script>}
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="container header-inner">
+          <a class="brand" href="/" aria-label="Ranking Zodiacal, tu semana, en perspectiva; inicio">
+            <span class="brand-orbit" aria-hidden="true"><span></span></span>
+            <span class="brand-copy">
+              <span class="brand-name">Ranking Zodiacal</span>
+              <span class="brand-tagline">Tu semana, en perspectiva</span>
+            </span>
+          </a>
+          <nav class="main-nav" aria-label="Navegación principal">
+            <a href="/#ranking">Ranking</a>
+            <a href="/#tu-signo">Tu signo</a>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <slot />
+      </main>
+
+      <footer class="site-footer">
+        <div class="container footer-grid">
+          <div>
+            <a class="brand footer-brand" href="/" aria-label="Ranking Zodiacal, volver al inicio">
+              <span class="brand-orbit" aria-hidden="true"><span></span></span>
+              <span class="brand-copy">
+                <span class="brand-name">Ranking Zodiacal</span>
+              </span>
+            </a>
+            <p class="footer-note">Una lectura semanal para mirar tus días con curiosidad y buena energía.</p>
+          </div>
+          <div class="footer-links">
+            <a href="/#ranking">Ver ranking</a>
+            <a href="/#tu-signo">Elegir mi signo</a>
+            <span class="footer-disclaimer">Contenido de entretenimiento. No reemplaza asesoría profesional.</span>
+          </div>
+        </div>
+        <div class="container footer-bottom">
+          <span>© 2026 Ranking Zodiacal</span>
+          <span>Hecho con calma, intención y un poco de cosmos.</span>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      const SIGN_STORAGE_KEY = 'ranking-zodiacal-sign';
+      const selectors = document.querySelectorAll('[data-sign-selector]');
+
+      selectors.forEach((selector) => {
+        const select = selector.querySelector('select');
+        const link = selector.querySelector('[data-sign-link]');
+        if (!select || !link) return;
+
+        const updateLink = () => {
+          const slug = select.value || select.options[0]?.value;
+          if (slug) link.setAttribute('href', `/horoscopo/${slug}/`);
+        };
+
+        try {
+          const savedSign = window.localStorage.getItem(SIGN_STORAGE_KEY);
+          if (savedSign && Array.from(select.options).some((option) => option.value === savedSign)) {
+            select.value = savedSign;
+          }
+        } catch {
+          // El selector sigue funcionando aunque el navegador bloquee el almacenamiento.
+        }
+
+        updateLink();
+        select.addEventListener('change', () => {
+          try {
+            window.localStorage.setItem(SIGN_STORAGE_KEY, select.value);
+          } catch {
+            // No interrumpir la navegación por una preferencia local opcional.
+          }
+          updateLink();
+        });
+      });
+
+      document.querySelectorAll('[data-share]').forEach((button) => {
+        button.addEventListener('click', async () => {
+          const shareUrl = window.location.href;
+          const shareData = {
+            title: document.title,
+            text: 'Mira este horóscopo semanal en Ranking Zodiacal',
+            url: shareUrl,
+          };
+          const status = button.parentElement?.querySelector('[data-share-status]');
+
+          try {
+            if (navigator.share) {
+              await navigator.share(shareData);
+              if (status) status.textContent = 'Compartido';
+            } else if (navigator.clipboard) {
+              await navigator.clipboard.writeText(shareUrl);
+              if (status) status.textContent = 'Enlace copiado';
+            }
+          } catch {
+            if (status) status.textContent = 'Puedes copiar el enlace desde tu navegador';
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

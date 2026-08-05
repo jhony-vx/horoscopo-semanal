@@ -1,0 +1,87 @@
+﻿---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import RankingCard from '../components/RankingCard.astro';
+import SignSelector from '../components/SignSelector.astro';
+import { formatWeekRange, getCurrentEdition } from '../lib/horoscopes';
+
+const edition = await getCurrentEdition();
+const topEntries = edition?.entries.filter((entry) => entry.data.rank <= 3) ?? [];
+const remainingEntries = edition?.entries.filter((entry) => entry.data.rank > 3) ?? [];
+const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition.week.data.weekEnd) : '';
+---
+
+<SiteLayout
+  title="Horóscopo semanal y ranking de signos"
+  description="Descubre el ranking zodiacal de esta semana y lee la predicción completa de tu signo."
+>
+  {edition ? (
+    <>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <span class="eyebrow">Edición semanal</span>
+            <h1>Tu semana,<br /><em>en perspectiva.</em></h1>
+            <p class="hero-description">Una guía breve para saber qué energía acompaña a cada signo. Explora el ranking, encuentra tu lugar y quédate con lo que te haga sentido.</p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#ranking">Ver el ranking <span aria-hidden="true">↓</span></a>
+              <a class="button button-ghost" href="#tu-signo">Ir a mi signo <span aria-hidden="true">→</span></a>
+            </div>
+          </div>
+          <aside class="hero-aside" aria-label="Información de la edición">
+            <span class="aside-label">Semana del cosmos</span>
+            <strong class="week-range">{weekRange}</strong>
+            <p class="week-theme">{edition.week.data.theme}</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section" id="ranking">
+        <div class="container">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">El pulso de los astros</span>
+              <h2>El ranking<br />de esta semana.</h2>
+            </div>
+            <p>{edition.week.data.intro}</p>
+          </div>
+
+          <div class="podium-grid" aria-label="Los tres signos mejor posicionados">
+            {topEntries.map((entry) => <RankingCard entry={entry} variant="featured" />)}
+          </div>
+
+          <div class="rank-rest" aria-label="Ranking completo del cuarto al duodécimo puesto">
+            {remainingEntries.map((entry) => <RankingCard entry={entry} />)}
+          </div>
+
+          <div class="content-note">
+            <span>El ranking es una lectura editorial de entretenimiento. Lee tu signo completo para conocer los matices.</span>
+            <div class="share-wrap">
+              <button class="button button-ghost" type="button" data-share>Compartir esta semana <span aria-hidden="true">↗</span></button>
+              <span class="share-status" data-share-status aria-live="polite"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="selector-section" id="tu-signo">
+        <div class="container">
+          <div class="selector-panel">
+            <div>
+              <span class="eyebrow">Tu lectura personal</span>
+              <h2>Encuentra tu lugar en las estrellas.</h2>
+              <p>Elige tu signo y guarda la preferencia en este dispositivo para volver a ella cuando quieras.</p>
+            </div>
+            <SignSelector />
+          </div>
+        </div>
+      </section>
+    </>
+  ) : (
+    <div class="container">
+      <section class="empty-state">
+        <h1>La próxima lectura está tomando forma.</h1>
+        <p>Estamos preparando una nueva edición semanal. Vuelve pronto para descubrir el ranking de los doce signos.</p>
+      </section>
+    </div>
+  )}
+</SiteLayout>

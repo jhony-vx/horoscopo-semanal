@@ -1,0 +1,102 @@
+---
+import { ZODIAC_SIGNS, getSign, type ZodiacSign } from '../../data-signs';
+import SignSelector from '../../components/SignSelector.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { formatWeekRange, getCurrentEdition, type HoroscopeEntry } from '../../lib/horoscopes';
+
+export async function getStaticPaths() {
+  const edition = await getCurrentEdition();
+  return ZODIAC_SIGNS.map((sign) => ({
+    params: { signo: sign.slug },
+    props: {
+      sign,
+      edition,
+      entry: edition?.entries.find((entry) => entry.data.sign === sign.slug),
+    },
+  }));
+}
+
+interface Props {
+  sign: ZodiacSign;
+  edition: Awaited<ReturnType<typeof getCurrentEdition>>;
+  entry?: HoroscopeEntry;
+}
+
+const { sign, edition, entry } = Astro.props;
+const contentHtml = entry?.rendered?.html ?? '';
+const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition.week.data.weekEnd) : '';
+const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.slug).slice(0, 4) ?? [];
+---
+
+<SiteLayout
+  title={`Horóscopo semanal de ${sign.name}`}
+  description={`Lee el horóscopo semanal de ${sign.name}, su posición en el ranking y las claves para esta semana.`}
+>
+  <section class="detail-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Migas de pan">
+        <a href="/">Ranking semanal</a>
+        <span aria-hidden="true">/</span>
+        <span>{sign.name}</span>
+      </nav>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top: 0;">
+    <div class="container detail-layout">
+      <article class="detail-card">
+        <div class="detail-heading">
+          <span class="detail-symbol" aria-hidden="true">{sign.symbol}</span>
+          <div>
+            <p class="detail-kicker">Horóscopo semanal · {weekRange}</p>
+            <h1 class="detail-title">{sign.name}</h1>
+          </div>
+          <span class="detail-element">{sign.element}</span>
+        </div>
+
+        {entry ? (
+          <>
+            <p class="detail-summary">{entry.data.summary}</p>
+            <div class="prose">
+              <Fragment set:html={contentHtml} />
+            </div>
+            <div class="content-note">
+              <span>Una lectura para acompañar tu semana con curiosidad.</span>
+              <div class="share-wrap">
+                <button class="button button-ghost" type="button" data-share>Compartir <span aria-hidden="true">↗</span></button>
+                <span class="share-status" data-share-status aria-live="polite"></span>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div class="empty-state">
+            <h2>Esta lectura está por llegar.</h2>
+            <p>El contenido de este signo se publicará junto con la siguiente edición.</p>
+          </div>
+        )}
+      </article>
+
+      <aside class="detail-sidebar">
+        <div class="detail-sidebar-card">
+          <div class="sidebar-rank">
+            <strong>{entry ? String(entry.data.rank).padStart(2, '0') : '—'}</strong>
+            <span>posición de {sign.name} esta semana</span>
+          </div>
+          <p class="sidebar-copy">Elige otro signo para comparar energías o volver al ranking general.</p>
+          <SignSelector currentSlug={sign.slug} />
+        </div>
+
+        <div class="detail-sidebar-card">
+          <span class="eyebrow">También puedes leer</span>
+          <div class="sidebar-signs">
+            {nearbyEntries.map((item) => {
+              const nearbySign = getSign(item.data.sign);
+              return nearbySign && <a href={`/horoscopo/${nearbySign.slug}/`}>{nearbySign.symbol} {nearbySign.name}</a>;
+            })}
+          </div>
+          <a class="button button-ghost" href="/" style="width: 100%; margin-top: 20px;">Volver al ranking <span aria-hidden="true">←</span></a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</SiteLayout>

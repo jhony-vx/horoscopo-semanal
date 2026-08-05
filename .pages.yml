@@ -1,0 +1,103 @@
+﻿media: public/uploads
+content:
+  - name: weeks
+    label: Ediciones semanales
+    type: collection
+    path: src/content/weeks
+    format: yaml-frontmatter
+    view:
+      fields: [title, weekStart, status]
+      primary: title
+      sort: weekStart
+      order: desc
+    fields:
+      - name: title
+        label: Título
+        type: string
+        required: true
+      - name: weekStart
+        label: Inicio de semana
+        type: date
+        required: true
+      - name: weekEnd
+        label: Fin de semana
+        type: date
+        required: true
+      - name: status
+        label: Estado editorial
+        type: select
+        options:
+          - draft
+          - published
+        default: draft
+        required: true
+      - name: theme
+        label: Tema de la semana
+        type: string
+        required: true
+      - name: intro
+        label: Introducción
+        type: rich-text
+        required: true
+      - name: body
+        label: Notas editoriales
+        type: rich-text
+
+  - name: horoscopes
+    label: Horóscopos por signo
+    type: collection
+    path: src/content/horoscopes
+    format: yaml-frontmatter
+    view:
+      fields: [sign, rank, weekStart, status]
+      primary: sign
+      sort: rank
+      order: asc
+    fields:
+      - name: weekStart
+        label: Inicio de semana
+        type: date
+        required: true
+      - name: weekEnd
+        label: Fin de semana
+        type: date
+        required: true
+      - name: status
+        label: Estado editorial
+        type: select
+        options:
+          - draft
+          - published
+        default: draft
+        required: true
+      - name: sign
+        label: Signo
+        type: select
+        options:
+          - aries
+          - tauro
+          - geminis
+          - cancer
+          - leo
+          - virgo
+          - libra
+          - escorpio
+          - sagitario
+          - capricornio
+          - acuario
+          - piscis
+        required: true
+      - name: rank
+        label: Puesto del ranking
+        type: number
+        min: 1
+        max: 12
+        required: true
+      - name: summary
+        label: Resumen corto
+        type: text
+        required: true
+      - name: body
+        label: Predicción completa
+        type: rich-text
+        required: true

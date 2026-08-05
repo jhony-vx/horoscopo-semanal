@@ -1,0 +1,25 @@
+﻿---
+import { ZODIAC_SIGNS } from '../data-signs';
+
+interface Props {
+  currentSlug?: string;
+}
+
+const { currentSlug } = Astro.props;
+const firstSlug = currentSlug ?? ZODIAC_SIGNS[0].slug;
+const selectorId = `sign-choice-${currentSlug ?? 'home'}`;
+---
+<div class="sign-selector" data-sign-selector>
+  <div class="selector-label">
+    <span class="eyebrow">Hazlo personal</span>
+    <label for={selectorId}>¿Cuál es tu signo?</label>
+  </div>
+  <div class="selector-controls">
+    <select id={selectorId}>
+      {ZODIAC_SIGNS.map((sign) => (
+        <option value={sign.slug} selected={sign.slug === currentSlug}>{sign.symbol} {sign.name}</option>
+      ))}
+    </select>
+    <a class="button button-primary" data-sign-link href={`/horoscopo/${firstSlug}/`}>Ver mi horóscopo <span aria-hidden="true">→</span></a>
+  </div>
+</div>
