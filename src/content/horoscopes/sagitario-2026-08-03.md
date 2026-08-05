@@ -5,6 +5,11 @@ status: published
 sign: sagitario
 rank: 8
 summary: 'Tu visión se amplía, pero el progreso depende de aterrizarla: una experiencia o aprendizaje puede abrirte una ruta práctica.'
+generalScore: 3
+loveScore: 3
+professionalScore: 4
+financialScore: 3
+wellbeingScore: 4
 ---
 
 ## El tono de tu semana

@@ -1,6 +1,7 @@
-﻿---
+---
 import { getSign } from '../data-signs';
 import type { HoroscopeEntry } from '../lib/horoscopes';
+import SignLogo from './SignLogo.astro';
 
 interface Props {
   entry: HoroscopeEntry;
@@ -9,15 +10,23 @@ interface Props {
 
 const { entry, variant = 'standard' } = Astro.props;
 const sign = getSign(entry.data.sign);
-if (!sign) throw new Error(`Signo no encontrado: ${entry.data.sign}`);
+if (!sign) throw new Error('Signo no encontrado: ' + entry.data.sign);
 const isFeatured = variant === 'featured';
 ---
-<a class:list={["ranking-card", isFeatured ? 'ranking-card-featured' : '', entry.data.rank <= 3 ? 'ranking-card-top' : '']} href={`/horoscopo/${sign.slug}/`}>
-  <span class="ranking-position" aria-label={`Puesto ${entry.data.rank}`}>{String(entry.data.rank).padStart(2, '0')}</span>
-  <span class="sign-symbol" aria-hidden="true">{sign.symbol}</span>
+
+<a
+  class:list={['ranking-card', isFeatured ? 'ranking-card-featured' : '', entry.data.rank <= 3 ? 'ranking-card-top' : '']}
+  href={'/horoscopo/' + sign.slug + '/'}
+  data-element={sign.elementKey}
+>
+  <span class="ranking-position" aria-label={'Puesto ' + entry.data.rank}>{String(entry.data.rank).padStart(2, '0')}</span>
+  <SignLogo sign={sign} size={isFeatured ? 'large' : 'small'} decorative />
   <span class="ranking-content">
     <span class="ranking-name">{sign.name}</span>
-    <span class="ranking-summary">{entry.data.summary}</span>
+    <span class="ranking-meta">
+      <span class="ranking-element">{sign.element}</span>
+      <span class="ranking-summary">{entry.data.summary}</span>
+    </span>
   </span>
   <span class="ranking-arrow" aria-hidden="true">↗</span>
 </a>

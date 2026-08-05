@@ -1,0 +1,36 @@
+---
+import FortuneMetrics, { type ScoreData } from './FortuneMetrics.astro';
+
+interface Props {
+  label: string;
+  summary?: string;
+  data?: ScoreData;
+  contentHtml?: string;
+}
+
+const { label, summary, data, contentHtml = '' } = Astro.props;
+---
+
+<div class="forecast-panel-content">
+  <h3 class="sr-only">{label}</h3>
+
+  <FortuneMetrics data={data} />
+
+  {summary && (
+    <div class="forecast-summary">
+      <span class="eyebrow">Breve reseña</span>
+      <p>{summary}</p>
+    </div>
+  )}
+
+  {contentHtml ? (
+    <div class="prose forecast-prose">
+      <Fragment set:html={contentHtml} />
+    </div>
+  ) : (
+    <div class="empty-state empty-state-compact">
+      <h3>Esta lectura está en preparación.</h3>
+      <p>Pronto encontrarás aquí una nueva orientación para este periodo.</p>
+    </div>
+  )}
+</div>

@@ -1,0 +1,30 @@
+---
+import { ZODIAC_SIGNS, type SignSlug } from '../data-signs';
+import SignLogo from './SignLogo.astro';
+
+interface Props {
+  currentSlug?: SignSlug;
+  compact?: boolean;
+}
+
+const { currentSlug, compact = false } = Astro.props;
+---
+
+<div class:list={['sign-grid', compact ? 'sign-grid-compact' : '']} data-sign-selector data-current-sign={currentSlug ?? ''}>
+  {ZODIAC_SIGNS.map((sign) => (
+    <a
+      class:list={['sign-choice', currentSlug === sign.slug ? 'is-current' : '']}
+      href={'/horoscopo/' + sign.slug + '/'}
+      data-sign-choice
+      data-sign-slug={sign.slug}
+      data-element={sign.elementKey}
+      aria-current={currentSlug === sign.slug ? 'page' : undefined}
+      aria-label={'Leer el horóscopo de ' + sign.name + ', ' + sign.dateRange}
+    >
+      <SignLogo sign={sign} size={compact ? 'small' : 'medium'} decorative />
+      <span class="sign-choice-name">{sign.name}</span>
+      <span class="sign-choice-dates">{sign.dateRange}</span>
+      <span class="sign-choice-saved" aria-hidden="true">Tu signo</span>
+    </a>
+  ))}
+</div>

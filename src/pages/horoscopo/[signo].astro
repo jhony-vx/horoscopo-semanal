@@ -1,17 +1,22 @@
 ---
 import { ZODIAC_SIGNS, getSign, type ZodiacSign } from '../../data-signs';
-import SignSelector from '../../components/SignSelector.astro';
+import ForecastTabs from '../../components/ForecastTabs.astro';
+import SignLogo from '../../components/SignLogo.astro';
+import SignPickerDialog from '../../components/SignPickerDialog.astro';
 import SiteLayout from '../../layouts/SiteLayout.astro';
-import { formatWeekRange, getCurrentEdition, type HoroscopeEntry } from '../../lib/horoscopes';
+import { formatWeekRange, getCurrentEdition, getForecastsForSign, type HoroscopeEntry } from '../../lib/horoscopes';
 
 export async function getStaticPaths() {
   const edition = await getCurrentEdition();
-  return ZODIAC_SIGNS.map((sign) => ({
+  const forecasts = await Promise.all(ZODIAC_SIGNS.map((sign) => getForecastsForSign(sign.slug)));
+
+  return ZODIAC_SIGNS.map((sign, index) => ({
     params: { signo: sign.slug },
     props: {
       sign,
       edition,
       entry: edition?.entries.find((entry) => entry.data.sign === sign.slug),
+      forecasts: forecasts[index],
     },
   }));
 }
@@ -20,83 +25,79 @@ interface Props {
   sign: ZodiacSign;
   edition: Awaited<ReturnType<typeof getCurrentEdition>>;
   entry?: HoroscopeEntry;
+  forecasts: Awaited<ReturnType<typeof getForecastsForSign>>;
 }
 
-const { sign, edition, entry } = Astro.props;
-const contentHtml = entry?.rendered?.html ?? '';
+const { sign, edition, entry, forecasts } = Astro.props;
 const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition.week.data.weekEnd) : '';
 const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.slug).slice(0, 4) ?? [];
 ---
 
 <SiteLayout
-  title={`Horóscopo semanal de ${sign.name}`}
-  description={`Lee el horóscopo semanal de ${sign.name}, su posición en el ranking y las claves para esta semana.`}
+  title={'Horóscopo semanal de ' + sign.name}
+  description={'Lee el horóscopo semanal de ' + sign.name + ', su posición en el ranking y sus lecturas por periodo.'}
 >
-  <section class="detail-hero">
-    <div class="container">
-      <nav class="breadcrumb" aria-label="Migas de pan">
-        <a href="/">Ranking semanal</a>
-        <span aria-hidden="true">/</span>
-        <span>{sign.name}</span>
-      </nav>
-    </div>
-  </section>
+  <div class="sign-page" data-element={sign.elementKey}>
+    <section class="sign-hero">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Migas de pan">
+          <a href="/">Ranking semanal</a>
+          <span aria-hidden="true">/</span>
+          <span>{sign.name}</span>
+        </nav>
 
-  <section class="section" style="padding-top: 0;">
-    <div class="container detail-layout">
-      <article class="detail-card">
-        <div class="detail-heading">
-          <span class="detail-symbol" aria-hidden="true">{sign.symbol}</span>
-          <div>
-            <p class="detail-kicker">Horóscopo semanal · {weekRange}</p>
-            <h1 class="detail-title">{sign.name}</h1>
+        <div class="sign-hero-grid">
+          <div class="sign-hero-logo">
+            <SignLogo sign={sign} size="large" loading="eager" />
           </div>
-          <span class="detail-element">{sign.element}</span>
+          <div class="sign-hero-copy">
+            <span class="eyebrow">Lectura de {sign.element.toLowerCase()}</span>
+            <h1>{sign.name}</h1>
+            <p class="sign-hero-meta">{sign.element} / {sign.dateRange}</p>
+            <p class="sign-hero-description">Una lectura de entretenimiento para observar tus decisiones, tus vínculos y el ritmo de tus próximos días.</p>
+            <SignPickerDialog currentSlug={sign.slug} />
+          </div>
+          <aside class="sign-rank-card" aria-label="Posición semanal">
+            <span class="rank-card-label">Ranking semanal</span>
+            <strong>{entry ? String(entry.data.rank).padStart(2, '0') : 'N/D'}</strong>
+            <span>{entry ? 'puesto de ' + sign.name : 'lectura en preparación'}</span>
+          </aside>
         </div>
+      </div>
+    </section>
 
-        {entry ? (
-          <>
-            <p class="detail-summary">{entry.data.summary}</p>
-            <div class="prose">
-              <Fragment set:html={contentHtml} />
-            </div>
-            <div class="content-note">
-              <span>Una lectura para acompañar tu semana con curiosidad.</span>
-              <div class="share-wrap">
-                <button class="button button-ghost" type="button" data-share>Compartir <span aria-hidden="true">↗</span></button>
-                <span class="share-status" data-share-status aria-live="polite"></span>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div class="empty-state">
-            <h2>Esta lectura está por llegar.</h2>
-            <p>El contenido de este signo se publicará junto con la siguiente edición.</p>
-          </div>
-        )}
-      </article>
+    <section class="section sign-reading-section">
+      <div class="container">
+        <ForecastTabs
+          weeklyEntry={entry}
+          today={forecasts.today}
+          tomorrow={forecasts.tomorrow}
+          month={forecasts.month}
+          weekRange={weekRange}
+        />
+      </div>
+    </section>
 
-      <aside class="detail-sidebar">
-        <div class="detail-sidebar-card">
-          <div class="sidebar-rank">
-            <strong>{entry ? String(entry.data.rank).padStart(2, '0') : '—'}</strong>
-            <span>posición de {sign.name} esta semana</span>
-          </div>
-          <p class="sidebar-copy">Elige otro signo para comparar energías o volver al ranking general.</p>
-          <SignSelector currentSlug={sign.slug} />
+    <section class="section sign-discovery-section">
+      <div class="container sign-discovery-grid">
+        <div>
+          <span class="eyebrow">Sigue explorando</span>
+          <h2>Otros signos también tienen algo que decir.</h2>
+          <p>Compara lecturas y vuelve al ranking general cuando quieras.</p>
         </div>
-
-        <div class="detail-sidebar-card">
-          <span class="eyebrow">También puedes leer</span>
-          <div class="sidebar-signs">
-            {nearbyEntries.map((item) => {
-              const nearbySign = getSign(item.data.sign);
-              return nearbySign && <a href={`/horoscopo/${nearbySign.slug}/`}>{nearbySign.symbol} {nearbySign.name}</a>;
-            })}
-          </div>
-          <a class="button button-ghost" href="/" style="width: 100%; margin-top: 20px;">Volver al ranking <span aria-hidden="true">←</span></a>
+        <div class="sidebar-signs">
+          {nearbyEntries.map((item) => {
+            const nearbySign = getSign(item.data.sign);
+            return nearbySign && (
+              <a href={'/horoscopo/' + nearbySign.slug + '/'} data-element={nearbySign.elementKey}>
+                <SignLogo sign={nearbySign} size="small" decorative />
+                <span>{nearbySign.name}</span>
+              </a>
+            );
+          })}
         </div>
-      </aside>
-    </div>
-  </section>
+        <a class="button button-ghost discovery-return" href="/">Volver al ranking <span aria-hidden="true">↩</span></a>
+      </div>
+    </section>
+  </div>
 </SiteLayout>

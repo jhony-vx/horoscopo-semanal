@@ -1,0 +1,96 @@
+---
+import type { ForecastEntry, HoroscopeEntry } from '../lib/horoscopes';
+import ForecastPanel from './ForecastPanel.astro';
+
+interface Props {
+  weeklyEntry?: HoroscopeEntry;
+  today?: ForecastEntry;
+  tomorrow?: ForecastEntry;
+  month?: ForecastEntry;
+  weekRange: string;
+}
+
+const { weeklyEntry, today, tomorrow, month, weekRange } = Astro.props;
+const panels = [
+  {
+    key: 'today',
+    hash: 'hoy',
+    label: 'Hoy',
+    summary: today?.data.summary,
+    data: today?.data,
+    contentHtml: today?.rendered?.html ?? '',
+  },
+  {
+    key: 'tomorrow',
+    hash: 'manana',
+    label: 'Mañana',
+    summary: tomorrow?.data.summary,
+    data: tomorrow?.data,
+    contentHtml: tomorrow?.rendered?.html ?? '',
+  },
+  {
+    key: 'week',
+    hash: 'esta-semana',
+    label: 'Esta semana',
+    summary: weeklyEntry?.data.summary,
+    data: weeklyEntry?.data,
+    contentHtml: weeklyEntry?.rendered?.html ?? '',
+  },
+  {
+    key: 'month',
+    hash: 'este-mes',
+    label: 'Este mes',
+    summary: month?.data.summary,
+    data: month?.data,
+    contentHtml: month?.rendered?.html ?? '',
+  },
+];
+---
+
+<section class="forecast-tabs" data-forecast-tabs aria-label="Pronósticos por periodo">
+  <div class="forecast-tabs-heading">
+    <div>
+      <span class="eyebrow">Tu lectura</span>
+      <h2>Una mirada para cada momento.</h2>
+    </div>
+    <span class="forecast-week-range">{weekRange}</span>
+  </div>
+
+  <div class="tab-list" role="tablist" aria-label="Selecciona un periodo">
+    {panels.map((panel, index) => (
+      <button
+        id={'tab-' + panel.key}
+        class:list={['period-tab', index === 0 ? 'is-active' : '']}
+        type="button"
+        role="tab"
+        aria-selected={index === 0 ? 'true' : 'false'}
+        aria-controls={'panel-' + panel.key}
+        data-period-tab={panel.key}
+        data-period-hash={panel.hash}
+      >
+        {panel.label}
+      </button>
+    ))}
+  </div>
+
+  <div class="forecast-panels">
+    {panels.map((panel, index) => (
+      <section
+        id={'panel-' + panel.key}
+        class="forecast-panel"
+        role="tabpanel"
+        aria-labelledby={'tab-' + panel.key}
+        data-period-panel={panel.key}
+        data-period-hash={panel.hash}
+        data-active={index === 0 ? 'true' : 'false'}
+      >
+        <ForecastPanel
+          label={panel.label}
+          summary={panel.summary}
+          data={panel.data}
+          contentHtml={panel.contentHtml}
+        />
+      </section>
+    ))}
+  </div>
+</section>

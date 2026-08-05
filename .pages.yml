@@ -1,4 +1,4 @@
-﻿media: public/uploads
+media: public/uploads
 content:
   - name: weeks
     label: Ediciones semanales
@@ -44,7 +44,7 @@ content:
         type: rich-text
 
   - name: horoscopes
-    label: Horóscopos por signo
+    label: Horóscopos semanales por signo
     type: collection
     path: src/content/horoscopes
     format: yaml-frontmatter
@@ -92,6 +92,127 @@ content:
         type: number
         min: 1
         max: 12
+        required: true
+      - name: summary
+        label: Resumen corto
+        type: text
+        required: true
+      - name: generalScore
+        label: Suerte general (1 a 5)
+        type: number
+        min: 1
+        max: 5
+        required: true
+      - name: loveScore
+        label: Suerte amorosa (1 a 5)
+        type: number
+        min: 1
+        max: 5
+        required: true
+      - name: professionalScore
+        label: Suerte profesional (1 a 5)
+        type: number
+        min: 1
+        max: 5
+        required: true
+      - name: financialScore
+        label: Suerte económica (1 a 5)
+        type: number
+        min: 1
+        max: 5
+        required: true
+      - name: wellbeingScore
+        label: Energía y bienestar (1 a 5)
+        type: number
+        min: 1
+        max: 5
+        required: true
+      - name: body
+        label: Predicción semanal completa
+        type: rich-text
+        required: true
+
+  - name: forecasts
+    label: Pronósticos por periodo
+    type: collection
+    path: src/content/forecasts
+    format: yaml-frontmatter
+    view:
+      fields: [sign, period, periodStart, status]
+      primary: sign
+      sort: periodStart
+      order: desc
+    fields:
+      - name: sign
+        label: Signo
+        type: select
+        options:
+          - aries
+          - tauro
+          - geminis
+          - cancer
+          - leo
+          - virgo
+          - libra
+          - escorpio
+          - sagitario
+          - capricornio
+          - acuario
+          - piscis
+        required: true
+      - name: period
+        label: Periodo
+        type: select
+        options:
+          - today
+          - tomorrow
+          - month
+        required: true
+      - name: periodStart
+        label: Inicio del periodo
+        type: date
+        required: true
+      - name: periodEnd
+        label: Fin del periodo
+        type: date
+        required: true
+      - name: status
+        label: Estado editorial
+        type: select
+        options:
+          - draft
+          - published
+        default: draft
+        required: true
+      - name: generalScore
+        label: Suerte general (1 a 5)
+        type: number
+        min: 1
+        max: 5
+        required: true
+      - name: loveScore
+        label: Suerte amorosa (1 a 5)
+        type: number
+        min: 1
+        max: 5
+        required: true
+      - name: professionalScore
+        label: Suerte profesional (1 a 5)
+        type: number
+        min: 1
+        max: 5
+        required: true
+      - name: financialScore
+        label: Suerte económica (1 a 5)
+        type: number
+        min: 1
+        max: 5
+        required: true
+      - name: wellbeingScore
+        label: Energía y bienestar (1 a 5)
+        type: number
+        min: 1
+        max: 5
         required: true
       - name: summary
         label: Resumen corto

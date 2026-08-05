@@ -2,17 +2,35 @@
 interface Props {
   title: string;
   description: string;
-  eyebrow?: string;
   noindex?: boolean;
 }
 
+import '@fontsource/dm-sans/400.css';
+import '@fontsource/dm-sans/500.css';
+import '@fontsource/dm-sans/600.css';
+import '@fontsource/dm-sans/700.css';
+import '@fontsource/playfair-display/600.css';
+import '@fontsource/playfair-display/700.css';
 import '../styles/global.css';
 
 const { title, description, noindex = false } = Astro.props;
-const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://ranking-zodiacal.pages.dev';
-const canonical = new URL(Astro.url.pathname, `${siteUrl}/`).toString();
-const fullTitle = title.includes('Ranking Zodiacal') ? title : `${title} · Ranking Zodiacal`;
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://horoscopo-semanal.pages.dev';
+const canonical = new URL(Astro.url.pathname, siteUrl + '/').toString();
+const fullTitle = title.includes('Ranking Zodiacal') ? title : title + ' | Ranking Zodiacal';
 const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
+const structuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: fullTitle,
+  description,
+  url: canonical,
+  inLanguage: 'es-PE',
+  isPartOf: {
+    '@type': 'WebSite',
+    name: 'Ranking Zodiacal',
+    url: siteUrl + '/',
+  },
+});
 ---
 <!doctype html>
 <html lang="es-PE">
@@ -34,6 +52,7 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
+    <script is:inline type="application/ld+json" set:html={structuredData}></script>
     <title>{fullTitle}</title>
     {analyticsToken && <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: analyticsToken })}></script>}
   </head>
@@ -41,7 +60,7 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     <div class="site-shell">
       <header class="site-header">
         <div class="container header-inner">
-          <a class="brand" href="/" aria-label="Ranking Zodiacal, tu semana, en perspectiva; inicio">
+          <a class="brand" href="/" aria-label="Ranking Zodiacal, inicio">
             <span class="brand-orbit" aria-hidden="true"><span></span></span>
             <span class="brand-copy">
               <span class="brand-name">Ranking Zodiacal</span>
@@ -74,6 +93,7 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
             <a href="/#ranking">Ver ranking</a>
             <a href="/#tu-signo">Elegir mi signo</a>
             <span class="footer-disclaimer">Contenido de entretenimiento. No reemplaza asesoría profesional.</span>
+            <a class="footer-credit" href="https://openmoji.org/" rel="license">Iconos zodiacales: OpenMoji, CC BY-SA 4.0</a>
           </div>
         </div>
         <div class="container footer-bottom">
@@ -83,38 +103,139 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
       </footer>
     </div>
 
-    <script>
+    <script is:inline>
       const SIGN_STORAGE_KEY = 'ranking-zodiacal-sign';
-      const selectors = document.querySelectorAll('[data-sign-selector]');
 
-      selectors.forEach((selector) => {
-        const select = selector.querySelector('select');
-        const link = selector.querySelector('[data-sign-link]');
-        if (!select || !link) return;
+      const readSavedSign = () => {
+        try {
+          return window.localStorage.getItem(SIGN_STORAGE_KEY);
+        } catch {
+          return null;
+        }
+      };
 
+      const saveSign = (slug) => {
+        try {
+          window.localStorage.setItem(SIGN_STORAGE_KEY, slug);
+        } catch {
+          // La preferencia local es opcional y no debe bloquear la navegación.
+        }
+      };
+
+      const markSavedSigns = () => {
+        const savedSign = readSavedSign();
+        document.querySelectorAll('[data-sign-choice]').forEach((choice) => {
+          const isSaved = savedSign === choice.getAttribute('data-sign-slug');
+          choice.classList.toggle('is-saved', isSaved);
+          choice.setAttribute('data-saved', String(isSaved));
+          const label = choice.querySelector('.sign-choice-saved');
+          if (label) label.textContent = isSaved ? 'Tu signo' : '';
+        });
+      };
+
+      document.querySelectorAll('[data-sign-choice]').forEach((choice) => {
+        choice.addEventListener('click', () => {
+          const slug = choice.getAttribute('data-sign-slug');
+          if (slug) saveSign(slug);
+        });
+      });
+
+      document.querySelectorAll('[data-sign-selector] select').forEach((select) => {
+        const link = select.parentElement?.querySelector('[data-sign-link]');
         const updateLink = () => {
           const slug = select.value || select.options[0]?.value;
-          if (slug) link.setAttribute('href', `/horoscopo/${slug}/`);
+          if (slug && link) link.setAttribute('href', '/horoscopo/' + slug + '/');
         };
-
-        try {
-          const savedSign = window.localStorage.getItem(SIGN_STORAGE_KEY);
-          if (savedSign && Array.from(select.options).some((option) => option.value === savedSign)) {
-            select.value = savedSign;
-          }
-        } catch {
-          // El selector sigue funcionando aunque el navegador bloquee el almacenamiento.
+        const savedSign = readSavedSign();
+        if (savedSign && Array.from(select.options).some((option) => option.value === savedSign)) {
+          select.value = savedSign;
         }
-
         updateLink();
         select.addEventListener('change', () => {
-          try {
-            window.localStorage.setItem(SIGN_STORAGE_KEY, select.value);
-          } catch {
-            // No interrumpir la navegación por una preferencia local opcional.
-          }
+          saveSign(select.value);
           updateLink();
         });
+      });
+
+      markSavedSigns();
+
+      document.querySelectorAll('[data-zodiac-logo]').forEach((image) => {
+        image.addEventListener('error', () => {
+          image.hidden = true;
+          const fallback = image.nextElementSibling;
+          if (fallback) fallback.removeAttribute('hidden');
+        }, { once: true });
+      });
+
+      document.querySelectorAll('[data-open-sign-dialog]').forEach((opener) => {
+        const dialogId = opener.getAttribute('data-dialog-target');
+        const dialog = dialogId ? document.getElementById(dialogId) : null;
+        if (!dialog || typeof dialog.showModal !== 'function') return;
+
+        const closeDialog = () => {
+          if (dialog.open) dialog.close();
+        };
+
+        opener.addEventListener('click', () => {
+          dialog.showModal();
+          document.body.classList.add('dialog-open');
+          dialog.querySelector('[data-close-sign-dialog]')?.focus();
+        });
+
+        dialog.querySelector('[data-close-sign-dialog]')?.addEventListener('click', closeDialog);
+        dialog.addEventListener('click', (event) => {
+          if (event.target === dialog) closeDialog();
+        });
+        dialog.addEventListener('close', () => {
+          document.body.classList.remove('dialog-open');
+          opener.focus();
+        });
+      });
+
+      document.querySelectorAll('[data-forecast-tabs]').forEach((tabsRoot) => {
+        const tabs = Array.from(tabsRoot.querySelectorAll('[data-period-tab]'));
+        const panels = Array.from(tabsRoot.querySelectorAll('[data-period-panel]'));
+
+        const activatePeriod = (period, updateHash = true) => {
+          const selectedTab = tabs.find((tab) => tab.getAttribute('data-period-tab') === period) ?? tabs[0];
+          if (!selectedTab) return;
+          const selectedPeriod = selectedTab.getAttribute('data-period-tab');
+          const hash = selectedTab.getAttribute('data-period-hash');
+
+          tabs.forEach((tab) => {
+            const isActive = tab === selectedTab;
+            tab.classList.toggle('is-active', isActive);
+            tab.setAttribute('aria-selected', String(isActive));
+            tab.setAttribute('tabindex', isActive ? '0' : '-1');
+          });
+
+          panels.forEach((panel) => {
+            const isActive = panel.getAttribute('data-period-panel') === selectedPeriod;
+            panel.setAttribute('data-active', String(isActive));
+            panel.toggleAttribute('hidden', !isActive);
+          });
+
+          if (updateHash && hash && window.location.hash !== '#' + hash) {
+            window.history.replaceState(null, '', '#' + hash);
+          }
+        };
+
+        tabs.forEach((tab, index) => {
+          tab.addEventListener('click', () => activatePeriod(tab.getAttribute('data-period-tab') ?? 'today'));
+          tab.addEventListener('keydown', (event) => {
+            if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+            event.preventDefault();
+            const nextIndex = event.key === 'ArrowRight'
+              ? (index + 1) % tabs.length
+              : (index - 1 + tabs.length) % tabs.length;
+            tabs[nextIndex]?.focus();
+            activatePeriod(tabs[nextIndex]?.getAttribute('data-period-tab') ?? 'today');
+          });
+        });
+
+        const initialHash = window.location.hash.replace('#', '');
+        const hashTab = tabs.find((tab) => tab.getAttribute('data-period-hash') === initialHash);
+        activatePeriod(hashTab?.getAttribute('data-period-tab') ?? 'today', false);
       });
 
       document.querySelectorAll('[data-share]').forEach((button) => {
@@ -134,6 +255,8 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
             } else if (navigator.clipboard) {
               await navigator.clipboard.writeText(shareUrl);
               if (status) status.textContent = 'Enlace copiado';
+            } else if (status) {
+              status.textContent = 'Copia el enlace desde tu navegador';
             }
           } catch {
             if (status) status.textContent = 'Puedes copiar el enlace desde tu navegador';

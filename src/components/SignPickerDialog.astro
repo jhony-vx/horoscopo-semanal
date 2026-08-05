@@ -1,0 +1,38 @@
+---
+import type { SignSlug } from '../data-signs';
+import SignGrid from './SignGrid.astro';
+
+interface Props {
+  currentSlug: SignSlug;
+}
+
+const { currentSlug } = Astro.props;
+const dialogId = 'sign-dialog-' + currentSlug;
+---
+
+<div class="sign-picker">
+  <button
+    class="button button-secondary"
+    type="button"
+    data-open-sign-dialog
+    data-dialog-target={dialogId}
+    aria-haspopup="dialog"
+    aria-controls={dialogId}
+  >
+    Cambiar de signo <span aria-hidden="true">↗</span>
+  </button>
+
+  <dialog class="sign-dialog" id={dialogId} data-sign-dialog aria-labelledby={dialogId + '-title'}>
+    <div class="sign-dialog-panel">
+      <header class="sign-dialog-header">
+        <div>
+          <span class="eyebrow">Elige otra lectura</span>
+          <h2 id={dialogId + '-title'}>¿Cuál es tu signo?</h2>
+          <p>Selecciona un signo para abrir su página y guardar tu preferencia.</p>
+        </div>
+        <button class="dialog-close" type="button" data-close-sign-dialog aria-label="Cerrar selector">×</button>
+      </header>
+      <SignGrid currentSlug={currentSlug} compact />
+    </div>
+  </dialog>
+</div>

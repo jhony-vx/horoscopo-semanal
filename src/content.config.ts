@@ -1,4 +1,4 @@
-﻿import { promises as fs } from 'node:fs';
+import { promises as fs } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
@@ -21,7 +21,9 @@ const signSlugs = [
 ] as const;
 
 const status = z.enum(['draft', 'published']);
+const period = z.enum(['today', 'tomorrow', 'month']);
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Usa una fecha ISO: AAAA-MM-DD');
+const score = z.number().int().min(1).max(5);
 
 function markdownDirectoryLoader(directory: string) {
   return {
@@ -83,7 +85,29 @@ const horoscopes = defineCollection({
     sign: z.enum(signSlugs),
     rank: z.number().int().min(1).max(12),
     summary: z.string().min(30),
+    generalScore: score,
+    loveScore: score,
+    professionalScore: score,
+    financialScore: score,
+    wellbeingScore: score,
   }),
 });
 
-export const collections = { weeks, horoscopes };
+const forecasts = defineCollection({
+  loader: markdownDirectoryLoader('./src/content/forecasts'),
+  schema: z.object({
+    sign: z.enum(signSlugs),
+    period,
+    periodStart: isoDate,
+    periodEnd: isoDate,
+    status,
+    generalScore: score,
+    loveScore: score,
+    professionalScore: score,
+    financialScore: score,
+    wellbeingScore: score,
+    summary: z.string().min(30),
+  }),
+});
+
+export const collections = { weeks, horoscopes, forecasts };

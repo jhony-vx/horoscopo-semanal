@@ -5,6 +5,11 @@ status: published
 sign: capricornio
 rank: 6
 summary: 'La disciplina juega a tu favor: una decisión sobre hogar, recursos o responsabilidades puede quedar mejor encaminada.'
+generalScore: 4
+loveScore: 3
+professionalScore: 5
+financialScore: 4
+wellbeingScore: 4
 ---
 
 ## El tono de tu semana

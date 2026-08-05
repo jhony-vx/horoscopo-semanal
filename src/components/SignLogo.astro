@@ -1,0 +1,26 @@
+---
+import type { ZodiacSign } from '../data-signs';
+
+interface Props {
+  sign: ZodiacSign;
+  size?: 'small' | 'medium' | 'large';
+  decorative?: boolean;
+  loading?: 'eager' | 'lazy';
+}
+
+const { sign, size = 'medium', decorative = false, loading = 'lazy' } = Astro.props;
+const alt = decorative ? '' : 'Símbolo de ' + sign.name;
+---
+
+<span class:list={['sign-logo', 'sign-logo-' + size]} data-sign-logo data-element={sign.elementKey}>
+  <img
+    src={sign.logoSrc}
+    alt={alt}
+    width="96"
+    height="96"
+    loading={loading}
+    decoding="async"
+    data-zodiac-logo
+  />
+  <span class="sign-logo-fallback" aria-hidden="true" hidden>{sign.symbol}</span>
+</span>

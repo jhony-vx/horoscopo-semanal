@@ -1,0 +1,40 @@
+---
+import type { WeekEntry } from '../lib/horoscopes';
+
+interface Props {
+  week: WeekEntry;
+  weekRange: string;
+  bodyHtml?: string;
+}
+
+const { week, weekRange, bodyHtml = '' } = Astro.props;
+---
+
+<section class="weekly-editorial" aria-labelledby="weekly-editorial-title">
+  <header class="weekly-editorial-header">
+    <div>
+      <span class="eyebrow">Lectura de la semana</span>
+      <h2 id="weekly-editorial-title">{week.data.title}</h2>
+    </div>
+    <p class="weekly-editorial-range">{weekRange}</p>
+  </header>
+
+  <p class="weekly-editorial-theme">{week.data.theme}</p>
+  <p class="weekly-editorial-intro">{week.data.intro}</p>
+
+  {bodyHtml && (
+    <div class="weekly-editorial-body prose">
+      <Fragment set:html={bodyHtml} />
+    </div>
+  )}
+
+  <div class="content-note">
+    <span>Lectura de entretenimiento. Quédate con lo que te ayude a mirar la semana con más claridad.</span>
+    <div class="share-wrap">
+      <button class="button button-ghost" type="button" data-share>
+        Compartir esta semana <span aria-hidden="true">↗</span>
+      </button>
+      <span class="share-status" data-share-status aria-live="polite"></span>
+    </div>
+  </div>
+</section>

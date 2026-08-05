@@ -1,0 +1,51 @@
+---
+export interface ScoreData {
+  generalScore?: number;
+  loveScore?: number;
+  professionalScore?: number;
+  financialScore?: number;
+  wellbeingScore?: number;
+}
+
+interface Props {
+  data?: ScoreData;
+}
+
+const { data } = Astro.props;
+const secondaryMetrics = [
+  { key: 'loveScore' as const, label: 'Suerte amorosa' },
+  { key: 'professionalScore' as const, label: 'Suerte profesional' },
+  { key: 'financialScore' as const, label: 'Suerte económica' },
+  { key: 'wellbeingScore' as const, label: 'Energía y bienestar' },
+];
+
+function stars(score = 0) {
+  return '★'.repeat(score) + '☆'.repeat(Math.max(0, 5 - score));
+}
+
+function scoreLabel(score = 0) {
+  return score > 0 ? score + ' de 5' : 'En preparación';
+}
+---
+
+<div class="fortune-metrics" aria-label="Indicadores de la lectura">
+  <div class="fortune-metric fortune-metric-general">
+    <span class="metric-label">Suerte general</span>
+    <strong class="metric-score">{scoreLabel(data?.generalScore)}</strong>
+    <span class="metric-stars" aria-hidden="true">{stars(data?.generalScore)}</span>
+    <span class="sr-only">Suerte general: {scoreLabel(data?.generalScore)}</span>
+  </div>
+
+  <div class="fortune-secondary-metrics">
+    {secondaryMetrics.map((metric) => {
+      const value = data?.[metric.key] ?? 0;
+      return (
+        <div class="fortune-metric fortune-metric-secondary">
+          <span class="metric-label">{metric.label}</span>
+          <span class="metric-stars" aria-hidden="true">{stars(value)}</span>
+          <span class="sr-only">{metric.label}: {scoreLabel(value)}</span>
+        </div>
+      );
+    })}
+  </div>
+</div>
