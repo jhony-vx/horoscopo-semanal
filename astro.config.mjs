@@ -1,4 +1,4 @@
-﻿// @ts-check
+// @ts-check
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
@@ -8,7 +8,7 @@ const eventEmitterShim = fileURLToPath(new URL('./src/eventemitter3-shim.mjs', i
 const esbuildShim = fileURLToPath(new URL('./src/esbuild-shim.mjs', import.meta.url));
 
 export default defineConfig({
-  site: 'https://ranking-zodiacal.pages.dev',
+  site: 'https://horoscopo-semanal.pages.dev',
   compressHTML: true,
   devToolbar: {
     enabled: false,
