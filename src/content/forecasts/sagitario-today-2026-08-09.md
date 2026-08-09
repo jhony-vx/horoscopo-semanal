@@ -3,7 +3,7 @@ sign: sagitario
 period: today
 periodStart: '2026-08-09'
 periodEnd: '2026-08-09'
-status: draft
+status: published
 generalScore: 3
 loveScore: 4
 professionalScore: 3
