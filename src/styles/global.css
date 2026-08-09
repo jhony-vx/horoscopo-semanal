@@ -34,6 +34,151 @@
   text-rendering: optimizeLegibility;
 }
 
+html[data-page-theme] {
+  --line: color-mix(in srgb, var(--green-900) 17%, transparent);
+  --line-strong: color-mix(in srgb, var(--green-900) 29%, transparent);
+  --surface-soft: color-mix(in srgb, var(--surface) 84%, transparent);
+  --shadow-soft: 0 18px 48px color-mix(in srgb, var(--green-900) 9%, transparent);
+  --shadow-card: 0 10px 28px color-mix(in srgb, var(--green-900) 8%, transparent);
+  --element-accent: var(--green-400);
+  --element-surface: var(--green-50);
+  --element-accent-soft: var(--green-200);
+}
+
+html[data-page-theme='aries'] {
+  --green-50: #fff4ef;
+  --green-200: #efc4b6;
+  --green-400: #c85c48;
+  --green-900: #762d24;
+  --ink: #432723;
+  --ink-soft: #765d57;
+  --surface: #fffaf7;
+}
+
+html[data-page-theme='tauro'] {
+  --green-50: #fbf5eb;
+  --green-200: #e3c394;
+  --green-400: #b37735;
+  --green-900: #79512e;
+  --ink: #493a2c;
+  --ink-soft: #796958;
+  --surface: #fffdf8;
+}
+
+html[data-page-theme='geminis'] {
+  --green-50: #f1f6fb;
+  --green-200: #c6dbea;
+  --green-400: #4a91bc;
+  --green-900: #1f5476;
+  --ink: #263e4e;
+  --ink-soft: #607789;
+  --surface: #fbfdff;
+}
+
+html[data-page-theme='cancer'] {
+  --green-50: #edf8f6;
+  --green-200: #c6e3df;
+  --green-400: #3d9c91;
+  --green-900: #1e5d59;
+  --ink: #254844;
+  --ink-soft: #62807c;
+  --surface: #fbfffe;
+}
+
+html[data-page-theme='leo'] {
+  --green-50: #fff7e4;
+  --green-200: #ead39c;
+  --green-400: #c78322;
+  --green-900: #704510;
+  --ink: #49361d;
+  --ink-soft: #806f50;
+  --surface: #fffdf8;
+}
+
+html[data-page-theme='virgo'] {
+  --green-50: #f5f1ec;
+  --green-200: #ded1c5;
+  --green-400: #9b7a65;
+  --green-900: #5a4b42;
+  --ink: #3f3530;
+  --ink-soft: #76675e;
+  --surface: #fffdf9;
+}
+
+html[data-page-theme='libra'] {
+  --green-50: #f3f3fb;
+  --green-200: #d6d7ed;
+  --green-400: #6d70b0;
+  --green-900: #3f4175;
+  --ink: #303350;
+  --ink-soft: #6f7190;
+  --surface: #fdfdff;
+}
+
+html[data-page-theme='escorpio'] {
+  --green-50: #fbf0f4;
+  --green-200: #e7c1cf;
+  --green-400: #a54168;
+  --green-900: #66243e;
+  --ink: #452431;
+  --ink-soft: #7d6070;
+  --surface: #fffafd;
+}
+
+html[data-page-theme='sagitario'] {
+  --green-50: #fff2ea;
+  --green-200: #eac6b6;
+  --green-400: #be6946;
+  --green-900: #73351f;
+  --ink: #482b22;
+  --ink-soft: #7f6258;
+  --surface: #fffaf7;
+}
+
+html[data-page-theme='capricornio'] {
+  --green-50: #f1f4f5;
+  --green-200: #cedae0;
+  --green-400: #647f8c;
+  --green-900: #344956;
+  --ink: #283942;
+  --ink-soft: #64737b;
+  --surface: #fbfdfe;
+}
+
+html[data-page-theme='acuario'] {
+  --green-50: #edf9fb;
+  --green-200: #c6e8eb;
+  --green-400: #2d9ca6;
+  --green-900: #155b64;
+  --ink: #21474c;
+  --ink-soft: #628287;
+  --surface: #fbffff;
+}
+
+html[data-page-theme='piscis'] {
+  --green-50: #f4f0fc;
+  --green-200: #d9d0ee;
+  --green-400: #7a6ab0;
+  --green-900: #493774;
+  --ink: #342b4d;
+  --ink-soft: #716987;
+  --surface: #fdfbff;
+}
+
+html[data-page-theme] .site-shell {
+  min-height: 100dvh;
+  background: var(--green-50);
+}
+
+html[data-page-theme] .site-header {
+  border-bottom-color: var(--line);
+  background: color-mix(in srgb, var(--green-50) 88%, transparent);
+}
+
+html[data-page-theme] .sign-page {
+  background: var(--green-50);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -47,7 +192,7 @@ body {
   min-width: 320px;
   margin: 0;
   background:
-    radial-gradient(circle at 10% 5%, rgba(165, 214, 167, 0.46), transparent 25rem),
+    radial-gradient(circle at 10% 5%, color-mix(in srgb, var(--green-200) 46%, transparent), transparent 25rem),
     linear-gradient(180deg, var(--green-50) 0%, var(--surface) 42%, var(--green-50) 100%);
 }
 
@@ -410,20 +555,15 @@ select:focus-visible {
 
 .weekly-ranking {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: 1fr;
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .weekly-ranking-item {
-  grid-column: span 3;
   min-width: 0;
-}
-
-.weekly-ranking-item.is-top {
-  grid-column: span 2;
 }
 
 .ranking-card {
@@ -473,61 +613,6 @@ select:focus-visible {
 
 .ranking-card[data-element='water'] {
   --element-accent: var(--element-water);
-}
-
-.ranking-card-featured {
-  min-height: 176px;
-  grid-template-columns: auto 1fr auto;
-  grid-template-rows: auto 1fr;
-  align-content: space-between;
-  padding: 22px;
-  background: var(--green-900);
-}
-
-.ranking-card-featured::before {
-  top: 0;
-  bottom: 0;
-  width: 6px;
-  border-radius: 0;
-  background: var(--green-400);
-}
-
-.ranking-card-featured .ranking-position {
-  grid-column: 1 / 3;
-  color: var(--green-200);
-}
-
-.ranking-card-featured .sign-logo {
-  grid-column: 3;
-  grid-row: 1 / 3;
-  align-self: center;
-}
-
-.ranking-card-featured .ranking-content {
-  grid-column: 1 / 3;
-  grid-row: 2;
-  align-self: end;
-}
-
-.ranking-card-featured .ranking-name {
-  color: var(--white);
-  font-size: 1.34rem;
-}
-
-.ranking-card-featured .ranking-element {
-  color: var(--green-200);
-}
-
-.ranking-card-featured .ranking-summary {
-  color: rgba(255, 255, 255, 0.74);
-}
-
-.ranking-card-featured .ranking-arrow {
-  display: none;
-}
-
-.ranking-card-featured:hover {
-  border-color: var(--green-900);
 }
 
 .ranking-position {
@@ -715,19 +800,6 @@ select:focus-visible {
   height: 5px;
 }
 
-.ranking-card-featured[data-element='fire'] .sign-logo,
-.ranking-card-featured[data-element='earth'] .sign-logo,
-.ranking-card-featured[data-element='air'] .sign-logo,
-.ranking-card-featured[data-element='water'] .sign-logo {
-  --element-surface: rgba(255, 255, 255, 0.13);
-  --element-accent-soft: rgba(255, 255, 255, 0.22);
-}
-
-.ranking-card-featured .sign-logo {
-  border-color: rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.12);
-}
-
 .weekly-editorial {
   margin-top: 34px;
   padding: clamp(24px, 5vw, 44px);
@@ -861,6 +933,12 @@ select:focus-visible {
   --element-accent: var(--element-water);
   --element-surface: var(--element-water-soft);
   --element-accent-soft: #c9c0e5;
+}
+
+html[data-page-theme] .sign-choice[data-element] {
+  --element-accent: var(--green-400);
+  --element-surface: var(--green-50);
+  --element-accent-soft: var(--green-200);
 }
 
 .sign-choice .sign-logo {
@@ -997,58 +1075,6 @@ select:focus-visible {
   background:
     radial-gradient(circle at 84% 22%, color-mix(in srgb, var(--element-accent, var(--green-900)) 16%, transparent), transparent 23rem),
     linear-gradient(180deg, var(--element-surface, rgba(255, 255, 255, 0.16)), transparent);
-}
-
-.sign-page[data-element='fire'] {
-  --element-accent: var(--element-fire);
-  --element-surface: var(--element-fire-soft);
-  --element-accent-soft: #e5b6a9;
-}
-
-.sign-page[data-element='earth'] {
-  --element-accent: var(--element-earth);
-  --element-surface: var(--element-earth-soft);
-  --element-accent-soft: #d8c0a3;
-}
-
-.sign-page[data-element='air'] {
-  --element-accent: var(--element-air);
-  --element-surface: var(--element-air-soft);
-  --element-accent-soft: #a8cce4;
-}
-
-.sign-page[data-element='water'] {
-  --element-accent: var(--element-water);
-  --element-surface: var(--element-water-soft);
-  --element-accent-soft: #c9c0e5;
-}
-
-.sign-page[data-element='fire'] .eyebrow,
-.sign-page[data-element='fire'] .sign-hero-meta,
-.sign-page[data-element='fire'] .period-tab.is-active,
-.sign-page[data-element='fire'] .metric-label {
-  color: var(--element-fire);
-}
-
-.sign-page[data-element='earth'] .eyebrow,
-.sign-page[data-element='earth'] .sign-hero-meta,
-.sign-page[data-element='earth'] .period-tab.is-active,
-.sign-page[data-element='earth'] .metric-label {
-  color: var(--element-earth);
-}
-
-.sign-page[data-element='air'] .eyebrow,
-.sign-page[data-element='air'] .sign-hero-meta,
-.sign-page[data-element='air'] .period-tab.is-active,
-.sign-page[data-element='air'] .metric-label {
-  color: var(--element-air);
-}
-
-.sign-page[data-element='water'] .eyebrow,
-.sign-page[data-element='water'] .sign-hero-meta,
-.sign-page[data-element='water'] .period-tab.is-active,
-.sign-page[data-element='water'] .metric-label {
-  color: var(--element-water);
 }
 
 .sign-page .eyebrow::before {
@@ -1449,19 +1475,6 @@ select:focus-visible {
     max-width: 520px;
   }
 
-  .weekly-ranking {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .weekly-ranking-item,
-  .weekly-ranking-item.is-top {
-    grid-column: span 1;
-  }
-
-  .weekly-ranking-item.is-top .ranking-card {
-    min-height: 160px;
-  }
-
   .sign-hero-grid {
     gap: 24px;
     margin-top: 32px;
@@ -1536,32 +1549,12 @@ select:focus-visible {
     grid-template-columns: 1fr;
   }
 
-  .ranking-card,
-  .ranking-card-featured {
+  .ranking-card {
     min-height: 98px;
     grid-template-columns: auto auto minmax(0, 1fr) auto;
     grid-template-rows: auto;
     gap: 10px;
     padding: 15px 14px;
-  }
-
-  .ranking-card-featured .ranking-position,
-  .ranking-card-featured .sign-logo,
-  .ranking-card-featured .ranking-content {
-    grid-column: auto;
-    grid-row: auto;
-  }
-
-  .ranking-card-featured .sign-logo {
-    align-self: center;
-  }
-
-  .ranking-card-featured .ranking-content {
-    align-self: center;
-  }
-
-  .ranking-card-featured .ranking-name {
-    font-size: 1.12rem;
   }
 
   .ranking-summary {

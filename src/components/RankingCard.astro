@@ -5,22 +5,20 @@ import SignLogo from './SignLogo.astro';
 
 interface Props {
   entry: HoroscopeEntry;
-  variant?: 'featured' | 'standard';
 }
 
-const { entry, variant = 'standard' } = Astro.props;
+const { entry } = Astro.props;
 const sign = getSign(entry.data.sign);
 if (!sign) throw new Error('Signo no encontrado: ' + entry.data.sign);
-const isFeatured = variant === 'featured';
 ---
 
 <a
-  class:list={['ranking-card', isFeatured ? 'ranking-card-featured' : '', entry.data.rank <= 3 ? 'ranking-card-top' : '']}
+  class="ranking-card"
   href={'/horoscopo/' + sign.slug + '/'}
   data-element={sign.elementKey}
 >
   <span class="ranking-position" aria-label={'Puesto ' + entry.data.rank}>{String(entry.data.rank).padStart(2, '0')}</span>
-  <SignLogo sign={sign} size={isFeatured ? 'large' : 'small'} decorative />
+  <SignLogo sign={sign} size="small" decorative />
   <span class="ranking-content">
     <span class="ranking-name">{sign.name}</span>
     <span class="ranking-meta">

@@ -3,6 +3,8 @@ interface Props {
   title: string;
   description: string;
   noindex?: boolean;
+  pageTheme?: string;
+  themeColor?: string;
 }
 
 import '@fontsource/dm-sans/400.css';
@@ -13,7 +15,7 @@ import '@fontsource/playfair-display/600.css';
 import '@fontsource/playfair-display/700.css';
 import '../styles/global.css';
 
-const { title, description, noindex = false } = Astro.props;
+const { title, description, noindex = false, pageTheme, themeColor = '#1B5E20' } = Astro.props;
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://horoscopo-semanal.pages.dev';
 const canonical = new URL(Astro.url.pathname, siteUrl + '/').toString();
 const fullTitle = title.includes('Ranking Zodiacal') ? title : title + ' | Ranking Zodiacal';
@@ -33,12 +35,12 @@ const structuredData = JSON.stringify({
 });
 ---
 <!doctype html>
-<html lang="es-PE">
+<html lang="es-PE" data-page-theme={pageTheme}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#1B5E20" />
+    <meta name="theme-color" content={themeColor} />
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />

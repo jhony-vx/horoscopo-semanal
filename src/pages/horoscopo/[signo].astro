@@ -35,9 +35,11 @@ const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.
 
 <SiteLayout
   title={'Horóscopo semanal de ' + sign.name}
+  pageTheme={sign.slug}
+  themeColor={sign.themeColor}
   description={'Lee el horóscopo semanal de ' + sign.name + ', su posición en el ranking y sus lecturas por periodo.'}
 >
-  <div class="sign-page" data-element={sign.elementKey}>
+  <div class="sign-page" data-sign={sign.slug} data-element={sign.elementKey}>
     <section class="sign-hero">
       <div class="container">
         <nav class="breadcrumb" aria-label="Migas de pan">
