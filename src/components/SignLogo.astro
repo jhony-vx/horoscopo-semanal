@@ -5,22 +5,23 @@ interface Props {
   sign: ZodiacSign;
   size?: 'small' | 'medium' | 'large';
   decorative?: boolean;
-  loading?: 'eager' | 'lazy';
 }
 
-const { sign, size = 'medium', decorative = false, loading = 'lazy' } = Astro.props;
-const alt = decorative ? '' : 'Símbolo de ' + sign.name;
+const { sign, size = 'medium', decorative = false } = Astro.props;
+const label = 'Símbolo de ' + sign.name;
 ---
 
-<span class:list={['sign-logo', 'sign-logo-' + size]} data-sign-logo data-element={sign.elementKey}>
-  <img
-    src={sign.logoSrc}
-    alt={alt}
-    width="96"
-    height="96"
-    loading={loading}
-    decoding="async"
-    data-zodiac-logo
-  />
-  <span class="sign-logo-fallback" aria-hidden="true" hidden>{sign.symbol}</span>
+<span
+  class:list={['sign-logo', 'sign-logo-' + size]}
+  data-sign-logo
+  data-element={sign.elementKey}
+  role={decorative ? undefined : 'img'}
+  aria-label={decorative ? undefined : label}
+  aria-hidden={decorative ? 'true' : undefined}
+>
+  <span class="sign-logo-orbit" aria-hidden="true">
+    <span class="sign-logo-spark sign-logo-spark-one"></span>
+    <span class="sign-logo-spark sign-logo-spark-two"></span>
+    <span class="sign-logo-glyph">{sign.symbol}</span>
+  </span>
 </span>

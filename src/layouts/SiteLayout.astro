@@ -93,7 +93,7 @@ const structuredData = JSON.stringify({
             <a href="/#ranking">Ver ranking</a>
             <a href="/#tu-signo">Elegir mi signo</a>
             <span class="footer-disclaimer">Contenido de entretenimiento. No reemplaza asesoría profesional.</span>
-            <a class="footer-credit" href="https://openmoji.org/" rel="license">Iconos zodiacales: OpenMoji, CC BY-SA 4.0</a>
+            <span class="footer-credit">Símbolos zodiacales propios de Ranking Zodiacal</span>
           </div>
         </div>
         <div class="container footer-bottom">
@@ -158,14 +158,6 @@ const structuredData = JSON.stringify({
       });
 
       markSavedSigns();
-
-      document.querySelectorAll('[data-zodiac-logo]').forEach((image) => {
-        image.addEventListener('error', () => {
-          image.hidden = true;
-          const fallback = image.nextElementSibling;
-          if (fallback) fallback.removeAttribute('hidden');
-        }, { once: true });
-      });
 
       document.querySelectorAll('[data-open-sign-dialog]').forEach((opener) => {
         const dialogId = opener.getAttribute('data-dialog-target');

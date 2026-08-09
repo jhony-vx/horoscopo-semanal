@@ -36,7 +36,8 @@ test('cada página de signo tiene logo, cuatro periodos y contenido semanal', as
   await page.goto('/horoscopo/aries/');
 
   await expect(page.getByRole('heading', { name: 'Aries' })).toBeVisible();
-  await expect(page.locator('[data-zodiac-logo]').first()).toBeVisible();
+  await expect(page.locator('[data-sign-logo]').first()).toBeVisible();
+  await expect(page.locator('.sign-logo-glyph').first()).toHaveText('♈');
   await expect(page.getByRole('tab')).toHaveCount(4);
   await expect(page.getByRole('tab', { name: 'Hoy' })).toHaveAttribute('aria-selected', 'true');
 
