@@ -25,3 +25,8 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# herramientas y configuración local de Codex
+.agents/
+.codex/
+skills-lock.json
