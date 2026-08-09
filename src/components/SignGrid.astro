@@ -11,13 +11,16 @@ const { currentSlug, compact = false } = Astro.props;
 ---
 
 <div class:list={['sign-grid', compact ? 'sign-grid-compact' : '']} data-sign-selector data-current-sign={currentSlug ?? ''}>
-  {ZODIAC_SIGNS.map((sign) => (
+  {ZODIAC_SIGNS.map((sign, index) => (
     <a
       class:list={['sign-choice', currentSlug === sign.slug ? 'is-current' : '']}
       href={'/horoscopo/' + sign.slug + '/'}
       data-sign-choice
       data-sign-slug={sign.slug}
       data-element={sign.elementKey}
+      data-reveal
+      data-spotlight
+      style={`--reveal-delay: ${Math.min(index * 24, 220)}ms`}
       aria-current={currentSlug === sign.slug ? 'page' : undefined}
       aria-label={'Leer el horóscopo de ' + sign.name + ', ' + sign.dateRange}
     >

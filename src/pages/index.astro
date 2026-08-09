@@ -10,12 +10,12 @@ const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition
 ---
 
 <SiteLayout
-  title="Horóscopo semanal y ranking de signos"
-  description="Descubre el ranking zodiacal de esta semana y lee la predicción completa de tu signo."
+  title="Horóscopo semanal, diario y ranking zodiacal"
+  description="Descubre el ranking del horóscopo semanal y consulta las lecturas diarias, semanales y mensuales de los 12 signos."
 >
   {edition ? (
     <>
-      <section class="hero">
+      <section class="hero" data-reveal>
         <div class="container hero-grid">
           <div class="hero-copy">
             <span class="eyebrow">Edición semanal</span>
@@ -26,7 +26,7 @@ const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition
               <a class="button button-ghost" href="#tu-signo">Elegir mi signo <span aria-hidden="true">→</span></a>
             </div>
           </div>
-          <aside class="hero-aside" aria-label="Información de la edición">
+          <aside class="hero-aside" data-spotlight aria-label="Información de la edición">
             <span class="aside-label">Semana editorial</span>
             <strong class="week-range">{weekRange}</strong>
             <p class="week-theme">{edition.week.data.theme}</p>
@@ -34,14 +34,14 @@ const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition
         </div>
       </section>
 
-      <section class="section ranking-section" id="ranking">
+      <section class="section ranking-section" id="ranking" data-reveal>
         <div class="container">
           <div class="section-heading">
             <div>
               <span class="eyebrow">El pulso de los astros</span>
               <h2>Ranking semanal</h2>
             </div>
-            <p>Una lectura editorial para explorar las tendencias de la semana con curiosidad y criterio.</p>
+            <p>Consulta el ranking del horóscopo semanal y explora las tendencias de cada signo con curiosidad y criterio.</p>
           </div>
 
           <WeeklyRanking entries={edition.entries} />
@@ -53,12 +53,12 @@ const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition
         </div>
       </section>
 
-      <section class="selector-section" id="tu-signo">
+      <section class="selector-section" id="tu-signo" data-reveal>
         <div class="container">
           <div class="selector-heading">
             <span class="eyebrow">Tu lectura personal</span>
             <h2>Encuentra tu signo.</h2>
-            <p>Elige una opción para abrir su página y guardar la preferencia en este dispositivo.</p>
+            <p>Elige un signo para consultar su horóscopo diario, semanal y mensual, y guardar la preferencia en este dispositivo.</p>
           </div>
           <SignGrid />
         </div>

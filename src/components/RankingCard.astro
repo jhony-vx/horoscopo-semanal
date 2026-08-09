@@ -16,6 +16,7 @@ if (!sign) throw new Error('Signo no encontrado: ' + entry.data.sign);
   class="ranking-card"
   href={'/horoscopo/' + sign.slug + '/'}
   data-element={sign.elementKey}
+  data-spotlight
 >
   <span class="ranking-position" aria-label={'Puesto ' + entry.data.rank}>{String(entry.data.rank).padStart(2, '0')}</span>
   <SignLogo sign={sign} size="small" decorative />

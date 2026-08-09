@@ -10,8 +10,8 @@ const { entries } = Astro.props;
 ---
 
 <ol class="weekly-ranking" aria-label="Ranking semanal de los doce signos">
-  {entries.map((entry) => (
-    <li class="weekly-ranking-item">
+  {entries.map((entry, index) => (
+    <li class="weekly-ranking-item" data-reveal style={`--reveal-delay: ${Math.min(index * 28, 260)}ms`}>
       <RankingCard entry={entry} />
     </li>
   ))}

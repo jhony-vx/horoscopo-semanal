@@ -1,10 +1,20 @@
 ---
+interface Breadcrumb {
+  name: string;
+  href: string;
+}
+
 interface Props {
   title: string;
   description: string;
   noindex?: boolean;
   pageTheme?: string;
   themeColor?: string;
+  pageType?: 'website' | 'article';
+  image?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
+  breadcrumbs?: Breadcrumb[];
 }
 
 import '@fontsource/dm-sans/400.css';
@@ -14,24 +24,79 @@ import '@fontsource/dm-sans/700.css';
 import '@fontsource/playfair-display/600.css';
 import '@fontsource/playfair-display/700.css';
 import '../styles/global.css';
+import ReadingProgress from '../components/ReadingProgress.astro';
+import ScrollToTop from '../components/ScrollToTop.astro';
 
-const { title, description, noindex = false, pageTheme, themeColor = '#1B5E20' } = Astro.props;
+const {
+  title,
+  description,
+  noindex = false,
+  pageTheme,
+  themeColor = '#1B5E20',
+  pageType = 'website',
+  image = '/social-card.svg',
+  publishedTime,
+  modifiedTime,
+  breadcrumbs = [],
+} = Astro.props;
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://horoscopo-semanal.pages.dev';
 const canonical = new URL(Astro.url.pathname, siteUrl + '/').toString();
 const fullTitle = title.includes('Ranking Zodiacal') ? title : title + ' | Ranking Zodiacal';
+const socialImage = new URL(image, siteUrl + '/').toString();
 const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
-const structuredData = JSON.stringify({
-  '@context': 'https://schema.org',
-  '@type': 'WebPage',
+const websiteId = siteUrl + '/#website';
+const organizationId = siteUrl + '/#organization';
+const webpageId = canonical + '#webpage';
+const pageSchema = {
+  '@type': pageType === 'article' ? 'Article' : 'WebPage',
+  '@id': webpageId,
   name: fullTitle,
+  headline: fullTitle,
   description,
   url: canonical,
+  image: socialImage,
   inLanguage: 'es-PE',
-  isPartOf: {
-    '@type': 'WebSite',
-    name: 'Ranking Zodiacal',
-    url: siteUrl + '/',
-  },
+  isPartOf: { '@id': websiteId },
+  author: { '@id': organizationId },
+  ...(publishedTime ? { datePublished: publishedTime } : {}),
+  ...(modifiedTime ? { dateModified: modifiedTime } : {}),
+};
+const breadcrumbSchema = breadcrumbs.length > 0
+  ? {
+      '@type': 'BreadcrumbList',
+      '@id': canonical + '#breadcrumbs',
+      itemListElement: breadcrumbs.map((breadcrumb, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: breadcrumb.name,
+        item: new URL(breadcrumb.href, siteUrl + '/').toString(),
+      })),
+    }
+  : null;
+const structuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': organizationId,
+      name: 'Ranking Zodiacal',
+      url: siteUrl + '/',
+      logo: {
+        '@type': 'ImageObject',
+        url: new URL('/favicon.svg', siteUrl + '/').toString(),
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': websiteId,
+      name: 'Ranking Zodiacal',
+      url: siteUrl + '/',
+      inLanguage: 'es-PE',
+      publisher: { '@id': organizationId },
+    },
+    pageSchema,
+    ...(breadcrumbSchema ? [breadcrumbSchema] : []),
+  ],
 });
 ---
 <!doctype html>
@@ -42,24 +107,36 @@ const structuredData = JSON.stringify({
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content={themeColor} />
     <meta name="description" content={description} />
-    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="author" content="Ranking Zodiacal" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/favicon.ico" />
-    <meta property="og:type" content="website" />
+    <link rel="alternate" hreflang="es-PE" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <meta property="og:type" content={pageType === 'article' ? 'article' : 'website'} />
     <meta property="og:locale" content="es_PE" />
     <meta property="og:site_name" content="Ranking Zodiacal" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:alt" content="Ranking Zodiacal: horóscopo semanal, diario y mensual" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content="Ranking Zodiacal: horóscopo semanal, diario y mensual" />
     <script is:inline type="application/ld+json" set:html={structuredData}></script>
     <title>{fullTitle}</title>
     {analyticsToken && <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: analyticsToken })}></script>}
   </head>
   <body>
     <div class="site-shell">
+      <ReadingProgress />
       <header class="site-header">
         <div class="container header-inner">
           <a class="brand" href="/" aria-label="Ranking Zodiacal, inicio">
@@ -76,9 +153,13 @@ const structuredData = JSON.stringify({
         </div>
       </header>
 
+      <div class="top-sentinel" data-top-sentinel aria-hidden="true"></div>
+
       <main>
         <slot />
       </main>
+
+      <ScrollToTop />
 
       <footer class="site-footer">
         <div class="container footer-grid">
@@ -106,6 +187,7 @@ const structuredData = JSON.stringify({
     </div>
 
     <script is:inline>
+      document.documentElement.classList.add('js');
       const SIGN_STORAGE_KEY = 'ranking-zodiacal-sign';
 
       const readSavedSign = () => {
@@ -160,6 +242,54 @@ const structuredData = JSON.stringify({
       });
 
       markSavedSigns();
+
+      const revealElements = document.querySelectorAll('[data-reveal]');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reducedMotion || !('IntersectionObserver' in window)) {
+        revealElements.forEach((element) => element.classList.add('is-visible'));
+      } else {
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          });
+        }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+
+        revealElements.forEach((element) => revealObserver.observe(element));
+      }
+
+      document.querySelectorAll('[data-spotlight]').forEach((element) => {
+        element.addEventListener('pointermove', (event) => {
+          if (event.pointerType === 'touch') return;
+          const bounds = element.getBoundingClientRect();
+          element.style.setProperty('--spotlight-x', `${event.clientX - bounds.left}px`);
+          element.style.setProperty('--spotlight-y', `${event.clientY - bounds.top}px`);
+        }, { passive: true });
+
+        element.addEventListener('pointerleave', () => {
+          element.style.removeProperty('--spotlight-x');
+          element.style.removeProperty('--spotlight-y');
+        }, { passive: true });
+      });
+
+      const topSentinel = document.querySelector('[data-top-sentinel]');
+      const backToTop = document.querySelector('[data-back-to-top]');
+      const showBackToTop = (visible) => {
+        if (!backToTop) return;
+        backToTop.hidden = !visible;
+        backToTop.classList.toggle('is-visible', visible);
+      };
+
+      if (topSentinel && backToTop && 'IntersectionObserver' in window) {
+        const topObserver = new IntersectionObserver(([entry]) => showBackToTop(!entry.isIntersecting), { threshold: 0 });
+        topObserver.observe(topSentinel);
+      }
+
+      backToTop?.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
+      });
 
       document.querySelectorAll('[data-open-sign-dialog]').forEach((opener) => {
         const dialogId = opener.getAttribute('data-dialog-target');
@@ -241,14 +371,19 @@ const structuredData = JSON.stringify({
             url: shareUrl,
           };
           const status = button.parentElement?.querySelector('[data-share-status]');
+          const confirmShare = (message) => {
+            button.classList.add('is-confirmed');
+            if (status) status.textContent = message;
+            window.setTimeout(() => button.classList.remove('is-confirmed'), 1800);
+          };
 
           try {
             if (navigator.share) {
               await navigator.share(shareData);
-              if (status) status.textContent = 'Compartido';
+              confirmShare('Compartido');
             } else if (navigator.clipboard) {
               await navigator.clipboard.writeText(shareUrl);
-              if (status) status.textContent = 'Enlace copiado';
+              confirmShare('Enlace copiado');
             } else if (status) {
               status.textContent = 'Copia el enlace desde tu navegador';
             }

@@ -12,6 +12,18 @@ test('la portada muestra el ranking, la editorial y el selector', async ({ page 
   await expect(page.getByRole('button', { name: /Compartir esta semana/ })).toBeVisible();
 });
 
+test('la portada expone identidad y metadatos SEO propios', async ({ page }) => {
+  await page.goto('/');
+
+  await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute('href', '/favicon.svg');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /horóscopo semanal/);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /social-card\.svg/);
+
+  const jsonLd = await page.locator('script[type="application/ld+json"]').textContent();
+  expect(jsonLd).toContain('"@type":"WebSite"');
+  expect(jsonLd).toContain('"@type":"Organization"');
+});
+
 test('el ranking se muestra ordenado del puesto 1 al 12', async ({ page }) => {
   await page.goto('/');
 
@@ -89,6 +101,7 @@ test('las páginas de signo aplican paletas propias', async ({ page }) => {
 });
 
 test('el modal cambia de signo y se cierra con Escape', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('ranking-zodiacal-sign', 'virgo'));
   await page.goto('/horoscopo/virgo/');
 
   const dialog = page.getByRole('dialog');
@@ -97,6 +110,16 @@ test('el modal cambia de signo y se cierra con Escape', async ({ page }) => {
   await page.getByRole('button', { name: /Cambiar de signo/ }).click();
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole('link', { name: /Libra/ })).toBeVisible();
+
+  const currentSign = dialog.locator('[data-sign-choice][data-sign-slug="virgo"]');
+  const savedBadge = currentSign.locator('.sign-choice-saved');
+  await expect(savedBadge).toHaveCSS('position', 'absolute');
+  const cardBox = await currentSign.boundingBox();
+  const badgeBox = await savedBadge.boundingBox();
+  expect(cardBox).not.toBeNull();
+  expect(badgeBox).not.toBeNull();
+  expect(badgeBox!.y).toBeGreaterThanOrEqual(cardBox!.y);
+  expect(badgeBox!.y + badgeBox!.height).toBeLessThanOrEqual(cardBox!.y + cardBox!.height);
 
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
@@ -126,6 +149,19 @@ test('el selector se adapta a móvil', async ({ page }) => {
 
   const columns = await page.locator('.sign-grid').first().evaluate((element) => getComputedStyle(element).gridTemplateColumns);
   expect(columns.split(' ').length).toBe(2);
+});
+
+test('el botón dinámico vuelve al inicio después de hacer scroll', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+
+  const backToTop = page.getByRole('button', { name: 'Volver al inicio' });
+  await expect(backToTop).toBeHidden();
+
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect(backToTop).toBeVisible();
+  await backToTop.click();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
 });
 
 test('una ruta inválida muestra la página 404', async ({ page }) => {

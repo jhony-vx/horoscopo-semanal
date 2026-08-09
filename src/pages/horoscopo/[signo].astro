@@ -34,13 +34,17 @@ const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.
 ---
 
 <SiteLayout
-  title={'Horóscopo semanal de ' + sign.name}
+  title={'Horóscopo diario y semanal de ' + sign.name}
   pageTheme={sign.slug}
   themeColor={sign.themeColor}
-  description={'Lee el horóscopo semanal de ' + sign.name + ', su posición en el ranking y sus lecturas por periodo.'}
+  pageType="article"
+  publishedTime={edition?.week.data.weekStart}
+  modifiedTime={edition?.week.data.weekEnd}
+  breadcrumbs={[{ name: 'Inicio', href: '/' }, { name: sign.name, href: '/horoscopo/' + sign.slug + '/' }]}
+  description={'Lee el horóscopo diario, semanal y mensual de ' + sign.name + ', su posición en el ranking y una lectura por periodo.'}
 >
   <div class="sign-page" data-sign={sign.slug} data-element={sign.elementKey}>
-    <section class="sign-hero">
+    <section class="sign-hero" data-reveal>
       <div class="container">
         <nav class="breadcrumb" aria-label="Migas de pan">
           <a href="/">Ranking semanal</a>
@@ -59,7 +63,7 @@ const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.
             <p class="sign-hero-description">Una lectura de entretenimiento para observar tus decisiones, tus vínculos y el ritmo de tus próximos días.</p>
             <SignPickerDialog currentSlug={sign.slug} />
           </div>
-          <aside class="sign-rank-card" aria-label="Posición semanal">
+          <aside class="sign-rank-card" data-reveal data-spotlight aria-label="Posición semanal">
             <span class="rank-card-label">Ranking semanal</span>
             <strong>{entry ? String(entry.data.rank).padStart(2, '0') : 'N/D'}</strong>
             <span>{entry ? 'puesto de ' + sign.name : 'lectura en preparación'}</span>
@@ -68,7 +72,7 @@ const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.
       </div>
     </section>
 
-    <section class="section sign-reading-section">
+    <section class="section sign-reading-section" data-reveal>
       <div class="container">
         <ForecastTabs
           weeklyEntry={entry}
@@ -80,7 +84,7 @@ const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.
       </div>
     </section>
 
-    <section class="section sign-discovery-section">
+    <section class="section sign-discovery-section" data-reveal>
       <div class="container sign-discovery-grid">
         <div>
           <span class="eyebrow">Sigue explorando</span>
