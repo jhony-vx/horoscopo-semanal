@@ -3,7 +3,7 @@ sign: geminis
 period: tomorrow
 periodStart: '2026-08-10'
 periodEnd: '2026-08-10'
-status: draft
+status: published
 generalScore: 4
 loveScore: 3
 professionalScore: 3

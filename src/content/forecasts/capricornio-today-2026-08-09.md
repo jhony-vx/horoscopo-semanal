@@ -3,7 +3,7 @@ sign: capricornio
 period: today
 periodStart: '2026-08-09'
 periodEnd: '2026-08-09'
-status: draft
+status: published
 generalScore: 4
 loveScore: 3
 professionalScore: 3
