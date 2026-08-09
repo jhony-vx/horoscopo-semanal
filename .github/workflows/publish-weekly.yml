@@ -1,11 +1,9 @@
-name: Publish daily zodiac ranking
+name: Publish weekly zodiac ranking
 
 on:
   schedule:
-    - cron: '0 10 * * *'
+    - cron: '0 10 * * 1'
   workflow_dispatch:
-  push:
-    branches: [main]
 
 permissions:
   contents: write
@@ -16,7 +14,6 @@ concurrency:
 
 jobs:
   publish:
-    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -32,8 +29,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Prepare daily drafts
-        run: node scripts/publish-daily-forecasts.mjs prepare
+      - name: Prepare weekly drafts
+        run: node scripts/publish-periodic-content.mjs prepare-week
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
@@ -44,10 +41,10 @@ jobs:
           npm run build
           npm run test:e2e
 
-      - name: Publish complete daily groups
-        run: node scripts/publish-daily-forecasts.mjs publish
+      - name: Publish complete weekly group
+        run: node scripts/publish-periodic-content.mjs publish-week
 
-      - name: Validate published groups
+      - name: Validate published group
         run: |
           npm run check
           npm run build
@@ -55,12 +52,12 @@ jobs:
 
       - name: Commit and push publication
         run: |
-          if git diff --quiet -- src/content/forecasts; then
-            echo "No hay cambios de contenido para publicar."
+          if git diff --quiet -- src/content/weeks src/content/horoscopes; then
+            echo "No hay cambios semanales para publicar."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/content/forecasts
-          git commit -m "content: publica ranking zodiacal diario"
+          git add src/content/weeks src/content/horoscopes
+          git commit -m "content: publica ranking zodiacal semanal"
           git push origin main

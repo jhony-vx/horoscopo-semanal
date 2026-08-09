@@ -43,3 +43,5 @@ Pages CMS edita los archivos del repositorio mediante GitHub. Cada commit de con
 ### Publicación diaria
 
 El workflow `.github/workflows/publish-daily.yml` genera y publica automáticamente los 12 signos de `today` y los 12 de `tomorrow` usando America/Lima. Se ejecuta diariamente a las 05:00 (10:00 UTC), valida con `npm run check`, `npm run build` y `npm run test:e2e`, y solo hace commit si ambos grupos están completos. También puede ejecutarse manualmente desde la pestaña **Actions** de GitHub.
+
+Los workflows `.github/workflows/publish-weekly.yml` y `.github/workflows/publish-monthly.yml` aplican el mismo proceso para la nueva edición semanal de cada lunes y el nuevo grupo mensual el primer día de cada mes. Todos comparten una cola de publicación para evitar commits simultáneos.
