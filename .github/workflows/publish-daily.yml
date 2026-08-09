@@ -1,0 +1,66 @@
+name: Publish daily zodiac ranking
+
+on:
+  schedule:
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-forecast-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare daily drafts
+        run: node scripts/publish-daily-forecasts.mjs prepare
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Validate drafts
+        run: |
+          npm run check
+          npm run build
+          npm run test:e2e
+
+      - name: Publish complete daily groups
+        run: node scripts/publish-daily-forecasts.mjs publish
+
+      - name: Validate published groups
+        run: |
+          npm run check
+          npm run build
+          npm run test:e2e
+
+      - name: Commit and push publication
+        run: |
+          if git diff --quiet -- src/content/forecasts; then
+            echo "No hay cambios de contenido para publicar."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/content/forecasts
+          git commit -m "content: publica ranking zodiacal diario"
+          git push origin main

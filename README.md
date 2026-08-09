@@ -39,3 +39,7 @@ Cloudflare Pages:
 - Node.js: `22.12.0` (definido en `.nvmrc`)
 
 Pages CMS edita los archivos del repositorio mediante GitHub. Cada commit de contenido puede activar un nuevo despliegue automático.
+
+### Publicación diaria
+
+El workflow `.github/workflows/publish-daily.yml` genera y publica automáticamente los 12 signos de `today` y los 12 de `tomorrow` usando America/Lima. Se ejecuta diariamente a las 05:00 (10:00 UTC), valida con `npm run check`, `npm run build` y `npm run test:e2e`, y solo hace commit si ambos grupos están completos. También puede ejecutarse manualmente desde la pestaña **Actions** de GitHub.
