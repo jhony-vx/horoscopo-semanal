@@ -506,8 +506,8 @@ select:focus-visible {
 
 .button-secondary {
   color: var(--white);
-  background: var(--element-accent, var(--green-900));
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--element-accent, var(--green-900)) 22%, transparent);
+  background: var(--green-900);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--green-900) 22%, transparent);
 }
 
 .button-secondary:hover {
@@ -1212,8 +1212,8 @@ html[data-page-theme] .sign-choice[data-element] {
 }
 
 .period-tab.is-active {
-  border-bottom-color: var(--element-accent, var(--green-900));
-  color: var(--element-accent, var(--green-900));
+  border-bottom-color: var(--green-900);
+  color: var(--green-900);
 }
 
 .forecast-panel {
@@ -1245,7 +1245,7 @@ html[data-page-theme] .sign-choice[data-element] {
 }
 
 .metric-label {
-  color: var(--element-accent, var(--green-900));
+  color: var(--green-900);
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -1309,7 +1309,7 @@ html[data-page-theme] .sign-choice[data-element] {
 
 .prose h2 {
   margin: 30px 0 8px;
-  color: var(--element-accent, var(--green-900));
+  color: var(--green-900);
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 1.35rem;
   line-height: 1.25;
