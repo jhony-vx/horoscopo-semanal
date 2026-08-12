@@ -1,5 +1,6 @@
 ---
 import type { ForecastEntry, HoroscopeEntry } from '../lib/horoscopes';
+import { formatPeriodRange } from '../lib/horoscopes';
 import ForecastPanel from './ForecastPanel.astro';
 
 interface Props {
@@ -8,9 +9,11 @@ interface Props {
   tomorrow?: ForecastEntry;
   month?: ForecastEntry;
   weekRange: string;
+  todayDate: string;
+  tomorrowDate: string;
 }
 
-const { weeklyEntry, today, tomorrow, month, weekRange } = Astro.props;
+const { weeklyEntry, today, tomorrow, month, weekRange, todayDate, tomorrowDate } = Astro.props;
 const panels = [
   {
     key: 'today',
@@ -19,6 +22,8 @@ const panels = [
     summary: today?.data.summary,
     data: today?.data,
     contentHtml: today?.rendered?.html ?? '',
+    startDate: today?.data.periodStart ?? todayDate,
+    endDate: today?.data.periodEnd ?? todayDate,
   },
   {
     key: 'tomorrow',
@@ -27,6 +32,8 @@ const panels = [
     summary: tomorrow?.data.summary,
     data: tomorrow?.data,
     contentHtml: tomorrow?.rendered?.html ?? '',
+    startDate: tomorrow?.data.periodStart ?? tomorrowDate,
+    endDate: tomorrow?.data.periodEnd ?? tomorrowDate,
   },
   {
     key: 'week',
@@ -35,6 +42,8 @@ const panels = [
     summary: weeklyEntry?.data.summary,
     data: weeklyEntry?.data,
     contentHtml: weeklyEntry?.rendered?.html ?? '',
+    startDate: weeklyEntry?.data.weekStart,
+    endDate: weeklyEntry?.data.weekEnd,
   },
   {
     key: 'month',
@@ -43,6 +52,8 @@ const panels = [
     summary: month?.data.summary,
     data: month?.data,
     contentHtml: month?.rendered?.html ?? '',
+    startDate: month?.data.periodStart,
+    endDate: month?.data.periodEnd,
   },
 ];
 ---
@@ -87,6 +98,8 @@ const panels = [
       >
         <ForecastPanel
           label={panel.label}
+          dateRange={formatPeriodRange(panel.startDate, panel.endDate)}
+          dateStart={panel.startDate}
           summary={panel.summary}
           data={panel.data}
           contentHtml={panel.contentHtml}

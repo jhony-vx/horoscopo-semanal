@@ -1226,6 +1226,28 @@ html[data-page-theme] .sign-choice[data-element] {
   min-width: 0;
 }
 
+.forecast-period-date {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--element-accent-soft, var(--line));
+}
+
+.forecast-period-date .eyebrow {
+  margin: 0;
+}
+
+.forecast-period-date time {
+  color: var(--green-900);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1rem, 2vw, 1.18rem);
+  font-weight: 600;
+  text-align: right;
+}
+
 .fortune-metrics {
   display: grid;
   grid-template-columns: minmax(190px, 0.82fr) minmax(0, 1.18fr);
@@ -1688,6 +1710,16 @@ html[data-page-theme] .sign-choice[data-element] {
   .period-tab {
     padding-inline: 11px;
     font-size: 0.78rem;
+  }
+
+  .forecast-period-date {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .forecast-period-date time {
+    text-align: left;
   }
 
   .fortune-secondary-metrics {

@@ -158,3 +158,29 @@ export function formatWeekRange(startDate: string, endDate: string): string {
     ? 'Del ' + startParts.day + ' al ' + endParts.day + ' de ' + endParts.month + ' de ' + endParts.year
     : 'Del ' + startParts.day + ' de ' + startParts.month + ' al ' + endParts.day + ' de ' + endParts.month + ' de ' + endParts.year;
 }
+
+export function formatPeriodRange(startDate?: string, endDate?: string): string {
+  if (!startDate || !endDate) return 'Fecha por confirmar';
+
+  const start = new Date(startDate + 'T12:00:00Z');
+  const end = new Date(endDate + 'T12:00:00Z');
+  const formatter = new Intl.DateTimeFormat('es-PE', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
+
+  if (startDate === endDate) return formatter.format(start);
+
+  const partsFor = (date: Date) => Object.fromEntries(
+    formatter.formatToParts(date).map((part) => [part.type, part.value]),
+  );
+  const startParts = partsFor(start);
+  const endParts = partsFor(end);
+  const sameMonth = startParts.month === endParts.month && startParts.year === endParts.year;
+
+  return sameMonth
+    ? 'Del ' + startParts.day + ' al ' + endParts.day + ' de ' + endParts.month + ' de ' + endParts.year
+    : 'Del ' + startParts.day + ' de ' + startParts.month + ' al ' + endParts.day + ' de ' + endParts.month + ' de ' + endParts.year;
+}

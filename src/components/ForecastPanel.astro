@@ -3,16 +3,23 @@ import FortuneMetrics, { type ScoreData } from './FortuneMetrics.astro';
 
 interface Props {
   label: string;
+  dateRange: string;
+  dateStart?: string;
   summary?: string;
   data?: ScoreData;
   contentHtml?: string;
 }
 
-const { label, summary, data, contentHtml = '' } = Astro.props;
+const { label, dateRange, dateStart, summary, data, contentHtml = '' } = Astro.props;
 ---
 
 <div class="forecast-panel-content">
   <h3 class="sr-only">{label}</h3>
+
+  <p class="forecast-period-date">
+    <span class="eyebrow">Fecha de lectura</span>
+    <time datetime={dateStart} data-period-date>{dateRange}</time>
+  </p>
 
   <FortuneMetrics data={data} />
 

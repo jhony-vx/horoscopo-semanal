@@ -4,7 +4,7 @@ import ForecastTabs from '../../components/ForecastTabs.astro';
 import SignLogo from '../../components/SignLogo.astro';
 import SignPickerDialog from '../../components/SignPickerDialog.astro';
 import SiteLayout from '../../layouts/SiteLayout.astro';
-import { formatWeekRange, getCurrentEdition, getForecastsForSign, type HoroscopeEntry } from '../../lib/horoscopes';
+import { currentDateInLima, dateInLima, formatWeekRange, getCurrentEdition, getForecastsForSign, type HoroscopeEntry } from '../../lib/horoscopes';
 
 export async function getStaticPaths() {
   const edition = await getCurrentEdition();
@@ -30,6 +30,8 @@ interface Props {
 
 const { sign, edition, entry, forecasts } = Astro.props;
 const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition.week.data.weekEnd) : '';
+const todayDate = currentDateInLima();
+const tomorrowDate = dateInLima(1);
 const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.slug).slice(0, 4) ?? [];
 ---
 
@@ -80,6 +82,8 @@ const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.
           tomorrow={forecasts.tomorrow}
           month={forecasts.month}
           weekRange={weekRange}
+          todayDate={todayDate}
+          tomorrowDate={tomorrowDate}
         />
       </div>
     </section>

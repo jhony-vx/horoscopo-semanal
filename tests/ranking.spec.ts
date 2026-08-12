@@ -15,7 +15,7 @@ test('la portada muestra el ranking, la editorial y el selector', async ({ page 
 test('la portada expone identidad y metadatos SEO propios', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute('href', '/favicon.svg');
+  await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute('href', /^\/favicon\.svg(?:\?v=\d+)?$/);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /horóscopo semanal/);
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /social-card\.svg/);
 
@@ -77,6 +77,17 @@ test('cada página de signo tiene logo, cuatro periodos y contenido semanal', as
   await expect(page).toHaveURL(/#esta-semana$/);
   await expect(page.getByRole('heading', { name: 'El tono de tu semana' })).toBeVisible();
   await expect(page.locator('[data-period-panel="week"]').getByText('Suerte general', { exact: true })).toBeVisible();
+});
+
+test('cada periodo muestra su fecha editorial exacta', async ({ page }) => {
+  await page.goto('/horoscopo/aries/');
+
+  const dates = await page.locator('[data-period-date]').allTextContents();
+  expect(dates).toHaveLength(4);
+  expect(dates[0]).toMatch(/^\d{1,2} de .+ de \d{4}$/);
+  expect(dates[1]).toMatch(/^\d{1,2} de .+ de \d{4}$/);
+  expect(dates[2]).toMatch(/^Del \d{1,2} al \d{1,2} de .+ de \d{4}$/);
+  expect(dates[3]).toMatch(/^Del \d{1,2} al \d{1,2} de .+ de \d{4}$/);
 });
 
 test('las páginas de signo aplican paletas propias', async ({ page }) => {
