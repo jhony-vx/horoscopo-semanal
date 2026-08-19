@@ -4,6 +4,10 @@ Sitio web estático de entretenimiento dedicado al horóscopo semanal. El proyec
 
 **Demo:** [horoscopo-semanal.pages.dev](https://horoscopo-semanal.pages.dev/)
 
+[![Publicación diaria](https://github.com/jhony-abz/horoscopo-semanal/actions/workflows/publish-daily.yml/badge.svg)](https://github.com/jhony-abz/horoscopo-semanal/actions/workflows/publish-daily.yml)
+[![Publicación semanal](https://github.com/jhony-abz/horoscopo-semanal/actions/workflows/publish-weekly.yml/badge.svg)](https://github.com/jhony-abz/horoscopo-semanal/actions/workflows/publish-weekly.yml)
+[![Validación](https://github.com/jhony-abz/horoscopo-semanal/actions/workflows/validate.yml/badge.svg)](https://github.com/jhony-abz/horoscopo-semanal/actions/workflows/validate.yml)
+
 ## Sobre el proyecto
 
 Ranking Zodiacal nace como un proyecto de portafolio para explorar una experiencia editorial moderna alrededor del horóscopo. La portada presenta la edición semanal vigente y cada signo cuenta con una página propia, una identidad cromática individual y contenido organizado en cuatro periodos:
@@ -110,14 +114,44 @@ La edición manual se realiza con [Pages CMS](https://pagescms.org/) mediante la
 
 ## Automatización editorial
 
-Los workflows de GitHub Actions preparan contenido de forma programada:
+Los workflows de GitHub Actions preparan y publican contenido de forma programada. Las horas están expresadas en `America/Lima`; GitHub ejecuta los cron en UTC.
+
+| Workflow | Programación | Contenido |
+| --- | --- | --- |
+| `publish-daily.yml` | Todos los días, 5:00 a. m. | Hoy y mañana para los 12 signos |
+| `publish-weekly.yml` | Lunes, 5:00 a. m. | Ranking y lectura semanal |
+| `publish-monthly.yml` | Día 1 de cada mes, 5:00 a. m. | Pronósticos mensuales |
+| `validate.yml` | Cada push y pull request | Type check, build y pruebas E2E |
+
+El workflow diario también se inicia cuando cambia `main`, para que una corrección pueda recuperar una publicación pendiente. Los workflows semanal y mensual se pueden ejecutar manualmente desde **GitHub → Actions → Run workflow**.
+
+### Flujo de publicación
+
+```mermaid
+flowchart LR
+    A[Horario o ejecución manual] --> B[Generar borradores]
+    B --> C[Validar contenido y fechas]
+    C --> D[Construir sitio Astro]
+    D --> E{¿Grupo completo y válido?}
+    E -- No --> F[Conservar la última versión publicada]
+    E -- Sí --> G[Publicar registros]
+    G --> H[git add de archivos nuevos]
+    H --> I[Commit automático en main]
+    I --> J[Cloudflare Pages despliega dist/]
+```
+
+Cada workflow editorial valida antes y después de publicar. Si falla una validación, no hace commit y la web mantiene la última edición válida. La comprobación de cambios se realiza después de `git add`, por lo que también detecta archivos Markdown nuevos.
+
+Las pruebas de navegador están separadas en `validate.yml`. Los workflows editoriales ejecutan `npm run check` y `npm run build`, pero no instalan Chromium ni repiten Playwright; así una incidencia de infraestructura de pruebas no bloquea la actualización del contenido.
+
+Los workflows principales son:
 
 - `publish-daily.yml`: procesa los pronósticos de hoy y mañana.
 - `publish-weekly.yml`: prepara la nueva edición semanal.
 - `publish-monthly.yml`: prepara el contenido del nuevo mes.
-- `validate.yml`: ejecuta las comprobaciones del proyecto.
+- `validate.yml`: ejecuta las comprobaciones del proyecto y las pruebas E2E con Chromium.
 
-Los procesos validan el contenido antes de publicar. Si una generación falla, se conserva la última versión válida.
+Si una generación falla, se conserva la última versión válida y el detalle queda registrado en la ejecución correspondiente de GitHub Actions.
 
 ## Despliegue
 
@@ -133,6 +167,18 @@ Node.js: 22.12.0
 ```
 
 Cada push a `main` genera un nuevo despliegue de producción. Los pull requests pueden utilizar despliegues de preview para revisar los cambios antes de publicarlos.
+
+### Publicación manual de emergencia
+
+Para recuperar una edición sin esperar al próximo horario:
+
+1. Abre la pestaña **Actions** del repositorio.
+2. Selecciona `Publish daily zodiac ranking`, `Publish weekly zodiac ranking` o `Publish monthly zodiac forecasts`.
+3. Pulsa **Run workflow** y confirma la rama `main`.
+4. Espera a que termine en estado `success`.
+5. Revisa el commit automático y el nuevo despliegue de Cloudflare Pages.
+
+No es necesario editar archivos generados manualmente: el workflow crea el contenido, valida el grupo completo y lo versiona en GitHub.
 
 ## Próximas mejoras
 
