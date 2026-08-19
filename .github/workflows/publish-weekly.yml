@@ -52,12 +52,12 @@ jobs:
 
       - name: Commit and push publication
         run: |
-          if git diff --quiet -- src/content/weeks src/content/horoscopes; then
+          git add src/content/weeks src/content/horoscopes
+          if git diff --cached --quiet; then
             echo "No hay cambios semanales para publicar."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/content/weeks src/content/horoscopes
           git commit -m "content: publica ranking zodiacal semanal"
           git push origin main

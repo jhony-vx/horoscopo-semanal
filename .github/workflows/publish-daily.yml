@@ -55,12 +55,12 @@ jobs:
 
       - name: Commit and push publication
         run: |
-          if git diff --quiet -- src/content/forecasts; then
+          git add src/content/forecasts
+          if git diff --cached --quiet; then
             echo "No hay cambios de contenido para publicar."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/content/forecasts
           git commit -m "content: publica ranking zodiacal diario"
           git push origin main
