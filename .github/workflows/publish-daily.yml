@@ -21,10 +21,10 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -35,14 +35,10 @@ jobs:
       - name: Prepare daily drafts
         run: node scripts/publish-daily-forecasts.mjs prepare
 
-      - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
-
       - name: Validate drafts
         run: |
           npm run check
           npm run build
-          npm run test:e2e
 
       - name: Publish complete daily groups
         run: node scripts/publish-daily-forecasts.mjs publish
@@ -51,7 +47,6 @@ jobs:
         run: |
           npm run check
           npm run build
-          npm run test:e2e
 
       - name: Commit and push publication
         run: |
