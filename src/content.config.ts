@@ -4,21 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
-
-const signSlugs = [
-  'aries',
-  'tauro',
-  'geminis',
-  'cancer',
-  'leo',
-  'virgo',
-  'libra',
-  'escorpio',
-  'sagitario',
-  'capricornio',
-  'acuario',
-  'piscis',
-] as const;
+import { SIGN_SLUGS } from './zodiac/signs';
 
 const status = z.enum(['draft', 'published']);
 const period = z.enum(['today', 'tomorrow', 'month']);
@@ -82,7 +68,7 @@ const horoscopes = defineCollection({
     weekStart: isoDate,
     weekEnd: isoDate,
     status,
-    sign: z.enum(signSlugs),
+    sign: z.enum(SIGN_SLUGS),
     rank: z.number().int().min(1).max(12),
     summary: z.string().min(30),
     generalScore: score,
@@ -96,7 +82,7 @@ const horoscopes = defineCollection({
 const forecasts = defineCollection({
   loader: markdownDirectoryLoader('./src/content/forecasts'),
   schema: z.object({
-    sign: z.enum(signSlugs),
+    sign: z.enum(SIGN_SLUGS),
     period,
     periodStart: isoDate,
     periodEnd: isoDate,
