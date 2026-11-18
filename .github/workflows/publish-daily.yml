@@ -1,4 +1,4 @@
-name: Publish daily zodiac ranking
+name: Publish daily zodiac forecasts
 
 on:
   schedule:
@@ -60,5 +60,5 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "content: publica ranking zodiacal diario"
+          git commit -m "content: publica pronósticos diarios"
           bash scripts/push-publication.sh

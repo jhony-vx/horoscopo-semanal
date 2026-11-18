@@ -4,9 +4,9 @@ Sitio web estático de entretenimiento dedicado al horóscopo semanal. El proyec
 
 **Demo:** [horoscopo-semanal.pages.dev](https://horoscopo-semanal.pages.dev/)
 
-[![Publicación diaria](https://github.com/jhony-abz/horoscopo-semanal/actions/workflows/publish-daily.yml/badge.svg)](https://github.com/jhony-abz/horoscopo-semanal/actions/workflows/publish-daily.yml)
-[![Publicación semanal](https://github.com/jhony-abz/horoscopo-semanal/actions/workflows/publish-weekly.yml/badge.svg)](https://github.com/jhony-abz/horoscopo-semanal/actions/workflows/publish-weekly.yml)
-[![Validación](https://github.com/jhony-abz/horoscopo-semanal/actions/workflows/validate.yml/badge.svg)](https://github.com/jhony-abz/horoscopo-semanal/actions/workflows/validate.yml)
+[![Publicación diaria](https://github.com/jhony-vx/horoscopo-semanal/actions/workflows/publish-daily.yml/badge.svg)](https://github.com/jhony-vx/horoscopo-semanal/actions/workflows/publish-daily.yml)
+[![Publicación semanal](https://github.com/jhony-vx/horoscopo-semanal/actions/workflows/publish-weekly.yml/badge.svg)](https://github.com/jhony-vx/horoscopo-semanal/actions/workflows/publish-weekly.yml)
+[![Validación](https://github.com/jhony-vx/horoscopo-semanal/actions/workflows/validate.yml/badge.svg)](https://github.com/jhony-vx/horoscopo-semanal/actions/workflows/validate.yml)
 
 ## Sobre el proyecto
 
@@ -173,7 +173,7 @@ Cada push a `main` genera un nuevo despliegue de producción. Los pull requests 
 Para recuperar una edición sin esperar al próximo horario:
 
 1. Abre la pestaña **Actions** del repositorio.
-2. Selecciona `Publish daily zodiac ranking`, `Publish weekly zodiac ranking` o `Publish monthly zodiac forecasts`.
+2. Selecciona `Publish daily zodiac forecasts`, `Publish weekly zodiac ranking` o `Publish monthly zodiac forecasts`.
 3. Pulsa **Run workflow** y confirma la rama `main`.
 4. Espera a que termine en estado `success`.
 5. Revisa el commit automático y el nuevo despliegue de Cloudflare Pages.
