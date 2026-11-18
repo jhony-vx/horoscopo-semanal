@@ -1,6 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { addDays, EDITORIAL_TIME_ZONE, isValidIsoDate, todayInLima } from '../zodiac/calendar';
 import { getSign, type SignSlug } from '../zodiac/signs';
+import { pickForecast } from './forecast-selection';
 
 export type HoroscopeEntry = CollectionEntry<'horoscopes'>;
 export type WeekEntry = CollectionEntry<'weeks'>;
@@ -126,9 +127,10 @@ export async function getForecastsForSign(slug: SignSlug) {
   const monthStart = today.slice(0, 7) + '-01';
 
   return {
-    today: entries.find((entry) => entry.data.status === 'published' && entry.data.sign === slug && entry.data.period === 'today' && entry.data.periodStart === today),
-    tomorrow: entries.find((entry) => entry.data.status === 'published' && entry.data.sign === slug && entry.data.period === 'tomorrow' && entry.data.periodStart === tomorrow),
-    month: entries.find((entry) => entry.data.status === 'published' && entry.data.sign === slug && entry.data.period === 'month' && entry.data.periodStart === monthStart),
+    // A failed daily run must not leave "Hoy" empty: show the latest reading with its real date.
+    today: pickForecast(entries, slug, 'today', today, { fallback: true }),
+    tomorrow: pickForecast(entries, slug, 'tomorrow', tomorrow),
+    month: pickForecast(entries, slug, 'month', monthStart),
   };
 }
 
