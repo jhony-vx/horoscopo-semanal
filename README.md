@@ -123,6 +123,8 @@ Los workflows de GitHub Actions preparan y publican contenido de forma programad
 | `publish-monthly.yml` | Día 1 de cada mes, 5:00 a. m. | Pronósticos mensuales |
 | `validate.yml` | Cada push y pull request | Type check, build y pruebas E2E |
 
+El workflow diario conserva solo los últimos 30 días de pronósticos diarios (`npm run content:prune`); los anteriores siguen disponibles en el historial de git.
+
 El workflow diario también se inicia cuando cambia `main`, para que una corrección pueda recuperar una publicación pendiente. Los workflows semanal y mensual se pueden ejecutar manualmente desde **GitHub → Actions → Run workflow**.
 
 ### Flujo de publicación

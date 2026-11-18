@@ -46,6 +46,9 @@ jobs:
       - name: Publish complete daily groups
         run: node scripts/publish-daily-forecasts.mjs publish
 
+      - name: Prune expired daily forecasts
+        run: npm run content:prune
+
       - name: Validate published groups
         run: |
           npm run check
