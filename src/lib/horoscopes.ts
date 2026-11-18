@@ -1,32 +1,19 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { getSign, type SignSlug } from '../data-signs';
+import { addDays, EDITORIAL_TIME_ZONE, isValidIsoDate, todayInLima } from '../zodiac/calendar';
+import { getSign, type SignSlug } from '../zodiac/signs';
 
 export type HoroscopeEntry = CollectionEntry<'horoscopes'>;
 export type WeekEntry = CollectionEntry<'weeks'>;
 export type ForecastEntry = CollectionEntry<'forecasts'>;
 
-const LIMA_TIME_ZONE = 'America/Lima';
-
-function isValidIsoDate(value: string): boolean {
-  const date = new Date(value + 'T00:00:00Z');
-  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
-}
+const LIMA_TIME_ZONE = EDITORIAL_TIME_ZONE;
 
 export function dateInLima(offsetDays = 0): string {
-  const formatter = new Intl.DateTimeFormat('en-CA', {
-    timeZone: LIMA_TIME_ZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-  const parts = formatter.formatToParts(new Date());
-  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-  const date = new Date(Date.UTC(Number(values.year), Number(values.month) - 1, Number(values.day) + offsetDays));
-  return date.toISOString().slice(0, 10);
+  return addDays(todayInLima(), offsetDays);
 }
 
 export function currentDateInLima(): string {
-  return dateInLima();
+  return todayInLima();
 }
 
 function groupByWeek(entries: HoroscopeEntry[]): Map<string, HoroscopeEntry[]> {

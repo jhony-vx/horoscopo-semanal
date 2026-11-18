@@ -14,6 +14,8 @@ export const ZODIAC_SIGNS = [
 ] as const;
 
 export type SignSlug = (typeof ZODIAC_SIGNS)[number]['slug'];
+
+export const SIGN_SLUGS = ZODIAC_SIGNS.map((sign) => sign.slug) as [SignSlug, ...SignSlug[]];
 export type SignElementKey = (typeof ZODIAC_SIGNS)[number]['elementKey'];
 export type ZodiacSign = (typeof ZODIAC_SIGNS)[number];
 
