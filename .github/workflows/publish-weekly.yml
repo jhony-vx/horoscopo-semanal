@@ -33,7 +33,7 @@ jobs:
         run: npm ci
 
       - name: Prepare weekly drafts
-        run: node scripts/publish-periodic-content.mjs prepare-week
+        run: npm run content -- prepare-week
 
       - name: Validate drafts
         run: |
@@ -41,7 +41,7 @@ jobs:
           npm run build
 
       - name: Publish complete weekly group
-        run: node scripts/publish-periodic-content.mjs publish-week
+        run: npm run content -- publish-week
 
       - name: Validate published group
         run: |

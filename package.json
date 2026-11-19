@@ -10,6 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "content": "node --experimental-strip-types --no-warnings scripts/publish-content.ts",
     "content:prune": "node --experimental-strip-types scripts/prune-forecasts.ts",
     "test:unit": "node --experimental-strip-types --test \"src/**/*.test.ts\" \"scripts/**/*.test.mjs\" \"scripts/**/*.test.ts\"",
     "test:e2e": "playwright test",
