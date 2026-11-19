@@ -3,9 +3,9 @@ weekStart: '2026-10-19'
 weekEnd: '2026-10-25'
 status: published
 sign: capricornio
-rank: 11
-summary: 'Capricornio: esta semana, avanzar con disciplina y perspectiva puede ayudarte a avanzar con una expectativa flexible.'
-generalScore: 4
+rank: 9
+summary: 'Esta semana, Capricornio: con Saturno retrógrado en Aries, en cuadratura con tu signo, es buen momento para avanzar con disciplina y perspectiva.'
+generalScore: 3
 loveScore: 3
 professionalScore: 3
 financialScore: 3
@@ -14,12 +14,12 @@ wellbeingScore: 3
 
 ## El tono de tu semana
 
-Esta semana, avanzar con disciplina y perspectiva te permite ordenar la energía y elegir un avance concreto. No necesitas resolverlo todo de una vez: una decisión razonable también cuenta como progreso.
+Esta semana, con Saturno retrógrado en Aries, en cuadratura con tu signo, hay espacio para crecer si eliges una prioridad y le das tu mejor atención.
 
 ## Amor y vínculos
 
-En tus vínculos, hablar con claridad y escuchar el ritmo de la otra persona puede abrir una conversación más cercana. Deja espacio para acuerdos sencillos y para cambiar de opinión sin presión.
+Esta semana, con Venus retrógrado en Escorpio, en sextil con tu signo, un gesto pequeño de atención puede decir más que una larga explicación.
 
 ## Trabajo y bienestar
 
-En el trabajo, priorizar una tarea importante y revisar los detalles antes de cerrar favorece un resultado sostenible. Alterna concentración con pausas reales para cuidar tu energía.
+Esta semana, con Mercurio en Escorpio, en sextil con tu signo, una revisión cuidadosa de los detalles evitará repetir trabajo más adelante. Con el Sol en Libra, en cuadratura con tu signo, reducir estímulos por un rato favorecerá una pausa mental reparadora.
