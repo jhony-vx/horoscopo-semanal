@@ -9,6 +9,7 @@ import BrandMark from './BrandMark.astro';
       <a href="/#ranking">Ranking</a>
       <a class="nav-optional" href="/#compatibilidad">Compatibilidad</a>
       <a class="nav-optional" href="/semanas/">Historial</a>
+      <a class="nav-optional" href="/calendario-lunar/">Calendario lunar</a>
       <a href="/#tu-signo">Tu signo</a>
       <a class="saved-sign-link" href="/#tu-signo" data-saved-sign-link hidden>
         <span class="symbol" data-saved-sign-symbol aria-hidden="true"></span>
@@ -80,13 +81,19 @@ import BrandMark from './BrandMark.astro';
     color: var(--gold-300);
   }
 
+  /* Secondary sections stay in the footer when the header has no room for them. */
+  @media (max-width: 1000px) {
+    .main-nav .nav-optional {
+      display: none;
+    }
+  }
+
   @media (max-width: 560px) {
     .main-nav a:not(.saved-sign-link) {
       padding-inline: 10px;
     }
 
-    .main-nav a[href='/#ranking'],
-    .main-nav .nav-optional {
+    .main-nav a[href='/#ranking'] {
       display: none;
     }
 

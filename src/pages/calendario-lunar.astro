@@ -1,0 +1,70 @@
+---
+import LunarMonthGrid from '../components/lunar/LunarMonthGrid.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { currentDateInLima, formatDayMonth } from '../lib/horoscopes';
+import { addDays, monthEndOf } from '../zodiac/calendar';
+import { lunarMonth } from '../zodiac/lunar-calendar';
+
+const today = currentDateInLima();
+const current = lunarMonth(today);
+const next = lunarMonth(addDays(monthEndOf(today), 1));
+const monthTitle = (date: string) => new Intl.DateTimeFormat('es-PE', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(date + 'T12:00:00Z')).toLowerCase().replace(/^./, (letter) => letter.toUpperCase());
+const currentTitle = monthTitle(current.start);
+const todayEntry = current.days.find((day) => day.date === today)!;
+const nextMainEvent = [...current.events, ...next.events].find((event) => event.date > today && (event.phase === 'new' || event.phase === 'full'));
+---
+
+<SiteLayout
+  title={'Calendario lunar de ' + currentTitle.toLowerCase() + ': fases de la Luna día por día'}
+  description={`Fases de la Luna, iluminación y signo lunar de cada día de ${currentTitle.toLowerCase()}, calculados con la posición real de la Luna. Hoy: ${todayEntry.phaseName} en ${todayEntry.moonSign.name}.`}
+  breadcrumbs={[{ name: 'Inicio', href: '/' }, { name: 'Calendario lunar', href: '/calendario-lunar/' }]}
+>
+  <div class="container lunar-page">
+    <header class="lunar-header">
+      <span class="eyebrow">Calendario lunar</span>
+      <h1>La Luna, día por día.</h1>
+      <p>
+        Hoy la Luna está en <strong>{todayEntry.moonSign.name}</strong>, en {todayEntry.phaseName} y {todayEntry.illumination}&nbsp;% iluminada.
+        {nextMainEvent && <> La próxima {nextMainEvent.name.toLowerCase()} es el {formatDayMonth(nextMainEvent.date)}, en {nextMainEvent.sign.name}.</>}
+      </p>
+      <p class="lunar-note">Cada día muestra la fase y el signo de la Luna al mediodía de Lima. "Entra" marca el día en que cambia de signo.</p>
+    </header>
+
+    <LunarMonthGrid month={current} title={currentTitle} today={today} />
+    <LunarMonthGrid month={next} title={monthTitle(next.start)} today={today} />
+  </div>
+</SiteLayout>
+
+<style>
+  .lunar-page {
+    display: grid;
+    gap: 28px;
+    padding-block: clamp(40px, 7vw, 88px) 24px;
+  }
+
+  .lunar-header {
+    display: grid;
+    gap: 14px;
+    max-width: 680px;
+  }
+
+  .lunar-header h1 {
+    font-size: clamp(2.6rem, 8vw, 4.6rem);
+    font-weight: 700;
+    text-shadow: var(--text-shadow);
+  }
+
+  .lunar-header p {
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+  }
+
+  .lunar-header strong {
+    color: var(--ink);
+  }
+
+  .lunar-header .lunar-note {
+    color: var(--ink-faint);
+    font-size: 0.9rem;
+  }
+</style>
