@@ -1,18 +1,24 @@
 ---
 import RankingCard from './RankingCard.astro';
+import { ranksBySign } from '../../lib/editions';
 import type { HoroscopeEntry } from '../../lib/horoscopes';
 
 interface Props {
   entries: HoroscopeEntry[];
+  /** The previous edition, to show how each sign moved. */
+  previousEntries?: HoroscopeEntry[];
+  /** Turns off the shared glyph transition, for pages that list the ranking more than once. */
+  transition?: boolean;
 }
 
-const { entries } = Astro.props;
+const { entries, previousEntries = [], transition = true } = Astro.props;
+const previousRanks = ranksBySign(previousEntries.map((entry) => ({ sign: entry.data.sign, rank: entry.data.rank })));
 ---
 
 <ol class="weekly-ranking" aria-label="Ranking semanal de los doce signos" data-weekly-ranking>
   {entries.map((entry) => (
     <li class="weekly-ranking-item">
-      <RankingCard entry={entry} />
+      <RankingCard entry={entry} previousRank={previousRanks.get(entry.data.sign)} transition={transition} />
     </li>
   ))}
 </ol>

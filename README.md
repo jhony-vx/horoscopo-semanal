@@ -24,7 +24,8 @@ npm run test       # tests unitarios, astro check, build y E2E
 
 | Sección | Contenido |
 | --- | --- |
-| Portada | Ranking semanal del 1 al 12, el cielo de hoy (fase lunar, retrógrados, próxima lunación), la lectura de la semana y una herramienta de compatibilidad entre dos signos. |
+| Portada | Ranking semanal del 1 al 12 con cuántos puestos subió o bajó cada signo, el cielo de hoy (fase lunar, retrógrados, próxima lunación), la lectura de la semana y una herramienta de compatibilidad entre dos signos. |
+| Historial (`/semanas/`) | Una página por edición publicada con su ranking, su tendencia y el horóscopo semanal completo de cada signo. |
 | Página de cada signo | Lectura de hoy, mañana, la semana y el mes; perfil con su constelación, mito, regente, modalidad y rasgos; compatibilidad y cómo le afecta la Luna de hoy. |
 | Fondo | Rueda zodiacal propia en SVG con los nombres en español; gira despacio, reacciona al scroll y resalta el signo de cada página. |
 | Preferencias | El signo elegido se guarda en `localStorage` y aparece en el menú y en la compatibilidad. |
@@ -56,8 +57,8 @@ src/
 │   └── sign/        # Página de signo: pestañas, perfil, compatibilidad, modal
 ├── content/         # Markdown publicado: weeks/, horoscopes/, forecasts/
 ├── layouts/         # Layout global con SEO y JSON-LD
-├── lib/             # Consultas de contenido y formato de fechas
-├── pages/           # Rutas: portada, /horoscopo/[signo]/ y 404
+├── lib/             # Consultas de contenido, ediciones y formato de fechas
+├── pages/           # Rutas: portada, /horoscopo/[signo]/, /semanas/ y 404
 ├── scripts/         # Scripts de navegador: preferencias, reveal, compartir
 ├── styles/          # tokens.css (diseño) y base.css (estilos globales)
 └── zodiac/          # Motor: signos, calendario, cielo, puntajes, textos, rueda, perfiles
@@ -97,6 +98,8 @@ npm run content -- <prepare-day|publish-day|prepare-week|publish-week|prepare-mo
 ```
 
 `prepare-*` crea solo los borradores que faltan (nunca sobrescribe) y `publish-*` valida el grupo completo antes de publicarlo. `--date` permite recuperar un día, una semana o un mes que no se publicó.
+
+Para regenerar semanas ya publicadas (por ejemplo, después de cambiar el modelo), borra sus archivos en `weeks/` y `horoscopes/` y vuelve a prepararlas y publicarlas **de la más antigua a la más reciente**: la regla de las dos semanas seguidas se calcula con las ediciones anteriores publicadas.
 
 ## Diseño y animaciones
 

@@ -1,0 +1,196 @@
+---
+import { movementDescription, movementLabel, rankMovement } from '../../lib/editions';
+import type { HoroscopeEntry } from '../../lib/horoscopes';
+import { getSign } from '../../zodiac/signs';
+import SignLogo from '../ui/SignLogo.astro';
+
+interface Props {
+  entry: HoroscopeEntry;
+  previousRank?: number;
+}
+
+const { entry, previousRank } = Astro.props;
+const sign = getSign(entry.data.sign);
+if (!sign) throw new Error('Signo no encontrado: ' + entry.data.sign);
+const { rank, generalScore } = entry.data;
+const movement = rankMovement(rank, previousRank);
+const trend = movementLabel(movement);
+---
+
+<details class="archive-entry" style={`--orb-accent: ${sign.accent}`} data-element={sign.elementKey} data-archive-entry>
+  <summary>
+    <span class="archive-rank">
+      <span class="archive-position">{String(rank).padStart(2, '0')}</span>
+      {trend && <span class="archive-trend" data-trend={movement.kind} title={movementDescription(movement)}>{trend}</span>}
+    </span>
+    <SignLogo sign={sign} size="small" decorative />
+    <span class="archive-heading">
+      <span class="archive-name">{sign.name}</span>
+      <span class="archive-score">Suerte {generalScore}/5</span>
+    </span>
+    <span class="archive-summary">{entry.data.summary}</span>
+    <svg class="archive-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg>
+  </summary>
+  <div class="archive-reading">
+    <div class="prose">
+      <Fragment set:html={entry.rendered?.html ?? ''} />
+    </div>
+    <a class="archive-link" href={'/horoscopo/' + sign.slug + '/'}>Leer el horóscopo actual de {sign.name}</a>
+  </div>
+</details>
+
+<style>
+  .archive-entry {
+    border: 1px solid var(--line-quiet);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    transition: border-color var(--duration-base) var(--ease-out);
+  }
+
+  .archive-entry[open],
+  .archive-entry:hover {
+    border-color: color-mix(in srgb, var(--orb-accent) 40%, transparent);
+  }
+
+  summary {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'rank orb heading chevron'
+      'rank orb summary chevron';
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 4px;
+    padding: 16px 20px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .archive-rank {
+    grid-area: rank;
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+  }
+
+  .archive-position {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    aspect-ratio: 1;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .archive-trend {
+    min-width: 28px;
+    padding: 1px 6px;
+    border-radius: var(--radius-control);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .archive-trend[data-trend='up'] {
+    background: rgb(126 217 154 / 0.14);
+    color: #8fe0a8;
+  }
+
+  .archive-trend[data-trend='down'] {
+    background: rgb(255 128 128 / 0.12);
+    color: #ff9b9b;
+  }
+
+  .archive-trend[data-trend='same'] {
+    background: rgb(255 255 255 / 0.06);
+    color: var(--ink-faint);
+  }
+
+  summary > :global(.sign-logo) {
+    grid-area: orb;
+  }
+
+  .archive-heading {
+    grid-area: heading;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 12px;
+  }
+
+  .archive-name {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  .archive-score {
+    color: var(--gold-300);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .archive-summary {
+    grid-area: summary;
+    color: var(--ink-soft);
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+
+  .archive-chevron {
+    grid-area: chevron;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: var(--gold-300);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: rotate var(--duration-base) var(--ease-out);
+  }
+
+  [open] .archive-chevron {
+    rotate: 180deg;
+  }
+
+  .archive-reading {
+    display: grid;
+    gap: 18px;
+    margin-inline: 20px;
+    padding: 18px 0 22px;
+    border-top: 1px solid var(--line-quiet);
+  }
+
+  .archive-link {
+    justify-self: start;
+    color: var(--gold-300);
+    font-weight: 600;
+  }
+
+  @media (max-width: 600px) {
+    summary {
+      grid-template-columns: auto auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        'rank orb heading chevron'
+        'summary summary summary summary';
+      column-gap: 12px;
+      padding: 14px 16px;
+    }
+
+    .archive-summary {
+      margin-top: 10px;
+    }
+
+    .archive-reading {
+      margin-inline: 16px;
+    }
+  }
+</style>

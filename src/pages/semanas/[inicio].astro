@@ -1,0 +1,230 @@
+---
+import ArchiveEntry from '../../components/archive/ArchiveEntry.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { ranksBySign } from '../../lib/editions';
+import { formatWeekRange, getEditions, type Edition } from '../../lib/horoscopes';
+import { getSign } from '../../zodiac/signs';
+
+export async function getStaticPaths() {
+  const { archive } = await getEditions();
+  return archive.map((edition, index) => ({
+    params: { inicio: edition.week.data.weekStart },
+    props: { edition, older: archive[index + 1], newer: archive[index - 1], isCurrent: index === 0 },
+  }));
+}
+
+interface Props {
+  edition: Edition;
+  older?: Edition;
+  newer?: Edition;
+  isCurrent: boolean;
+}
+
+const { edition, older, newer, isCurrent } = Astro.props;
+const { week, entries } = edition;
+const range = formatWeekRange(week.data.weekStart, week.data.weekEnd);
+const leader = getSign(entries[0].data.sign)!;
+const previousRanks = ranksBySign((older?.entries ?? []).map((entry) => ({ sign: entry.data.sign, rank: entry.data.rank })));
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? '';
+const path = '/semanas/' + week.data.weekStart + '/';
+const schema = [{
+  '@type': 'ItemList',
+  name: 'Ranking del horóscopo semanal: ' + range,
+  itemListOrder: 'https://schema.org/ItemListOrderAscending',
+  numberOfItems: entries.length,
+  itemListElement: entries.map((entry) => ({
+    '@type': 'ListItem',
+    position: entry.data.rank,
+    name: getSign(entry.data.sign)?.name,
+    url: siteUrl + '/horoscopo/' + entry.data.sign + '/',
+  })),
+}];
+---
+
+<SiteLayout
+  title={'Ranking ' + range.replace(/^Del /, 'del ')}
+  description={`${week.data.title}. ${leader.name} encabezó el ranking zodiacal ${range.replace(/^Del /, 'del ')}. ${week.data.theme}`}
+  pageType="article"
+  publishedTime={week.data.weekStart}
+  modifiedTime={week.data.weekEnd}
+  breadcrumbs={[{ name: 'Inicio', href: '/' }, { name: 'Historial', href: '/semanas/' }, { name: range, href: path }]}
+  schema={schema}
+>
+  <article class="container edition">
+    <nav class="breadcrumb" aria-label="Migas de pan">
+      <a href="/">Inicio</a>
+      <span aria-hidden="true">/</span>
+      <a href="/semanas/">Historial</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{range}</span>
+    </nav>
+
+    <header class="edition-header">
+      <span class="eyebrow">{isCurrent ? 'Edición de esta semana' : 'Edición archivada'}</span>
+      <h1>{week.data.title}</h1>
+      <p class="edition-range">{range}</p>
+      <p class="edition-theme">{week.data.theme}</p>
+      <p class="edition-intro">{week.data.intro}</p>
+    </header>
+
+    <section class="edition-ranking" aria-labelledby="edition-ranking-title">
+      <div class="edition-ranking-heading">
+        <h2 id="edition-ranking-title">Ranking de la semana</h2>
+        <p>Toca un signo para leer su horóscopo semanal completo.</p>
+      </div>
+      <ol class="edition-list">
+        {entries.map((entry) => (
+          <li><ArchiveEntry entry={entry} previousRank={previousRanks.get(entry.data.sign)} /></li>
+        ))}
+      </ol>
+    </section>
+
+    {week.rendered?.html && (
+      <section class="edition-body panel" aria-label="Lectura de la semana">
+        <div class="prose"><Fragment set:html={week.rendered.html} /></div>
+      </section>
+    )}
+
+    <nav class="edition-pager" aria-label="Otras semanas">
+      {older ? (
+        <a class="edition-pager-link" href={'/semanas/' + older.week.data.weekStart + '/'}>
+          <span class="edition-pager-label">Semana anterior</span>
+          <span>{formatWeekRange(older.week.data.weekStart, older.week.data.weekEnd)}</span>
+        </a>
+      ) : <span />}
+      {newer && (
+        <a class="edition-pager-link edition-pager-newer" href={'/semanas/' + newer.week.data.weekStart + '/'}>
+          <span class="edition-pager-label">Semana siguiente</span>
+          <span>{formatWeekRange(newer.week.data.weekStart, newer.week.data.weekEnd)}</span>
+        </a>
+      )}
+    </nav>
+  </article>
+</SiteLayout>
+
+<style>
+  .edition {
+    display: grid;
+    gap: 40px;
+    padding-block: 32px 24px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    color: var(--ink-faint);
+    font-size: 0.88rem;
+  }
+
+  .breadcrumb a {
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--gold-200);
+  }
+
+  .edition-header {
+    display: grid;
+    gap: 14px;
+    max-width: 760px;
+  }
+
+  .edition-header h1 {
+    font-size: clamp(2.4rem, 7vw, 4.4rem);
+    font-weight: 700;
+    text-shadow: var(--text-shadow);
+  }
+
+  .edition-range {
+    color: var(--gold-300);
+    font-weight: 600;
+  }
+
+  .edition-theme {
+    color: var(--gold-200);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+  }
+
+  .edition-intro {
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+  }
+
+  .edition-ranking {
+    display: grid;
+    gap: 18px;
+  }
+
+  .edition-ranking-heading {
+    display: grid;
+    gap: 6px;
+  }
+
+  .edition-ranking-heading h2 {
+    font-size: clamp(1.7rem, 3.6vw, 2.3rem);
+  }
+
+  .edition-ranking-heading p {
+    color: var(--ink-soft);
+  }
+
+  .edition-list {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .edition-body {
+    padding: clamp(22px, 4vw, 36px);
+  }
+
+  .edition-pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .edition-pager-link {
+    display: grid;
+    gap: 4px;
+    padding: 16px 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .edition-pager-link:hover {
+    border-color: var(--gold-300);
+  }
+
+  .edition-pager-newer {
+    text-align: right;
+  }
+
+  .edition-pager-label {
+    color: var(--gold-300);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 600px) {
+    .edition-pager {
+      grid-template-columns: 1fr;
+    }
+
+    .edition-pager-newer {
+      text-align: left;
+    }
+  }
+</style>

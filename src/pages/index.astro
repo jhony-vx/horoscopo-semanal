@@ -6,11 +6,11 @@ import WeeklyEditorial from '../components/home/WeeklyEditorial.astro';
 import WeeklyRanking from '../components/home/WeeklyRanking.astro';
 import SignGrid from '../components/shared/SignGrid.astro';
 import SkyToday from '../components/shared/SkyToday.astro';
-import { currentDateInLima, formatWeekRange, getCurrentEdition } from '../lib/horoscopes';
+import { currentDateInLima, formatWeekRange, getEditions } from '../lib/horoscopes';
 import { getSign } from '../zodiac/signs';
 import { skySummary } from '../zodiac/sky-summary';
 
-const edition = await getCurrentEdition();
+const { current: edition, previous } = await getEditions();
 const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition.week.data.weekEnd) : '';
 const leader = edition ? getSign(edition.entries[0].data.sign) : undefined;
 const sky = skySummary(currentDateInLima());
@@ -51,7 +51,10 @@ const rankingSchema = edition
           </div>
 
           <div class="ranking-layout">
-            <WeeklyRanking entries={edition.entries} />
+            <div class="ranking-main">
+              <WeeklyRanking entries={edition.entries} previousEntries={previous?.entries} />
+              <a class="button button-ghost ranking-archive-link" href="/semanas/">Ver ediciones anteriores</a>
+            </div>
             <aside class="ranking-aside">
               <SkyToday summary={sky} />
               <WeeklyEditorial week={edition.week} weekRange={weekRange} bodyHtml={edition.week.rendered?.html ?? ''} />
@@ -103,9 +106,14 @@ const rankingSchema = edition
     }
   }
 
-  .ranking-aside {
+  .ranking-aside,
+  .ranking-main {
     display: grid;
     gap: 20px;
+  }
+
+  .ranking-archive-link {
+    justify-self: start;
   }
 
   .compatibility-section {

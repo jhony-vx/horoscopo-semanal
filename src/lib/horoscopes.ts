@@ -1,6 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { addDays, EDITORIAL_TIME_ZONE, isValidIsoDate, todayInLima } from '../zodiac/calendar';
 import { getSign, type SignSlug } from '../zodiac/signs';
+import { editionTimeline, type EditionTimeline } from './editions';
 import { pickForecast } from './forecast-selection';
 
 export type HoroscopeEntry = CollectionEntry<'horoscopes'>;
@@ -79,7 +80,10 @@ export function validatePublishedForecasts(entries: ForecastEntry[]): void {
   }
 }
 
-export async function getCurrentEdition() {
+export type Edition = { week: WeekEntry; entries: HoroscopeEntry[] };
+
+/** Every complete published edition up to today, with the current and previous ones. */
+export async function getEditions(): Promise<EditionTimeline<Edition>> {
   const [weeks, entries] = await Promise.all([
     getCollection('weeks'),
     getCollection('horoscopes'),
@@ -87,23 +91,16 @@ export async function getCurrentEdition() {
 
   validatePublishedWeeks(entries);
 
-  const publishedWeeks = weeks
-    .filter((week) => week.data.status === 'published')
-    .sort((a, b) => b.data.weekStart.localeCompare(a.data.weekStart));
-  const publishedEntries = entries.filter((entry) => entry.data.status === 'published');
-  const grouped = groupByWeek(publishedEntries);
-  const today = currentDateInLima();
-  const completeWeeks = publishedWeeks.filter((week) => (grouped.get(week.data.weekStart)?.length ?? 0) === 12);
-  const currentWeek = completeWeeks.find((week) => week.data.weekStart <= today) ?? completeWeeks[0];
+  const grouped = groupByWeek(entries.filter((entry) => entry.data.status === 'published'));
+  const editions = weeks
+    .filter((week) => week.data.status === 'published' && (grouped.get(week.data.weekStart)?.length ?? 0) === 12)
+    .map((week) => ({ week, entries: grouped.get(week.data.weekStart)!.sort((a, b) => a.data.rank - b.data.rank) }));
 
-  if (!currentWeek) {
-    return null;
-  }
+  return editionTimeline(editions, (edition) => edition.week.data.weekStart, currentDateInLima());
+}
 
-  return {
-    week: currentWeek,
-    entries: (grouped.get(currentWeek.data.weekStart) ?? []).sort((a, b) => a.data.rank - b.data.rank),
-  };
+export async function getCurrentEdition(): Promise<Edition | null> {
+  return (await getEditions()).current ?? null;
 }
 
 export function getSignOrThrow(slug: string) {

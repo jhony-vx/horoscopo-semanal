@@ -1,0 +1,150 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { formatWeekRange, getEditions } from '../../lib/horoscopes';
+import { getSign } from '../../zodiac/signs';
+
+const { archive } = await getEditions();
+const editions = archive.map((edition, index) => ({
+  start: edition.week.data.weekStart,
+  range: formatWeekRange(edition.week.data.weekStart, edition.week.data.weekEnd),
+  title: edition.week.data.title,
+  theme: edition.week.data.theme,
+  leader: getSign(edition.entries[0].data.sign)!,
+  isCurrent: index === 0,
+}));
+---
+
+<SiteLayout
+  title="Historial del horóscopo semanal"
+  description={`Todas las ediciones del ranking zodiacal semanal: ${editions.length} semanas con el puesto de cada signo y su lectura completa.`}
+  breadcrumbs={[{ name: 'Inicio', href: '/' }, { name: 'Historial', href: '/semanas/' }]}
+>
+  <section class="container archive">
+    <header class="archive-header">
+      <span class="eyebrow">Historial</span>
+      <h1>Todas las semanas.</h1>
+      <p>Cada edición conserva su ranking, la lectura de la semana y el horóscopo completo de los doce signos.</p>
+    </header>
+
+    <ol class="archive-grid" reversed>
+      {editions.map((edition) => (
+        <li>
+          <a class="archive-card" href={'/semanas/' + edition.start + '/'} style={`--orb-accent: ${edition.leader.accent}`} data-reveal>
+            <span class="archive-card-top">
+              <span class="archive-card-range">{edition.range}</span>
+              {edition.isCurrent && <span class="archive-card-badge">Esta semana</span>}
+            </span>
+            <span class="archive-card-title">{edition.title}</span>
+            <span class="archive-card-theme">{edition.theme}</span>
+            <span class="archive-card-leader">
+              <span class="symbol" aria-hidden="true">{edition.leader.symbol}</span>
+              Lideró {edition.leader.name}
+            </span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+</SiteLayout>
+
+<style>
+  .archive {
+    display: grid;
+    gap: 36px;
+    padding-block: clamp(40px, 7vw, 88px) 24px;
+  }
+
+  .archive-header {
+    display: grid;
+    gap: 14px;
+    max-width: 640px;
+  }
+
+  .archive-header h1 {
+    font-size: clamp(2.6rem, 8vw, 4.6rem);
+    font-weight: 700;
+    text-shadow: var(--text-shadow);
+  }
+
+  .archive-header p {
+    color: var(--ink-soft);
+  }
+
+  .archive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .archive-card {
+    display: grid;
+    gap: 10px;
+    height: 100%;
+    padding: 20px 22px;
+    border: 1px solid var(--line-quiet);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    text-decoration: none;
+    transition: border-color var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .archive-card:hover,
+  .archive-card:focus-visible {
+    border-color: color-mix(in srgb, var(--orb-accent) 50%, transparent);
+    box-shadow: 0 18px 44px rgb(0 0 0 / 0.35);
+  }
+
+  .archive-card-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .archive-card-range {
+    color: var(--gold-300);
+    font-size: 0.86rem;
+    font-weight: 600;
+  }
+
+  .archive-card-badge {
+    padding: 2px 10px;
+    border-radius: var(--radius-control);
+    background: var(--gold-300);
+    color: var(--night-950);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .archive-card-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .archive-card-theme {
+    color: var(--ink-soft);
+    font-size: 0.94rem;
+  }
+
+  .archive-card-leader {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--line-quiet);
+    font-weight: 600;
+  }
+
+  .archive-card-leader .symbol {
+    color: var(--orb-accent);
+  }
+</style>
