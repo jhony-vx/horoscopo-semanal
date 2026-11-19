@@ -1,0 +1,84 @@
+---
+import type { Constellation } from '../../zodiac/profiles';
+
+interface Props {
+  constellation: Constellation;
+  label: string;
+}
+
+const { constellation, label } = Astro.props;
+---
+
+<svg class="constellation" viewBox="-6 -6 112 72" role="img" aria-label={label} data-constellation>
+  <g class="constellation-lines">
+    {constellation.lines.map(([from, to]) => {
+      const [x1, y1] = constellation.stars[from];
+      const [x2, y2] = constellation.stars[to];
+      return <line x1={x1} y1={y1} x2={x2} y2={y2} pathLength="1" />;
+    })}
+  </g>
+  <g class="constellation-stars">
+    {constellation.stars.map(([x, y, radius], index) => (
+      <circle cx={x} cy={y} r={radius} style={`--twinkle-delay: ${(index * 0.7) % 4}s`} />
+    ))}
+  </g>
+</svg>
+
+<style>
+  .constellation {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .constellation-lines line {
+    stroke: var(--sign-accent);
+    stroke-opacity: 0.55;
+    stroke-width: 0.6;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  .constellation-stars circle {
+    fill: var(--gold-200);
+    filter: drop-shadow(0 0 2px var(--sign-accent));
+    animation: twinkle 4s ease-in-out infinite;
+    animation-delay: var(--twinkle-delay);
+  }
+
+  /* The drawing animation runs only once the script marks the map as ready, so the lines show without JS. */
+  .constellation.is-drawing .constellation-lines line {
+    animation: draw-line 1.6s var(--ease-out) both;
+  }
+
+  @keyframes draw-line {
+    from {
+      stroke-dashoffset: 1;
+    }
+  }
+
+  @keyframes twinkle {
+    50% {
+      opacity: 0.55;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .constellation-stars circle {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { inView } from 'motion';
+  import { isBelowFold, prefersReducedMotion } from '../../scripts/motion-preference';
+
+  if (!prefersReducedMotion()) {
+    document.querySelectorAll<SVGElement>('[data-constellation]').forEach((map) => {
+      if (!isBelowFold(map)) return;
+      inView(map, () => map.classList.add('is-drawing'));
+    });
+  }
+</script>

@@ -1,0 +1,188 @@
+---
+import { SIGN_PROFILES } from '../../zodiac/profiles';
+import type { ZodiacSign } from '../../zodiac/signs';
+import ConstellationMap from '../ui/ConstellationMap.astro';
+
+interface Props {
+  sign: ZodiacSign;
+}
+
+const { sign } = Astro.props;
+const profile = SIGN_PROFILES[sign.slug];
+const facts = [
+  { label: 'Elemento', value: sign.element },
+  { label: 'Modalidad', value: profile.modality },
+  { label: 'Regente', value: profile.classicalRuler ? `${profile.ruler} (clásico: ${profile.classicalRuler})` : profile.ruler },
+  { label: 'Polaridad', value: profile.polarity },
+  { label: 'Día', value: profile.luckyDay },
+  { label: 'Color', value: profile.color },
+  { label: 'Piedra', value: profile.stone },
+];
+---
+
+<section class="sign-profile" aria-labelledby="sign-profile-title">
+  <div class="sign-profile-sky panel" data-reveal>
+    <span class="eyebrow">La constelación</span>
+    <ConstellationMap constellation={profile.constellation} label={'Constelación de ' + sign.name} />
+    <p class="sign-profile-emblem">{profile.emblem}</p>
+    <p class="sign-profile-myth">{profile.myth}</p>
+  </div>
+
+  <div class="sign-profile-body panel" data-reveal data-reveal-order="2">
+    <header>
+      <span class="eyebrow">Perfil de {sign.name}</span>
+      <h2 id="sign-profile-title">Así se mueve {sign.name}.</h2>
+      <ul class="sign-keywords" aria-label="Palabras clave">
+        {profile.keywords.map((keyword) => <li>{keyword}</li>)}
+      </ul>
+    </header>
+
+    <dl class="sign-facts">
+      {facts.map((fact) => (
+        <div>
+          <dt>{fact.label}</dt>
+          <dd>{fact.value}</dd>
+        </div>
+      ))}
+    </dl>
+
+    <div class="sign-traits">
+      <div>
+        <h3>Su brillo</h3>
+        <ul>{profile.strengths.map((item) => <li>{item}</li>)}</ul>
+      </div>
+      <div>
+        <h3>Su sombra</h3>
+        <ul>{profile.challenges.map((item) => <li>{item}</li>)}</ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sign-profile {
+    display: grid;
+    gap: 20px;
+  }
+
+  @media (min-width: 960px) {
+    .sign-profile {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
+      align-items: stretch;
+    }
+  }
+
+  .sign-profile-sky {
+    display: grid;
+    align-content: start;
+    gap: 16px;
+    padding: clamp(22px, 4vw, 32px);
+    background:
+      radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--sign-accent) 14%, transparent), transparent 70%),
+      var(--surface);
+  }
+
+  .sign-profile-emblem {
+    color: var(--sign-accent);
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+
+  .sign-profile-myth {
+    color: var(--ink-soft);
+  }
+
+  .sign-profile-body {
+    display: grid;
+    gap: 26px;
+    padding: clamp(22px, 4vw, 36px);
+  }
+
+  .sign-profile-body header {
+    display: grid;
+    gap: 12px;
+  }
+
+  .sign-profile-body h2 {
+    font-size: clamp(1.7rem, 3.6vw, 2.3rem);
+  }
+
+  .sign-keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sign-keywords li {
+    padding: 4px 14px;
+    border: 1px solid color-mix(in srgb, var(--sign-accent) 45%, transparent);
+    border-radius: var(--radius-control);
+    color: var(--sign-accent);
+    font-size: 0.86rem;
+    font-weight: 600;
+  }
+
+  .sign-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 20px;
+    margin: 0;
+  }
+
+  @media (min-width: 640px) {
+    .sign-facts {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .sign-facts dt {
+    color: var(--ink-faint);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .sign-facts dd {
+    margin: 2px 0 0;
+    font-weight: 600;
+  }
+
+  .sign-traits {
+    display: grid;
+    gap: 18px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line-quiet);
+  }
+
+  @media (min-width: 640px) {
+    .sign-traits {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .sign-traits h3 {
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+  }
+
+  .sign-traits ul {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--ink-soft);
+  }
+
+  .sign-traits li::before {
+    content: '✦';
+    margin-right: 8px;
+    color: var(--sign-accent);
+    font-size: 0.8em;
+  }
+</style>

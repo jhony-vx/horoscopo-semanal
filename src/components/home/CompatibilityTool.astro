@@ -1,0 +1,220 @@
+---
+import { compatibilityMatrix, relationBetween } from '../../zodiac/compatibility';
+import { ZODIAC_SIGNS } from '../../zodiac/signs';
+
+// Forces the text glyph instead of an emoji inside native selects.
+const TEXT_PRESENTATION = String.fromCodePoint(0xfe0e);
+const initial = { a: 'aries', b: 'leo' } as const;
+const relation = relationBetween(initial.a, initial.b);
+const signs = ZODIAC_SIGNS.map(({ slug, name, symbol, accent }) => ({ slug, name, symbol, accent }));
+const data = JSON.stringify({ matrix: compatibilityMatrix(), signs });
+---
+
+<section class="compatibility-tool panel" data-compatibility-tool data-reveal aria-labelledby="compatibility-title">
+  <div class="compatibility-copy">
+    <span class="eyebrow">Compatibilidad</span>
+    <h2 id="compatibility-title">¿Cómo se llevan sus signos?</h2>
+    <p>Elige dos signos y mira qué dice la rueda de su relación: la distancia entre ellos marca si fluyen, se complementan o se desafían.</p>
+  </div>
+
+  <form class="compatibility-form" data-compatibility-form>
+    <label>
+      <span>Tu signo</span>
+      <select name="a" data-compatibility-select>
+        {signs.map((sign) => <option value={sign.slug} selected={sign.slug === initial.a}>{sign.symbol + TEXT_PRESENTATION} {sign.name}</option>)}
+      </select>
+    </label>
+    <span class="compatibility-plus" aria-hidden="true">+</span>
+    <label>
+      <span>Su signo</span>
+      <select name="b" data-compatibility-select>
+        {signs.map((sign) => <option value={sign.slug} selected={sign.slug === initial.b}>{sign.symbol + TEXT_PRESENTATION} {sign.name}</option>)}
+      </select>
+    </label>
+  </form>
+
+  <output class="compatibility-result" data-compatibility-result aria-live="polite">
+    <svg class="compatibility-ring" viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="ring-track" cx="60" cy="60" r="52" pathLength="100" />
+      <circle class="ring-value" cx="60" cy="60" r="52" pathLength="100" style={`stroke-dashoffset: ${100 - relation.score}`} data-ring />
+    </svg>
+    <span class="compatibility-score"><span data-score>{relation.score}</span><small>%</small></span>
+    <span class="compatibility-label" data-label>{relation.label}</span>
+    <span class="compatibility-text" data-text>{relation.text}</span>
+  </output>
+
+  <script type="application/json" data-compatibility-data set:html={data} />
+</section>
+
+<style>
+  .compatibility-tool {
+    display: grid;
+    gap: 28px;
+    padding: clamp(24px, 5vw, 48px);
+    background:
+      radial-gradient(circle at 85% 20%, rgb(226 184 101 / 0.12), transparent 55%),
+      var(--surface);
+  }
+
+  @media (min-width: 960px) {
+    .compatibility-tool {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .compatibility-result {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+  }
+
+  .compatibility-copy {
+    display: grid;
+    gap: 12px;
+  }
+
+  .compatibility-copy h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+  }
+
+  .compatibility-copy p {
+    color: var(--ink-soft);
+  }
+
+  .compatibility-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: end;
+    gap: 12px;
+  }
+
+  label {
+    display: grid;
+    gap: 6px;
+  }
+
+  label span {
+    color: var(--ink-faint);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  select {
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    background: var(--night-900);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .compatibility-plus {
+    padding-bottom: 12px;
+    color: var(--gold-300);
+    font-size: 1.4rem;
+  }
+
+  .compatibility-result {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .compatibility-ring {
+    grid-area: 1 / 1;
+    width: 180px;
+    rotate: -90deg;
+  }
+
+  .compatibility-score {
+    grid-area: 1 / 1;
+    align-self: center;
+    font-family: var(--font-display);
+    font-size: 3rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .compatibility-score small {
+    font-size: 0.5em;
+  }
+
+  .ring-track,
+  .ring-value {
+    fill: none;
+    stroke-width: 6;
+  }
+
+  .ring-track {
+    stroke: rgb(255 255 255 / 0.08);
+  }
+
+  .ring-value {
+    stroke: var(--gold-300);
+    stroke-dasharray: 100;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 6px rgb(226 184 101 / 0.5));
+  }
+
+  .compatibility-label {
+    color: var(--gold-200);
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .compatibility-text {
+    max-width: 40ch;
+    color: var(--ink-soft);
+  }
+</style>
+
+<script>
+  import { animate } from 'motion';
+  import { prefersReducedMotion } from '../../scripts/motion-preference';
+  import { readSavedSign } from '../../scripts/sign-preference';
+
+  interface ToolData {
+    matrix: Record<string, { score: number; label: string; text: string }>;
+    signs: { slug: string }[];
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-compatibility-tool]').forEach((tool) => {
+    const { matrix, signs } = JSON.parse(tool.querySelector('[data-compatibility-data]')!.textContent!) as ToolData;
+    const [first, second] = Array.from(tool.querySelectorAll<HTMLSelectElement>('[data-compatibility-select]'));
+    const ring = tool.querySelector<SVGCircleElement>('[data-ring]')!;
+    const score = tool.querySelector<HTMLElement>('[data-score]')!;
+    const label = tool.querySelector<HTMLElement>('[data-label]')!;
+    const text = tool.querySelector<HTMLElement>('[data-text]')!;
+    let shown = Number(score.textContent);
+
+    const update = () => {
+      const relation = matrix[`${first.value}:${second.value}`];
+      label.textContent = relation.label;
+      text.textContent = relation.text;
+      if (prefersReducedMotion()) {
+        score.textContent = String(relation.score);
+        ring.style.strokeDashoffset = String(100 - relation.score);
+      } else {
+        animate(shown, relation.score, { duration: 0.6, ease: [0.22, 1, 0.36, 1], onUpdate: (value) => (score.textContent = String(Math.round(value))) });
+        animate(ring, { strokeDashoffset: 100 - relation.score }, { type: 'spring', bounce: 0.15, visualDuration: 0.6 });
+        animate([label, text], { opacity: [0, 1], y: [6, 0] }, { duration: 0.3 });
+      }
+      shown = relation.score;
+    };
+
+    const saved = readSavedSign();
+    if (saved && signs.some((sign) => sign.slug === saved)) {
+      first.value = saved;
+      update();
+    }
+    first.addEventListener('change', update);
+    second.addEventListener('change', update);
+  });
+</script>

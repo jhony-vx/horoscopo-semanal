@@ -173,3 +173,8 @@ export function formatPeriodRange(startDate?: string, endDate?: string): string 
     ? 'Del ' + startParts.day + ' al ' + endParts.day + ' de ' + endParts.month + ' de ' + endParts.year
     : 'Del ' + startParts.day + ' de ' + startParts.month + ' al ' + endParts.day + ' de ' + endParts.month + ' de ' + endParts.year;
 }
+
+/** "24 de noviembre", always lowercase (some ICU versions capitalize es-PE months). */
+export function formatDayMonth(date: string): string {
+  return new Intl.DateTimeFormat('es-PE', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(date + 'T12:00:00Z')).toLowerCase();
+}
