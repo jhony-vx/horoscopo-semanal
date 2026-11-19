@@ -22,7 +22,9 @@
     "@fontsource/dm-sans": "^5.3.0",
     "@fontsource/playfair-display": "^5.3.0",
     "astro": "^7.1.6",
-    "astronomy-engine": "2.1.19"
+    "astronomy-engine": "2.1.19",
+    "gsap": "^3.15.1",
+    "motion": "^14.14.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.5",
