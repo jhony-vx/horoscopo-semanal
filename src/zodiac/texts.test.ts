@@ -43,12 +43,13 @@ test('monthly forecasts use the month name as lead', () => {
   assert.match(reading.body, /## Suerte general\n\nDurante noviembre, /);
 });
 
-test('the week edition names the leader and real sky events', () => {
+test('the week edition names the leader and real sky events', async () => {
   const edition = composeWeekEdition('2026-11-16', '2026-11-22', weeklyRanking('2026-11-16'), formatDay);
-  const leader = weeklyRanking('2026-11-16')[0].sign;
+  const { getSign } = await import('./signs.ts');
+  const leader = getSign(weeklyRanking('2026-11-16')[0].sign)!.name;
   assert.ok(edition.title.length > 0 && edition.theme.length > 0);
   assert.ok(edition.intro.length >= 40);
-  assert.match(edition.intro.toLowerCase(), new RegExp(leader.slice(0, 4)));
+  assert.match(edition.intro, new RegExp(`${leader} encabeza el ranking`));
   // The Sun enters Sagittarius on 2026-11-22.
   assert.equal(edition.title, 'El Sol entra en Sagitario');
 });

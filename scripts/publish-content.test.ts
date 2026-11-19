@@ -100,3 +100,47 @@ test('rejects unknown modes and invalid dates', (t) => {
   assert.notEqual(badDate.status, 0);
   assert.match(badDate.stderr, /Fecha inválida: 2026-02-30/);
 });
+
+function leaderOf(cwd: string, start: string): string | undefined {
+  return readdirSync(join(cwd, 'src', 'content', 'horoscopes'))
+    .filter((name) => name.endsWith(`-${start}.md`))
+    .find((name) => /^rank: 1$/m.test(read(cwd, 'horoscopes', name)))
+    ?.replace(`-${start}.md`, '');
+}
+
+/** Swaps ranks so `sign` is #1 for the week, keeping ranks 1 to 12 unique. */
+function forceLeader(cwd: string, start: string, sign: string): void {
+  const current = leaderOf(cwd, start)!;
+  if (current === sign) return;
+  const fileOf = (slug: string) => join(cwd, 'src', 'content', 'horoscopes', `${slug}-${start}.md`);
+  const signRank = readFileSync(fileOf(sign), 'utf8').match(/^rank: (\d+)$/m)![1];
+  writeFileSync(fileOf(current), readFileSync(fileOf(current), 'utf8').replace(/^rank: 1$/m, `rank: ${signRank}`));
+  writeFileSync(fileOf(sign), readFileSync(fileOf(sign), 'utf8').replace(/^rank: \d+$/m, 'rank: 1'));
+}
+
+test('prepare-week caps a sign that led the two previous published weeks', (t) => {
+  const probe = workspace(t);
+  run(probe, 'prepare-week', '--date=2026-11-23');
+  const skyLeader = leaderOf(probe, '2026-11-23')!;
+
+  const cwd = workspace(t);
+  for (const start of ['2026-11-09', '2026-11-16']) {
+    run(cwd, 'prepare-week', `--date=${start}`);
+    forceLeader(cwd, start, skyLeader);
+    assert.equal(run(cwd, 'publish-week', `--date=${start}`).status, 0);
+  }
+  assert.equal(run(cwd, 'prepare-week', '--date=2026-11-23').status, 0);
+  assert.notEqual(leaderOf(cwd, '2026-11-23'), skyLeader);
+});
+
+test('prepare-week keeps the sky leader when the previous weeks were not published', (t) => {
+  const probe = workspace(t);
+  run(probe, 'prepare-week', '--date=2026-11-23');
+  const cwd = workspace(t);
+  for (const start of ['2026-11-09', '2026-11-16']) {
+    run(cwd, 'prepare-week', `--date=${start}`);
+    forceLeader(cwd, start, leaderOf(probe, '2026-11-23')!);
+  }
+  run(cwd, 'prepare-week', '--date=2026-11-23');
+  assert.equal(leaderOf(cwd, '2026-11-23'), leaderOf(probe, '2026-11-23'));
+});
