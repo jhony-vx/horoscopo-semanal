@@ -200,9 +200,30 @@ const panels = [
     outline-offset: 8px;
   }
 
+  /* Mobile: a 2 × 2 grid, so every label fits on one line; the active tab is filled directly. */
   @media (max-width: 560px) {
+    .tab-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px;
+      border-radius: 18px;
+    }
+
+    .tab-indicator {
+      display: none;
+    }
+
     .period-tab {
-      font-size: 0.86rem;
+      border-radius: 14px;
+      white-space: nowrap;
+      transition: background-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out);
+    }
+
+    .tab-list .period-tab.is-active {
+      background: var(--sign-accent);
+    }
+
+    .forecast-tabs {
+      padding: 22px 18px;
     }
   }
 </style>
