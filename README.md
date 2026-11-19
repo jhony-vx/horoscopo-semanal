@@ -144,6 +144,9 @@ Las horas están expresadas en `America/Lima`; GitHub ejecuta los cron en UTC.
 | `publish-weekly.yml` | Lunes, 5:00 a. m. | Ranking y lectura semanal |
 | `publish-monthly.yml` | Día 1 de cada mes, 5:00 a. m. | Pronósticos mensuales |
 | `validate.yml` | Cada push y pull request | Tests unitarios, type check, build y pruebas E2E |
+| `lighthouse.yml` | Cada pull request | Lighthouse en la portada, un signo, el historial y el calendario lunar |
+
+`lighthouse.yml` falla si la mediana de tres corridas (preset de escritorio) baja de 85 en rendimiento, 95 en accesibilidad, 90 en buenas prácticas o 95 en SEO, o si el CLS supera 0.1. Los umbrales están en [`lighthouserc.json`](lighthouserc.json) y los informes quedan como artefacto de la ejecución durante 14 días.
 
 ```mermaid
 flowchart LR
