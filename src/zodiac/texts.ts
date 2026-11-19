@@ -143,14 +143,6 @@ export const PHRASES: Record<Domain, Record<Tone, string[]>> = {
   },
 };
 
-const DOMAIN_BODIES: Record<Domain, BodyKey[]> = {
-  general: ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'],
-  love: ['venus', 'moon', 'mars'],
-  professional: ['saturn', 'mercury', 'sun', 'mars'],
-  financial: ['jupiter', 'venus', 'saturn'],
-  wellbeing: ['moon', 'mars', 'sun'],
-};
-
 export const FORECAST_HEADINGS: Record<Domain, string> = {
   general: 'Suerte general',
   love: 'Suerte amorosa',
