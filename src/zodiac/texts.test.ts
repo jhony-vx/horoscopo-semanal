@@ -68,3 +68,19 @@ test('a supportive section never cites a tense aspect', async () => {
     }
   }
 });
+
+test('the week edition dates new and full moons by the exact event', () => {
+  const longDay = (date: string) => new Intl.DateTimeFormat('es-PE', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(date + 'T12:00:00Z')).toLowerCase();
+  const edition = composeWeekEdition('2027-02-01', '2027-02-07', weeklyRanking('2027-02-01'), longDay);
+  assert.match(edition.intro, /La luna nueva del 6 de febrero cae en Acuario\./);
+});
+
+test('the week edition lists several retrograde planets with "y"', () => {
+  for (let week = 0; week < 52; week++) {
+    const start = new Date(Date.UTC(2027, 0, 4 + week * 7)).toISOString().slice(0, 10);
+    const end = new Date(Date.UTC(2027, 0, 10 + week * 7)).toISOString().slice(0, 10);
+    const { body } = composeWeekEdition(start, end, weeklyRanking(start), formatDay);
+    assert.doesNotMatch(body, /avanzan? en retrógrado/);
+    assert.doesNotMatch(body, /\w, \w+ están retrógrados/);
+  }
+});

@@ -1,7 +1,7 @@
 import { addDays, type IsoDate } from './calendar.ts';
 import { DOMAINS, influencesFor, toScores, type AspectKey, type Domain, type Influence, type RankedSign, type RawScores } from './scoring.ts';
 import { getSign, ZODIAC_SIGNS, type SignSlug } from './signs.ts';
-import { skyOn, type BodyKey, type MoonPhaseKey, type Sky } from './sky.ts';
+import { lunationsBetween, skyOn, type BodyKey, type MoonPhaseKey, type Sky } from './sky.ts';
 
 /**
  * Spanish copy for the generated readings. Every choice is seeded by date and sign,
@@ -63,7 +63,7 @@ export const PHRASES: Record<Domain, Record<Tone, string[]>> = {
       'la energía fluye con facilidad, así que es buen momento para mostrar lo que sabes hacer.',
     ],
     mid: [
-      'el día pide equilibrio entre lo que quieres y lo que realmente puedes sostener.',
+      'el momento pide equilibrio entre lo que quieres y lo que realmente puedes sostener.',
       'avanzar paso a paso te dará más resultados que intentar resolverlo todo a la vez.',
       'hay espacio para crecer si eliges una prioridad y le das tu mejor atención.',
     ],
@@ -170,6 +170,11 @@ function hash(text: string): number {
 
 function pick<T>(options: readonly T[], seed: string): T {
   return options[hash(seed) % options.length];
+}
+
+/** ["Marte", "Júpiter", "Saturno"] -> "Marte, Júpiter y Saturno". */
+function joinWithY(items: readonly string[]): string {
+  return items.length > 1 ? items.slice(0, -1).join(', ') + ' y ' + items[items.length - 1] : items.join('');
 }
 
 function capitalize(text: string): string {
@@ -286,17 +291,6 @@ export interface WeekEdition {
   body: string;
 }
 
-function moonEventIn(start: IsoDate): { phase: 'new' | 'full'; date: IsoDate; signIndex: number } | undefined {
-  for (let offset = 0; offset < 7; offset++) {
-    const date = addDays(start, offset);
-    const sky = skyOn(date);
-    if (sky.moonPhase === 'new' || sky.moonPhase === 'full') {
-      return { phase: sky.moonPhase, date, signIndex: sky.bodies.moon.signIndex };
-    }
-  }
-  return undefined;
-}
-
 function sunIngressIn(start: IsoDate): { date: IsoDate; signIndex: number } | undefined {
   for (let offset = 1; offset < 7; offset++) {
     const date = addDays(start, offset);
@@ -309,7 +303,7 @@ function sunIngressIn(start: IsoDate): { date: IsoDate; signIndex: number } | un
 export function composeWeekEdition(start: IsoDate, end: IsoDate, ranking: readonly RankedSign[], formatDay: (date: IsoDate) => string): WeekEdition {
   const midweek = skyOn(addDays(start, 3));
   const ingress = sunIngressIn(start);
-  const moon = moonEventIn(start);
+  const [moon] = lunationsBetween(start, end);
   const leader = getSign(ranking[0].sign)!.name;
   const closing = getSign(ranking[ranking.length - 1].sign)!.name;
   const retrogrades = (['mercury', 'venus', 'mars', 'jupiter', 'saturn'] as const).filter((body) => midweek.bodies[body].retrograde);
@@ -318,15 +312,15 @@ export function composeWeekEdition(start: IsoDate, end: IsoDate, ranking: readon
     ? `El Sol entra en ${signName(ingress.signIndex)}`
     : moon
       ? `${capitalize(MOON_PHASE_NAMES[moon.phase])} en ${signName(moon.signIndex)}`
-      : pick(['Avanzar con intención', 'Un cielo para ordenar prioridades', 'Pasos firmes, ritmo propio', 'Claridad antes que prisa'], start);
+      : pick(['Avanzar con intención', 'Un cielo para ordenar prioridades', 'Pasos firmes, ritmo propio', 'Claridad antes que prisa', 'Escuchar antes de decidir', 'Una semana para sembrar', 'El valor de lo constante', 'Mirar el mapa completo'], start);
 
   const events = [
-    `El Sol recorre ${signName(midweek.bodies.sun.signIndex)}`,
+    `El Sol recorre ${signName(skyOn(start).bodies.sun.signIndex)}`,
     ingress ? `y el ${formatDay(ingress.date)} entra en ${signName(ingress.signIndex)}` : '',
   ].filter(Boolean).join(' ');
   const moonLine = moon ? ` La ${MOON_PHASE_NAMES[moon.phase]} del ${formatDay(moon.date)} cae en ${signName(moon.signIndex)}.` : '';
   const retroLine = retrogrades.length
-    ? ` ${retrogrades.map((body) => capitalize(BODY_NAMES[body])).join(', ')} ${retrogrades.length > 1 ? 'avanzan' : 'avanza'} en retrógrado: buen momento para revisar antes de lanzar.`
+    ? ` ${joinWithY(retrogrades.map((body) => capitalize(BODY_NAMES[body])))} ${retrogrades.length > 1 ? 'están retrógrados' : 'está retrógrado'}: buen momento para revisar antes de lanzar.`
     : '';
 
   const theme = pick(

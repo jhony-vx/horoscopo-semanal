@@ -36,3 +36,11 @@ test('names the Moon phase from its angle', () => {
   assert.equal(moonPhaseFromAngle(270), 'last-quarter');
   assert.equal(moonPhaseFromAngle(135), 'waxing-gibbous');
 });
+
+test('finds the exact new moon with its Lima date and sign', async () => {
+  const { lunationsBetween } = await import('./sky.ts');
+  // New moon 2027-02-06 15:56 UTC in Aquarius (index 10).
+  assert.deepEqual(lunationsBetween('2027-02-01', '2027-02-07'), [{ phase: 'new', date: '2027-02-06', signIndex: 10 }]);
+  // The 2027-07-04 new moon belongs to the previous week.
+  assert.equal(lunationsBetween('2027-07-05', '2027-07-11').some((lunation) => lunation.phase === 'new'), false);
+});
