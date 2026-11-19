@@ -3,23 +3,23 @@ weekStart: '2026-08-03'
 weekEnd: '2026-08-09'
 status: published
 sign: capricornio
-rank: 6
-summary: 'La disciplina juega a tu favor: una decisión sobre hogar, recursos o responsabilidades puede quedar mejor encaminada.'
-generalScore: 4
-loveScore: 3
-professionalScore: 5
-financialScore: 4
-wellbeingScore: 4
+rank: 10
+summary: 'Esta semana, Capricornio: con Saturno retrógrado en Aries, en cuadratura con tu signo, es buen momento para avanzar con disciplina y perspectiva.'
+generalScore: 3
+loveScore: 4
+professionalScore: 2
+financialScore: 3
+wellbeingScore: 3
 ---
 
 ## El tono de tu semana
 
-El trígono entre el Sol y Saturno, tu planeta regente, favorece consolidar una responsabilidad y revisar cómo se conectan hogar, recursos compartidos y metas a largo plazo. No necesitas resolverlo todo de golpe: una estructura realista te dará más seguridad que una promesa ambiciosa.
+Esta semana, con Saturno retrógrado en Aries, en cuadratura con tu signo, el momento pide equilibrio entre lo que quieres y lo que realmente puedes sostener.
 
 ## Amor y vínculos
 
-En el amor, la estabilidad se construye con presencia y no solo con soluciones. Si estás en pareja, comparte tu preocupación antes de encerrarte en el silencio. Si estás soltero, busca una relación que respete tus tiempos y no te obligue a demostrar fortaleza todo el tiempo.
+Esta semana, con Venus en Virgo, en trígono con tu signo, es un buen momento para expresar lo que sientes sin rodeos y con ternura.
 
 ## Trabajo y bienestar
 
-Revisa una meta financiera o profesional con números concretos. Venus en Libra favorece tratar con tacto a colegas y aliados. El avance puede ser menos visible que el esfuerzo, pero será más firme si mantienes una rutina que puedas sostener incluso en semanas exigentes.
+Esta semana, con Mercurio en Cáncer, en oposición a tu signo, confirma plazos y acuerdos antes de avanzar; un malentendido podría retrasarte. Alternar movimiento con pausas breves te ayudará a sostener el ritmo.

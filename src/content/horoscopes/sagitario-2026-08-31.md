@@ -3,23 +3,23 @@ weekStart: '2026-08-31'
 weekEnd: '2026-09-06'
 status: published
 sign: sagitario
-rank: 5
-summary: 'Sagitario: esta semana, dar estructura a una idea nueva puede ayudarte a avanzar con una expectativa flexible.'
+rank: 7
+summary: 'Esta semana, Sagitario: con Júpiter en Leo, en trígono con tu signo, es buen momento para darle estructura a una idea nueva.'
 generalScore: 3
-loveScore: 3
-professionalScore: 4
-financialScore: 4
-wellbeingScore: 3
+loveScore: 4
+professionalScore: 2
+financialScore: 5
+wellbeingScore: 2
 ---
 
 ## El tono de tu semana
 
-Esta semana, dar estructura a una idea nueva te permite ordenar la energía y elegir un avance concreto. No necesitas resolverlo todo de una vez: una decisión razonable también cuenta como progreso.
+Esta semana, con Júpiter en Leo, en trígono con tu signo, el momento pide equilibrio entre lo que quieres y lo que realmente puedes sostener.
 
 ## Amor y vínculos
 
-En tus vínculos, hablar con claridad y escuchar el ritmo de la otra persona puede abrir una conversación más cercana. Deja espacio para acuerdos sencillos y para cambiar de opinión sin presión.
+Esta semana, con Venus en Libra, en sextil con tu signo, es un buen momento para expresar lo que sientes sin rodeos y con ternura.
 
 ## Trabajo y bienestar
 
-En el trabajo, priorizar una tarea importante y revisar los detalles antes de cerrar favorece un resultado sostenible. Alterna concentración con pausas reales para cuidar tu energía.
+Esta semana, con Mercurio en Virgo, en cuadratura con tu signo, confirma plazos y acuerdos antes de avanzar; un malentendido podría retrasarte. Con el Sol en Virgo, en cuadratura con tu signo, un espacio tranquilo y un rato sin pantallas te ayudarán a recuperar equilibrio.
