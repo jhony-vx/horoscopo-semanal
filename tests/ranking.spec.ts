@@ -319,3 +319,31 @@ test('el ranking muestra la suerte de la semana y destaca el podio', async ({ pa
   await expect(first.locator('.ranking-score-label')).toHaveText(/^Suerte [1-5]\/5$/);
   await expect(page.locator('.ranking-card[data-medal]')).toHaveCount(3);
 });
+
+test('el historial lista las ediciones y cada semana tiene su página', async ({ page }) => {
+  await page.goto('/semanas/');
+
+  await expect(page.getByRole('heading', { name: 'Todas las semanas.' })).toBeVisible();
+  const cards = page.locator('.archive-card');
+  expect(await cards.count()).toBeGreaterThan(1);
+  await expect(cards.first()).toContainText('Esta semana');
+
+  await cards.nth(1).click();
+  await expect(page).toHaveURL(/\/semanas\/\d{4}-\d{2}-\d{2}\/$/);
+  await expect(page.locator('[data-archive-entry]')).toHaveCount(12);
+  await expect(page.getByRole('link', { name: /Semana anterior/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Semana siguiente/ })).toBeVisible();
+
+  const first = page.locator('[data-archive-entry]').first();
+  await first.locator('summary').click();
+  await expect(first.getByRole('heading', { name: 'El tono de tu semana' })).toBeVisible();
+});
+
+test('el ranking muestra cuánto se movió cada signo', async ({ page }) => {
+  await page.goto('/');
+
+  const trends = page.locator('.ranking-card .ranking-trend');
+  await expect(trends).toHaveCount(12);
+  for (const text of await trends.allTextContents()) expect(text.trim()).toMatch(/^(\+\d+ Subió|−\d+ Bajó|= Mantiene)/);
+  await expect(page.getByRole('link', { name: 'Ver ediciones anteriores' })).toHaveAttribute('href', '/semanas/');
+});
