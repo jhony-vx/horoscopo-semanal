@@ -4,19 +4,25 @@ import { moonLitPath } from '../../zodiac/moon';
 interface Props {
   phaseAngle: number;
   size?: number;
+  /** The soft halo; off for small repeated icons such as the calendar. */
+  glow?: boolean;
 }
 
-const { phaseAngle, size = 64 } = Astro.props;
+const { phaseAngle, size = 64, glow = true } = Astro.props;
 ---
 
 <svg class="moon-phase" viewBox="0 0 64 64" width={size} height={size} aria-hidden="true">
-  <defs>
-    <radialGradient id="moon-glow">
-      <stop offset="60%" stop-color="var(--gold-200)" stop-opacity="0.22" />
-      <stop offset="100%" stop-color="var(--gold-200)" stop-opacity="0" />
-    </radialGradient>
-  </defs>
-  <circle cx="32" cy="32" r="31" fill="url(#moon-glow)" />
+  {glow && (
+    <>
+      <defs>
+        <radialGradient id="moon-glow">
+          <stop offset="60%" stop-color="var(--gold-200)" stop-opacity="0.22" />
+          <stop offset="100%" stop-color="var(--gold-200)" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx="32" cy="32" r="31" fill="url(#moon-glow)" />
+    </>
+  )}
   <circle class="moon-dark" cx="32" cy="32" r="22" />
   <path class="moon-lit" d={moonLitPath(phaseAngle, 22, 32, 32)} />
 </svg>

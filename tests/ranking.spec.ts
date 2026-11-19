@@ -347,3 +347,19 @@ test('el ranking muestra cuánto se movió cada signo', async ({ page }) => {
   for (const text of await trends.allTextContents()) expect(text.trim()).toMatch(/^(\+\d+ Subió|−\d+ Bajó|= Mantiene)/);
   await expect(page.getByRole('link', { name: 'Ver ediciones anteriores' })).toHaveAttribute('href', '/semanas/');
 });
+
+test('el calendario lunar muestra el mes día por día con sus fases', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Ver el calendario lunar del mes' }).click();
+  await expect(page).toHaveURL(/\/calendario-lunar\/$/);
+
+  await expect(page.getByRole('heading', { name: 'La Luna, día por día.' })).toBeVisible();
+  const months = page.locator('.lunar-month');
+  await expect(months).toHaveCount(2);
+  await expect(page.locator('.lunar-day[aria-current="date"]')).toHaveCount(1);
+  const firstMonth = months.first();
+  expect(await firstMonth.locator('.lunar-day').count()).toBeGreaterThanOrEqual(28);
+  expect(await firstMonth.locator('.lunar-events li').count()).toBeGreaterThanOrEqual(3);
+  await expect(firstMonth.locator('.lunar-events')).toContainText(/Luna (llena|nueva)/);
+  await expect(firstMonth.locator('.lunar-day').first()).toHaveAttribute('aria-label', /iluminada, Luna en /);
+});

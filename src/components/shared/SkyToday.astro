@@ -48,6 +48,8 @@ const { moon, sun, retrogrades, nextLunation } = summary;
       </div>
     )}
   </dl>
+
+  <a class="sky-today-link" href="/calendario-lunar/">Ver el calendario lunar del mes</a>
 </section>
 
 <style>
@@ -119,6 +121,17 @@ const { moon, sun, retrogrades, nextLunation } = summary;
   .sky-today-facts dd {
     margin: 2px 0 0;
     font-weight: 600;
+  }
+
+  .sky-today-link {
+    justify-self: start;
+    color: var(--gold-300);
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  .sky-today-link:hover {
+    color: var(--gold-200);
   }
 
   .sky-today-facts .symbol {

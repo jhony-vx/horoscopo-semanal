@@ -17,8 +17,9 @@ Static Astro 7 site with weekly, daily and monthly horoscopes. Content is Markdo
 
 ## Where things live
 
-- `src/zodiac/`: pure TypeScript, no Astro imports, tested with `node --test`. Signs and accents (`signs.ts`), calendar in Lima time (`calendar.ts`), sky (`sky.ts`), scoring and ranking (`scoring.ts`), phrase bank (`texts.ts`), wheel geometry (`wheel.ts`), profiles, compatibility, Moon drawing and sky summary.
-- `src/components/{layout,ui,shared,home,sign}/`: Astro components with scoped styles. Shared visual tokens are in `src/styles/tokens.css`; global rules in `src/styles/base.css`.
+- `src/zodiac/`: pure TypeScript, no Astro imports, tested with `node --test`. Signs and accents (`signs.ts`), calendar in Lima time (`calendar.ts`), sky (`sky.ts`), scoring and ranking (`scoring.ts`), phrase bank (`texts.ts`), wheel geometry (`wheel.ts`), profiles, compatibility, Moon drawing, sky summary and the lunar calendar (`lunar-calendar.ts`).
+- `src/lib/editions.ts`: pure helpers for weekly editions (timeline, rank movement); `src/lib/horoscopes.ts` wraps them with Astro collections.
+- `src/components/{layout,ui,shared,home,sign,archive,lunar}/`: Astro components with scoped styles. Shared visual tokens are in `src/styles/tokens.css`; global rules in `src/styles/base.css`.
 - `src/scripts/`: browser modules loaded by the layout. Component-specific behavior stays in the component's own `<script>`.
 - `scripts/`: Node CLIs (`publish-content.ts`, `prune-forecasts.ts`, `render-social-cards.ts`).
 

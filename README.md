@@ -26,6 +26,7 @@ npm run test       # tests unitarios, astro check, build y E2E
 | --- | --- |
 | Portada | Ranking semanal del 1 al 12 con cuántos puestos subió o bajó cada signo, el cielo de hoy (fase lunar, retrógrados, próxima lunación), la lectura de la semana y una herramienta de compatibilidad entre dos signos. |
 | Historial (`/semanas/`) | Una página por edición publicada con su ranking, su tendencia y el horóscopo semanal completo de cada signo. |
+| Calendario lunar (`/calendario-lunar/`) | El mes actual y el siguiente día por día: fase, iluminación y signo de la Luna, con las lunas nuevas, llenas y los cuartos exactos. |
 | Página de cada signo | Lectura de hoy, mañana, la semana y el mes; perfil con su constelación, mito, regente, modalidad y rasgos; compatibilidad y cómo le afecta la Luna de hoy. |
 | Fondo | Rueda zodiacal propia en SVG con los nombres en español; gira despacio, reacciona al scroll y resalta el signo de cada página. |
 | Preferencias | El signo elegido se guarda en `localStorage` y aparece en el menú y en la compatibilidad. |
@@ -54,11 +55,13 @@ src/
 │   ├── ui/          # Piezas pequeñas: logo de signo, fase lunar, constelación
 │   ├── shared/      # Usadas en varias páginas: grilla de signos, cielo de hoy
 │   ├── home/        # Portada: hero, ranking, editorial, compatibilidad
+│   ├── archive/     # Historial: cada signo dentro de una edición
+│   ├── lunar/       # Calendario lunar: grilla de un mes
 │   └── sign/        # Página de signo: pestañas, perfil, compatibilidad, modal
 ├── content/         # Markdown publicado: weeks/, horoscopes/, forecasts/
 ├── layouts/         # Layout global con SEO y JSON-LD
 ├── lib/             # Consultas de contenido, ediciones y formato de fechas
-├── pages/           # Rutas: portada, /horoscopo/[signo]/, /semanas/ y 404
+├── pages/           # Rutas: portada, /horoscopo/[signo]/, /semanas/, /calendario-lunar/ y 404
 ├── scripts/         # Scripts de navegador: preferencias, reveal, compartir
 ├── styles/          # tokens.css (diseño) y base.css (estilos globales)
 └── zodiac/          # Motor: signos, calendario, cielo, puntajes, textos, rueda, perfiles
@@ -90,6 +93,7 @@ El ranking, los puntajes y los textos salen de las posiciones astronómicas real
 - Regla editorial: ningún signo encabeza el ranking más de dos semanas seguidas. Si el cielo volviera a darle el puesto 1 a quien lo tuvo en las dos últimas semanas publicadas, sube el segundo.
 - `texts.ts`: redacta cada sección con frases elegidas según el puntaje y nombra el tránsito que la explica. La elección es determinista: la misma fecha produce el mismo texto, y dos días seguidos se leen distinto.
 - `profiles.ts`, `compatibility.ts` y `sky-summary.ts`: perfil de cada signo, compatibilidad por distancia en la rueda y el resumen del cielo que muestra el sitio.
+- `lunar-calendar.ts`: la Luna de cada día del mes y sus fases exactas (nueva, cuartos y llena).
 
 Los workflows usan un solo script:
 

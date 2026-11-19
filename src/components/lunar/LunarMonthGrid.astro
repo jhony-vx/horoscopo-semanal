@@ -1,0 +1,224 @@
+---
+import { formatDayMonth } from '../../lib/horoscopes';
+import type { LunarMonth } from '../../zodiac/lunar-calendar';
+import MoonPhaseIcon from '../ui/MoonPhaseIcon.astro';
+
+interface Props {
+  month: LunarMonth;
+  title: string;
+  today: string;
+}
+
+const { month, title, today } = Astro.props;
+const WEEKDAYS = [
+  ['L', 'lunes'],
+  ['M', 'martes'],
+  ['X', 'miércoles'],
+  ['J', 'jueves'],
+  ['V', 'viernes'],
+  ['S', 'sábado'],
+  ['D', 'domingo'],
+];
+const headingId = 'lunar-' + month.start;
+---
+
+<section class="lunar-month panel" aria-labelledby={headingId} data-reveal>
+  <header class="lunar-month-header">
+    <h2 id={headingId}>{title}</h2>
+    <ul class="lunar-events" aria-label={'Fases principales de ' + title}>
+      {month.events.map((event) => (
+        <li>
+          <span class="lunar-event-name">{event.name}</span>
+          <span class="lunar-event-date">{formatDayMonth(event.date)}, en {event.sign.name}</span>
+        </li>
+      ))}
+    </ul>
+  </header>
+
+  <ol class="lunar-grid" aria-label={'Luna de cada día de ' + title}>
+    {WEEKDAYS.map(([short, long]) => (
+      <li class="lunar-weekday" aria-hidden="true" title={long}>{short}</li>
+    ))}
+    {Array.from({ length: month.leadingBlanks }, () => <li class="lunar-blank" aria-hidden="true" />)}
+    {month.days.map((day) => (
+      <li
+        class:list={['lunar-day', day.event && 'has-event', day.date === today && 'is-today']}
+        aria-label={`${formatDayMonth(day.date)}: ${day.event ? day.event.name : day.phaseName}, ${day.illumination} % iluminada, Luna en ${day.moonSign.name}`}
+        aria-current={day.date === today ? 'date' : undefined}
+      >
+        <span class="lunar-day-number" aria-hidden="true">{day.day}</span>
+        <MoonPhaseIcon phaseAngle={day.phaseAngle} size={30} glow={false} />
+        <span class="lunar-day-sign" aria-hidden="true" style={`--orb-accent: ${day.moonSign.accent}`}>
+          <span class="symbol">{day.moonSign.symbol}</span>
+          {day.ingress && <span class="lunar-ingress">entra</span>}
+        </span>
+        {day.event && <span class="lunar-day-event" aria-hidden="true">{day.event.name}</span>}
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .lunar-month {
+    display: grid;
+    gap: 24px;
+    padding: clamp(20px, 4vw, 36px);
+  }
+
+  .lunar-month-header {
+    display: grid;
+    gap: 16px;
+  }
+
+  .lunar-month-header h2 {
+    font-size: clamp(1.7rem, 3.6vw, 2.3rem);
+  }
+
+  .lunar-events {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lunar-events li {
+    display: grid;
+    gap: 2px;
+    padding: 12px 14px;
+    border: 1px solid var(--line-quiet);
+    border-radius: 14px;
+    background: rgb(255 255 255 / 0.025);
+  }
+
+  .lunar-event-name {
+    color: var(--gold-200);
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+
+  .lunar-event-date {
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+  }
+
+  .lunar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lunar-weekday {
+    padding-bottom: 4px;
+    color: var(--ink-faint);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-align: center;
+  }
+
+  .lunar-day {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 6px;
+    min-height: 104px;
+    padding: 10px 4px;
+    border: 1px solid var(--line-quiet);
+    border-radius: 12px;
+    background: rgb(255 255 255 / 0.02);
+  }
+
+  .lunar-day.has-event {
+    border-color: var(--line-strong);
+    background: rgb(226 184 101 / 0.07);
+  }
+
+  .lunar-day.is-today {
+    border-color: var(--gold-300);
+    box-shadow: 0 0 0 1px var(--gold-300), 0 0 24px rgb(226 184 101 / 0.25);
+  }
+
+  .lunar-day-number {
+    justify-self: start;
+    padding-left: 4px;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .is-today .lunar-day-number {
+    color: var(--gold-200);
+  }
+
+  .lunar-day-sign {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    color: var(--orb-accent);
+    font-size: 0.9rem;
+  }
+
+  .lunar-ingress {
+    color: var(--ink-faint);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .lunar-day-event {
+    color: var(--gold-200);
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  /* Mobile: compact cells; the event names are already listed above the grid. */
+  @media (max-width: 600px) {
+    .lunar-grid {
+      gap: 4px;
+    }
+
+    .lunar-day {
+      min-height: 76px;
+      gap: 4px;
+      padding: 6px 2px;
+      border-radius: 10px;
+    }
+
+    .lunar-day :global(.moon-phase) {
+      width: 22px;
+      height: 22px;
+    }
+
+    .lunar-day-number {
+      justify-self: center;
+      padding-left: 0;
+      font-size: 0.74rem;
+    }
+
+    .lunar-ingress,
+    .lunar-day-event {
+      display: none;
+    }
+
+    .lunar-day.has-event::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold-300);
+    }
+  }
+</style>
