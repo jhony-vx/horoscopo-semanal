@@ -1,13 +1,12 @@
 ---
-import { compatibilityMatrix, relationBetween } from '../../zodiac/compatibility';
+import { relationBetween } from '../../zodiac/compatibility';
 import { ZODIAC_SIGNS } from '../../zodiac/signs';
 
 // Forces the text glyph instead of an emoji inside native selects.
 const TEXT_PRESENTATION = String.fromCodePoint(0xfe0e);
 const initial = { a: 'aries', b: 'leo' } as const;
 const relation = relationBetween(initial.a, initial.b);
-const signs = ZODIAC_SIGNS.map(({ slug, name, symbol, accent }) => ({ slug, name, symbol, accent }));
-const data = JSON.stringify({ matrix: compatibilityMatrix(), signs });
+const signs = ZODIAC_SIGNS;
 ---
 
 <section class="compatibility-tool panel" data-compatibility-tool data-reveal aria-labelledby="compatibility-title">
@@ -43,7 +42,6 @@ const data = JSON.stringify({ matrix: compatibilityMatrix(), signs });
     <span class="compatibility-text" data-text>{relation.text}</span>
   </output>
 
-  <script type="application/json" data-compatibility-data set:html={data} />
 </section>
 
 <style>
@@ -176,17 +174,24 @@ const data = JSON.stringify({ matrix: compatibilityMatrix(), signs });
 </style>
 
 <script>
-  import { animate } from 'motion';
-  import { prefersReducedMotion } from '../../scripts/motion-preference';
+  import { animate } from 'motion/mini';
+  import { relationBetween } from '../../zodiac/compatibility';
+  import { getSign, type SignSlug } from '../../zodiac/signs';
+  import { EASE_OUT, prefersReducedMotion } from '../../scripts/motion-preference';
   import { readSavedSign } from '../../scripts/sign-preference';
 
-  interface ToolData {
-    matrix: Record<string, { score: number; label: string; text: string }>;
-    signs: { slug: string }[];
+  /** Counts the number up or down with an ease-out, one frame at a time. */
+  function countTo(element: HTMLElement, from: number, to: number, duration = 600): void {
+    const start = performance.now();
+    const step = (now: number) => {
+      const progress = Math.min(1, (now - start) / duration);
+      element.textContent = String(Math.round(from + (to - from) * (1 - (1 - progress) ** 3)));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   }
 
   document.querySelectorAll<HTMLElement>('[data-compatibility-tool]').forEach((tool) => {
-    const { matrix, signs } = JSON.parse(tool.querySelector('[data-compatibility-data]')!.textContent!) as ToolData;
     const [first, second] = Array.from(tool.querySelectorAll<HTMLSelectElement>('[data-compatibility-select]'));
     const ring = tool.querySelector<SVGCircleElement>('[data-ring]')!;
     const score = tool.querySelector<HTMLElement>('[data-score]')!;
@@ -195,22 +200,23 @@ const data = JSON.stringify({ matrix: compatibilityMatrix(), signs });
     let shown = Number(score.textContent);
 
     const update = () => {
-      const relation = matrix[`${first.value}:${second.value}`];
+      const relation = relationBetween(first.value as SignSlug, second.value as SignSlug);
       label.textContent = relation.label;
       text.textContent = relation.text;
+      const offset = String(100 - relation.score);
       if (prefersReducedMotion()) {
         score.textContent = String(relation.score);
-        ring.style.strokeDashoffset = String(100 - relation.score);
+        ring.style.strokeDashoffset = offset;
       } else {
-        animate(shown, relation.score, { duration: 0.6, ease: [0.22, 1, 0.36, 1], onUpdate: (value) => (score.textContent = String(Math.round(value))) });
-        animate(ring, { strokeDashoffset: 100 - relation.score }, { type: 'spring', bounce: 0.15, visualDuration: 0.6 });
-        animate([label, text], { opacity: [0, 1], y: [6, 0] }, { duration: 0.3 });
+        countTo(score, shown, relation.score);
+        animate(ring, { strokeDashoffset: [getComputedStyle(ring).strokeDashoffset, offset] }, { duration: 0.6, ease: EASE_OUT }).then(() => (ring.style.strokeDashoffset = offset));
+        animate([label, text], { opacity: [0, 1], translate: ['0 6px', '0 0'] }, { duration: 0.3 });
       }
       shown = relation.score;
     };
 
     const saved = readSavedSign();
-    if (saved && signs.some((sign) => sign.slug === saved)) {
+    if (saved && getSign(saved)) {
       first.value = saved;
       update();
     }

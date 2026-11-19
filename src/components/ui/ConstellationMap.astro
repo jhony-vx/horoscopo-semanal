@@ -72,13 +72,12 @@ const { constellation, label } = Astro.props;
 </style>
 
 <script>
-  import { inView } from 'motion';
-  import { isBelowFold, prefersReducedMotion } from '../../scripts/motion-preference';
+  import { isBelowFold, onceInView, prefersReducedMotion } from '../../scripts/motion-preference';
 
   if (!prefersReducedMotion()) {
     document.querySelectorAll<SVGElement>('[data-constellation]').forEach((map) => {
       if (!isBelowFold(map)) return;
-      inView(map, () => map.classList.add('is-drawing'));
+      onceInView(map, () => map.classList.add('is-drawing'));
     });
   }
 </script>

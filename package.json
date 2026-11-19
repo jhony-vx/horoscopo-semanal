@@ -15,12 +15,13 @@
     "test:unit": "node --experimental-strip-types --test \"src/**/*.test.ts\" \"scripts/**/*.test.mjs\" \"scripts/**/*.test.ts\"",
     "test:e2e": "playwright test",
     "test": "npm run test:unit && npm run check && npm run build && playwright test",
-    "astro": "astro"
+    "astro": "astro",
+    "social:cards": "node --experimental-strip-types --no-warnings scripts/render-social-cards.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
-    "@fontsource/dm-sans": "^5.3.0",
-    "@fontsource/playfair-display": "^5.3.0",
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "@fontsource-variable/playfair-display": "^5.3.0",
     "astro": "^7.1.6",
     "astronomy-engine": "2.1.19",
     "gsap": "^3.15.1",

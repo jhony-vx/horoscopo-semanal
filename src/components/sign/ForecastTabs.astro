@@ -208,8 +208,8 @@ const panels = [
 </style>
 
 <script>
-  import { animate } from 'motion';
-  import { prefersReducedMotion } from '../../scripts/motion-preference';
+  import { animate } from 'motion/mini';
+  import { EASE_OUT, prefersReducedMotion, SPRING_EASE } from '../../scripts/motion-preference';
 
   document.querySelectorAll<HTMLElement>('[data-forecast-tabs]').forEach((root) => {
     const tabList = root.querySelector<HTMLElement>('[role="tablist"]')!;
@@ -217,10 +217,15 @@ const panels = [
     const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-period-tab]'));
     const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-period-panel]'));
 
-    // The indicator is 100px wide; scaleX stretches it to the tab, so only transforms animate.
+    // The indicator is 100px wide; `scale` stretches it to the tab, so only transforms animate.
     const moveIndicator = (tab: HTMLElement, instant: boolean) => {
-      const target = { x: tab.offsetLeft, scaleX: tab.offsetWidth / 100, opacity: 1 };
-      animate(indicator, target, instant || prefersReducedMotion() ? { duration: 0 } : { type: 'spring', bounce: 0.18, visualDuration: 0.35 });
+      const translate = `${tab.offsetLeft}px 0`;
+      const scale = `${tab.offsetWidth / 100} 1`;
+      if (instant || prefersReducedMotion()) {
+        Object.assign(indicator.style, { translate, scale, opacity: '1' });
+        return;
+      }
+      animate(indicator, { translate, scale, opacity: 1 }, { duration: 0.38, ease: SPRING_EASE });
     };
 
     const activate = (period: string, { updateHash = true, instant = false } = {}) => {
@@ -237,7 +242,7 @@ const panels = [
         const wasHidden = panel.hidden;
         panel.hidden = !active;
         if (active && wasHidden && !instant && !prefersReducedMotion()) {
-          animate(panel, { opacity: [0, 1], y: [10, 0] }, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
+          animate(panel, { opacity: [0, 1], translate: ['0 10px', '0 0'] }, { duration: 0.32, ease: EASE_OUT });
         }
       });
       moveIndicator(selected, instant);

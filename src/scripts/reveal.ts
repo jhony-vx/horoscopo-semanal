@@ -1,8 +1,8 @@
-import { animate, inView } from 'motion';
-import { isBelowFold, prefersReducedMotion } from './motion-preference';
+import { animate } from 'motion/mini';
+import { EASE_OUT, isBelowFold, onceInView, prefersReducedMotion } from './motion-preference';
 
 /**
- * Fades sections in as they enter the viewport (Motion `inView`).
+ * Fades sections in as they enter the viewport (Motion mini, on the Web Animations API).
  * Content is never hidden by CSS: only elements that start below the fold are prepared,
  * so the page reads fine without JavaScript and nothing on screen blinks.
  */
@@ -11,16 +11,15 @@ export function initReveal(): void {
 
   document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((element) => {
     if (!isBelowFold(element)) return;
-    const order = Number(element.dataset.revealOrder ?? 0);
+    const order = Math.min(Number(element.dataset.revealOrder ?? 0), 10);
     element.style.opacity = '0';
-    element.style.transform = 'translateY(28px)';
+    element.style.translate = '0 28px';
 
-    inView(
-      element,
-      () => {
-        animate(element, { opacity: 1, y: [28, 0] }, { duration: 0.6, delay: Math.min(order, 10) * 0.04, ease: [0.22, 1, 0.36, 1] });
-      },
-      { margin: '0px 0px -10% 0px' },
-    );
+    onceInView(element, () => {
+      animate(element, { opacity: [0, 1], translate: ['0 28px', '0 0'] }, { duration: 0.6, delay: order * 0.04, ease: EASE_OUT }).then(() => {
+        element.style.removeProperty('opacity');
+        element.style.removeProperty('translate');
+      });
+    });
   });
 }

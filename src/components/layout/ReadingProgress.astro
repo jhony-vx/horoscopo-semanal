@@ -22,6 +22,10 @@
   @supports (animation-timeline: scroll()) {
     .reading-progress-bar {
       animation: reading-progress linear both;
+    }
+
+    /* Kept in its own rule: the CSS minifier would merge it into the shorthand, which is invalid. */
+    .reading-progress .reading-progress-bar {
       animation-timeline: scroll(root);
     }
   }

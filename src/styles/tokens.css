@@ -33,8 +33,8 @@
 
   --sign-accent: var(--gold-400);
 
-  --font-body: 'DM Sans', system-ui, sans-serif;
-  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: var(--font-dm-sans), system-ui, sans-serif;
+  --font-display: var(--font-playfair), Georgia, serif;
   --font-symbol: 'Segoe UI Symbol', 'Noto Sans Symbols 2', 'Noto Sans Symbols', 'Apple Symbols', 'DejaVu Sans', serif;
 
   --radius-card: 18px;

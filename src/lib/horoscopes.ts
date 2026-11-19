@@ -138,7 +138,7 @@ export function formatWeekRange(startDate: string, endDate: string): string {
   const start = new Date(startDate + 'T12:00:00-05:00');
   const end = new Date(endDate + 'T12:00:00-05:00');
   const formatter = new Intl.DateTimeFormat('es-PE', { day: 'numeric', month: 'long', year: 'numeric', timeZone: LIMA_TIME_ZONE });
-  const partsFor = (date: Date) => Object.fromEntries(formatter.formatToParts(date).map((part) => [part.type, part.value]));
+  const partsFor = (date: Date) => Object.fromEntries(formatter.formatToParts(date).map((part) => [part.type, part.value.toLowerCase()]));
   const startParts = partsFor(start);
   const endParts = partsFor(end);
   const sameMonth = startParts.month === endParts.month && startParts.year === endParts.year;
@@ -160,10 +160,11 @@ export function formatPeriodRange(startDate?: string, endDate?: string): string 
     timeZone: 'UTC',
   });
 
-  if (startDate === endDate) return formatter.format(start);
+  if (startDate === endDate) return formatter.format(start).toLowerCase();
 
+  // Some ICU versions capitalize es-PE month names; the site always writes them in lowercase.
   const partsFor = (date: Date) => Object.fromEntries(
-    formatter.formatToParts(date).map((part) => [part.type, part.value]),
+    formatter.formatToParts(date).map((part) => [part.type, part.value.toLowerCase()]),
   );
   const startParts = partsFor(start);
   const endParts = partsFor(end);

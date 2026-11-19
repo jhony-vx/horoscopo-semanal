@@ -50,7 +50,3 @@ export function affinitiesFor(sign: SignSlug): Affinities {
   };
 }
 
-/** Every pair, for the client-side compatibility tool. */
-export function compatibilityMatrix(): Record<string, Relation> {
-  return Object.fromEntries(SIGN_SLUGS.flatMap((a) => SIGN_SLUGS.map((b) => [`${a}:${b}`, relationBetween(a, b)])));
-}

@@ -14,7 +14,7 @@ const labelPath = circlePath(WHEEL_RADII.labels - 8);
 
 <div class="sky" aria-hidden="true">
   <div class="sky-stars"></div>
-  <div class="sky-wheel-track" data-sky-wheel>
+  <div class="sky-wheel-track">
     <svg class="sky-wheel" viewBox={`0 0 ${WHEEL_SIZE} ${WHEEL_SIZE}`} focusable="false">
       <defs>
         <path id="wheel-label-path" d={labelPath} />
@@ -106,6 +106,29 @@ const labelPath = circlePath(WHEEL_RADII.labels - 8);
     aspect-ratio: 1;
     translate: -50% -50%;
     opacity: 0.62;
+  }
+
+  /* While the reader scrolls, the wheel turns a little more, grows and dims (scroll-driven, no JS). */
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .sky-wheel-track {
+        animation: wheel-scroll linear both;
+        animation-range: 0 160vh;
+      }
+
+      /* Kept in its own rule: the CSS minifier would merge it into the shorthand, which is invalid. */
+      .sky .sky-wheel-track {
+        animation-timeline: scroll(root);
+      }
+    }
+  }
+
+  @keyframes wheel-scroll {
+    to {
+      rotate: 45deg;
+      scale: 1.18;
+      opacity: 0.26;
+    }
   }
 
   .sky-wheel {

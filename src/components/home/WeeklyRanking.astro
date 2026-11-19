@@ -29,21 +29,34 @@ const { entries } = Astro.props;
 </style>
 
 <script>
-  import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  import { isBelowFold } from '../../scripts/motion-preference';
-
-  gsap.registerPlugin(ScrollTrigger);
+  import { isBelowFold, onceInView, prefersReducedMotion } from '../../scripts/motion-preference';
 
   // The cards slide in by batches as they reach the viewport; the ones already on screen stay put.
-  gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
-    const items = gsap.utils.toArray<HTMLElement>('[data-weekly-ranking] > li').filter(isBelowFold);
-    if (items.length === 0) return;
-    gsap.set(items, { opacity: 0, x: -24 });
-    ScrollTrigger.batch(items, {
-      start: 'top 92%',
-      once: true,
-      onEnter: (batch) => gsap.to(batch, { opacity: 1, x: 0, duration: 0.55, ease: 'power3.out', stagger: 0.06, overwrite: true }),
-    });
-  });
+  // GSAP is downloaded only when the ranking gets close, so it never delays the first paint.
+  const list = document.querySelector<HTMLElement>('[data-weekly-ranking]');
+  const items = list ? Array.from(list.querySelectorAll<HTMLElement>(':scope > li')).filter(isBelowFold) : [];
+
+  if (list && items.length > 0 && !prefersReducedMotion()) {
+    items.forEach((item) => (item.style.opacity = '0'));
+    onceInView(
+      list,
+      async () => {
+        const modules = await Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).catch(() => null);
+        if (!modules) {
+          // Without the library the cards just show up.
+          items.forEach((item) => item.style.removeProperty('opacity'));
+          return;
+        }
+        const [{ gsap }, { ScrollTrigger }] = modules;
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.set(items, { opacity: 0, x: -24 });
+        ScrollTrigger.batch(items, {
+          start: 'top 92%',
+          once: true,
+          onEnter: (batch) => gsap.to(batch, { opacity: 1, x: 0, duration: 0.55, ease: 'power3.out', stagger: 0.06, overwrite: true }),
+        });
+      },
+      '0px 0px 50% 0px',
+    );
+  }
 </script>
