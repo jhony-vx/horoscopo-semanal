@@ -1,12 +1,9 @@
 ---
 import { relationBetween } from '../../zodiac/compatibility';
-import { ZODIAC_SIGNS } from '../../zodiac/signs';
+import SignSelect from '../ui/SignSelect.astro';
 
-// Forces the text glyph instead of an emoji inside native selects.
-const TEXT_PRESENTATION = String.fromCodePoint(0xfe0e);
 const initial = { a: 'aries', b: 'leo' } as const;
 const relation = relationBetween(initial.a, initial.b);
-const signs = ZODIAC_SIGNS;
 ---
 
 <section class="compatibility-tool panel" data-compatibility-tool data-reveal aria-labelledby="compatibility-title">
@@ -16,21 +13,11 @@ const signs = ZODIAC_SIGNS;
     <p>Elige dos signos y mira qué dice la rueda de su relación: la distancia entre ellos marca si fluyen, se complementan o se desafían.</p>
   </div>
 
-  <form class="compatibility-form" data-compatibility-form>
-    <label>
-      <span>Tu signo</span>
-      <select name="a" data-compatibility-select>
-        {signs.map((sign) => <option value={sign.slug} selected={sign.slug === initial.a}>{sign.symbol + TEXT_PRESENTATION} {sign.name}</option>)}
-      </select>
-    </label>
+  <div class="compatibility-form">
+    <SignSelect name="a" label="Tu signo" value={initial.a} />
     <span class="compatibility-plus" aria-hidden="true">+</span>
-    <label>
-      <span>Su signo</span>
-      <select name="b" data-compatibility-select>
-        {signs.map((sign) => <option value={sign.slug} selected={sign.slug === initial.b}>{sign.symbol + TEXT_PRESENTATION} {sign.name}</option>)}
-      </select>
-    </label>
-  </form>
+    <SignSelect name="b" label="Su signo" value={initial.b} align="end" />
+  </div>
 
   <output class="compatibility-result" data-compatibility-result aria-live="polite">
     <svg class="compatibility-ring" viewBox="0 0 120 120" aria-hidden="true">
@@ -86,35 +73,21 @@ const signs = ZODIAC_SIGNS;
     gap: 12px;
   }
 
-  label {
-    display: grid;
-    gap: 6px;
-  }
-
-  label span {
-    color: var(--ink-faint);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-
-  select {
-    min-height: 48px;
-    padding: 0 14px;
-    border: 1px solid var(--line-strong);
-    border-radius: 14px;
-    background: var(--night-900);
-    color: var(--ink);
-    font: inherit;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
   .compatibility-plus {
-    padding-bottom: 12px;
+    padding-bottom: 14px;
     color: var(--gold-300);
     font-size: 1.4rem;
+  }
+
+  @media (max-width: 480px) {
+    .compatibility-form {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .compatibility-plus {
+      display: none;
+    }
   }
 
   .compatibility-result {
@@ -192,7 +165,7 @@ const signs = ZODIAC_SIGNS;
   }
 
   document.querySelectorAll<HTMLElement>('[data-compatibility-tool]').forEach((tool) => {
-    const [first, second] = Array.from(tool.querySelectorAll<HTMLSelectElement>('[data-compatibility-select]'));
+    const [first, second] = Array.from(tool.querySelectorAll<HTMLElement>('[data-sign-select]'));
     const ring = tool.querySelector<SVGCircleElement>('[data-ring]')!;
     const score = tool.querySelector<HTMLElement>('[data-score]')!;
     const label = tool.querySelector<HTMLElement>('[data-label]')!;
@@ -200,7 +173,7 @@ const signs = ZODIAC_SIGNS;
     let shown = Number(score.textContent);
 
     const update = () => {
-      const relation = relationBetween(first.value as SignSlug, second.value as SignSlug);
+      const relation = relationBetween(first.dataset.value as SignSlug, second.dataset.value as SignSlug);
       label.textContent = relation.label;
       text.textContent = relation.text;
       const offset = String(100 - relation.score);
@@ -216,11 +189,11 @@ const signs = ZODIAC_SIGNS;
     };
 
     const saved = readSavedSign();
+    first.addEventListener('sign-change', update);
+    second.addEventListener('sign-change', update);
+    // DOMContentLoaded fires after every module script ran, so the select is listening by then.
     if (saved && getSign(saved)) {
-      first.value = saved;
-      update();
+      document.addEventListener('DOMContentLoaded', () => first.dispatchEvent(new CustomEvent('sign-set', { detail: saved })), { once: true });
     }
-    first.addEventListener('change', update);
-    second.addEventListener('change', update);
   });
 </script>

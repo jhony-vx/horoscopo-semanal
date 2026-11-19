@@ -1,0 +1,289 @@
+---
+import { ZODIAC_SIGNS, getSign, type SignSlug } from '../../zodiac/signs';
+
+interface Props {
+  /** Form field name; also used to build unique ids. */
+  name: string;
+  label: string;
+  value: SignSlug;
+  /** Opens the list aligned to the right edge, for selects near the right of the screen. */
+  align?: 'start' | 'end';
+}
+
+const { name, label, value, align = 'start' } = Astro.props;
+const selected = getSign(value)!;
+const id = 'sign-select-' + name;
+---
+
+<div class="sign-select" data-sign-select data-value={value} data-align={align} style={`--orb-accent: ${selected.accent}`}>
+  <span class="sign-select-label" id={id + '-label'}>{label}</span>
+  <button
+    class="sign-select-trigger"
+    type="button"
+    id={id + '-trigger'}
+    aria-haspopup="listbox"
+    aria-expanded="false"
+    aria-controls={id + '-list'}
+    aria-labelledby={`${id}-label ${id}-trigger`}
+    data-sign-select-trigger
+  >
+    <span class="sign-select-symbol symbol" aria-hidden="true" data-sign-select-symbol>{selected.symbol}</span>
+    <span class="sign-select-name" data-sign-select-name>{selected.name}</span>
+    <svg class="sign-select-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg>
+  </button>
+  <ul class="sign-select-list" id={id + '-list'} role="listbox" tabindex="-1" aria-labelledby={id + '-label'} hidden data-sign-select-list>
+    {ZODIAC_SIGNS.map((sign) => (
+      <li
+        class="sign-select-option"
+        id={`${id}-${sign.slug}`}
+        role="option"
+        aria-selected={sign.slug === value ? 'true' : 'false'}
+        data-value={sign.slug}
+        data-name={sign.name}
+        data-symbol={sign.symbol}
+        data-accent={sign.accent}
+        style={`--orb-accent: ${sign.accent}`}
+      >
+        <span class="sign-select-symbol symbol" aria-hidden="true">{sign.symbol}</span>
+        <span class="sign-select-option-name">{sign.name}</span>
+        <span class="sign-select-option-dates">{sign.dateRange}</span>
+      </li>
+    ))}
+  </ul>
+  <input type="hidden" name={name} value={value} data-sign-select-input />
+</div>
+
+<style>
+  .sign-select {
+    position: relative;
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .sign-select-label {
+    color: var(--ink-faint);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .sign-select-trigger {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 0 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    background: var(--night-900);
+    color: var(--ink);
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+  }
+
+  .sign-select-trigger:hover,
+  .sign-select-trigger[aria-expanded='true'] {
+    border-color: color-mix(in srgb, var(--orb-accent) 60%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--orb-accent) 14%, transparent);
+  }
+
+  .sign-select-symbol {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--orb-accent) 16%, transparent);
+    color: var(--orb-accent);
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .sign-select-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sign-select-chevron {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: var(--gold-300);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: rotate var(--duration-fast) var(--ease-out);
+  }
+
+  [aria-expanded='true'] .sign-select-chevron {
+    rotate: 180deg;
+  }
+
+  .sign-select-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 15;
+    display: grid;
+    width: max(100%, 240px);
+    max-height: min(340px, 60vh);
+    margin: 0;
+    padding: 6px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--line-strong);
+    border-radius: 16px;
+    background: var(--night-900);
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.55);
+    list-style: none;
+    scrollbar-color: var(--night-600) transparent;
+    scrollbar-width: thin;
+  }
+
+  .sign-select-list[hidden] {
+    display: none;
+  }
+
+  [data-align='end'] .sign-select-list {
+    right: 0;
+    left: auto;
+  }
+
+  .sign-select-option {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .sign-select-option.is-active {
+    background: color-mix(in srgb, var(--orb-accent) 12%, transparent);
+  }
+
+  .sign-select-option[aria-selected='true'] {
+    background: color-mix(in srgb, var(--orb-accent) 20%, transparent);
+  }
+
+  .sign-select-option[aria-selected='true'] .sign-select-option-name {
+    color: var(--orb-accent);
+  }
+
+  .sign-select-option-name {
+    font-weight: 600;
+  }
+
+  .sign-select-option-dates {
+    color: var(--ink-faint);
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  import { animate } from 'motion/mini';
+  import { EASE_OUT, prefersReducedMotion } from '../../scripts/motion-preference';
+
+  /** Accessible select-only listbox: a button opens a list driven by aria-activedescendant. */
+  document.querySelectorAll<HTMLElement>('[data-sign-select]').forEach((root) => {
+    const trigger = root.querySelector<HTMLButtonElement>('[data-sign-select-trigger]')!;
+    const list = root.querySelector<HTMLUListElement>('[data-sign-select-list]')!;
+    const input = root.querySelector<HTMLInputElement>('[data-sign-select-input]')!;
+    const options = Array.from(list.querySelectorAll<HTMLLIElement>('[role="option"]'));
+    let active = 0;
+
+    const selectedIndex = () => Math.max(0, options.findIndex((option) => option.dataset.value === root.dataset.value));
+
+    const setActive = (index: number) => {
+      active = (index + options.length) % options.length;
+      options.forEach((option, i) => option.classList.toggle('is-active', i === active));
+      list.setAttribute('aria-activedescendant', options[active].id);
+      options[active].scrollIntoView({ block: 'nearest' });
+    };
+
+    const open = () => {
+      if (!list.hidden) return;
+      list.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+      setActive(selectedIndex());
+      list.focus();
+      if (!prefersReducedMotion()) animate(list, { opacity: [0, 1], translate: ['0 -6px', '0 0'] }, { duration: 0.18, ease: EASE_OUT });
+    };
+
+    const close = (returnFocus = true) => {
+      if (list.hidden) return;
+      list.hidden = true;
+      trigger.setAttribute('aria-expanded', 'false');
+      list.removeAttribute('aria-activedescendant');
+      if (returnFocus) trigger.focus();
+    };
+
+    const choose = (index: number) => {
+      const option = options[index];
+      const value = option.dataset.value!;
+      options.forEach((item) => item.setAttribute('aria-selected', String(item === option)));
+      root.querySelector('[data-sign-select-symbol]')!.textContent = option.dataset.symbol!;
+      root.querySelector('[data-sign-select-name]')!.textContent = option.dataset.name!;
+      root.style.setProperty('--orb-accent', option.dataset.accent!);
+      const changed = root.dataset.value !== value;
+      root.dataset.value = value;
+      input.value = value;
+      close();
+      if (changed) root.dispatchEvent(new CustomEvent('sign-change', { detail: value, bubbles: true }));
+    };
+
+    // Lets other scripts set the value (e.g. the saved sign) without opening the list.
+    root.addEventListener('sign-set', (event) => {
+      const index = options.findIndex((option) => option.dataset.value === (event as CustomEvent<string>).detail);
+      if (index >= 0) choose(index);
+    });
+
+    trigger.addEventListener('click', () => (list.hidden ? open() : close()));
+    trigger.addEventListener('keydown', (event) => {
+      if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
+        event.preventDefault();
+        open();
+      }
+    });
+
+    list.addEventListener('keydown', (event) => {
+      const moves: Record<string, number> = { ArrowDown: active + 1, ArrowUp: active - 1, Home: 0, End: options.length - 1 };
+      if (event.key in moves) {
+        event.preventDefault();
+        setActive(moves[event.key]);
+      } else if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        choose(active);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        close();
+      } else if (event.key === 'Tab') {
+        close(false);
+      } else if (/^\p{L}$/u.test(event.key)) {
+        // Type-ahead: jump to the next sign that starts with the letter.
+        const letter = event.key.toLocaleLowerCase('es');
+        const normalized = (option: HTMLLIElement) => option.dataset.name!.normalize('NFD').toLocaleLowerCase('es');
+        const next = options.findIndex((option, i) => i > active && normalized(option).startsWith(letter));
+        const first = options.findIndex((option) => normalized(option).startsWith(letter));
+        if (next >= 0 || first >= 0) setActive(next >= 0 ? next : first);
+      }
+    });
+
+    options.forEach((option, index) => {
+      option.addEventListener('pointermove', () => active !== index && setActive(index));
+      option.addEventListener('click', () => choose(index));
+    });
+
+    document.addEventListener('pointerdown', (event) => {
+      if (!root.contains(event.target as Node)) close(false);
+    });
+  });
+</script>
