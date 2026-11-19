@@ -237,7 +237,8 @@ test('la herramienta de compatibilidad responde al cambiar de signo', async ({ p
 
   const tool = page.locator('[data-compatibility-tool]');
   await expect(tool.locator('[data-label]')).toHaveText('Sintonía natural');
-  await tool.getByLabel('Su signo').selectOption('cancer');
+  await tool.getByRole('button', { name: /Su signo/ }).click();
+  await tool.getByRole('option', { name: /Cáncer/ }).click();
   await expect(tool.locator('[data-label]')).toHaveText('Fricción creativa');
   await expect(tool.locator('[data-score]')).toHaveText('46');
 });
@@ -246,7 +247,9 @@ test('la compatibilidad parte del signo guardado', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('ranking-zodiacal-sign', 'libra'));
   await page.goto('/');
 
-  await expect(page.locator('[data-compatibility-tool]').getByLabel('Tu signo')).toHaveValue('libra');
+  const tool = page.locator('[data-compatibility-tool]');
+  await expect(tool.locator('input[name="a"]')).toHaveValue('libra');
+  await expect(tool.getByRole('button', { name: /Tu signo/ })).toContainText('Libra');
 });
 
 test('cada signo tiene su perfil, su constelación y su compatibilidad', async ({ page }) => {
@@ -273,4 +276,46 @@ test('la rueda y la barra de lectura avanzan con el scroll', async ({ page }) =>
   expect((await styles()).progress).toBe('reading-progress');
   await page.evaluate(() => window.scrollTo(0, 600));
   await expect.poll(async () => (await styles()).wheel).not.toBe('none');
+});
+
+test('el selector de signo se maneja con el teclado', async ({ page }) => {
+  await page.goto('/');
+
+  const tool = page.locator('[data-compatibility-tool]');
+  const trigger = tool.getByRole('button', { name: /Su signo/ });
+  await trigger.focus();
+  await page.keyboard.press('Enter');
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  await expect(tool.getByRole('listbox').first()).toBeVisible();
+  // Leo is selected; two steps down is Libra.
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await expect(trigger).toBeFocused();
+  await expect(tool.locator('input[name="b"]')).toHaveValue('libra');
+  // Aries and Libra are opposite signs.
+  await expect(tool.locator('[data-label]')).toHaveText('Atracción de opuestos');
+
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Escape');
+  await expect(tool.getByRole('listbox').first()).toBeHidden();
+  await expect(tool.locator('input[name="b"]')).toHaveValue('libra');
+});
+
+test('los botones y las tarjetas no usan flechas de texto', async ({ page }) => {
+  for (const path of ['/', '/horoscopo/virgo/']) {
+    await page.goto(path);
+    const text = await page.locator('main').innerText();
+    expect(text).not.toMatch(/[←↑→↓↗↩]/);
+  }
+});
+
+test('el ranking muestra la suerte de la semana y destaca el podio', async ({ page }) => {
+  await page.goto('/');
+
+  const first = page.locator('.ranking-card').first();
+  await expect(first).toHaveAttribute('data-medal', 'gold');
+  await expect(first.locator('.ranking-score-label')).toHaveText(/^Suerte [1-5]\/5$/);
+  await expect(page.locator('.ranking-card[data-medal]')).toHaveCount(3);
 });
