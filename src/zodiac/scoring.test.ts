@@ -55,3 +55,38 @@ test('influences list only aspected bodies, strongest first', () => {
     assert.ok(Math.abs(influences[index - 1].weight) >= Math.abs(influences[index].weight));
   }
 });
+
+test('a sign never leads more than two consecutive published weeks', () => {
+  const leaders: string[] = [];
+  for (let week = 0; week < 104; week++) {
+    const start = addDays('2026-01-05', week * 7);
+    const [leader] = weeklyRanking(start, { previousLeaders: leaders.slice(-2).reverse() as never });
+    leaders.push(leader.sign);
+  }
+  for (let index = 2; index < leaders.length; index++) {
+    assert.ok(!(leaders[index] === leaders[index - 1] && leaders[index] === leaders[index - 2]), `${leaders[index]} led three weeks in a row at week ${index}`);
+  }
+});
+
+test('the cap swaps only the top two and keeps ranks 1 to 12', () => {
+  const free = weeklyRanking('2026-11-16');
+  const capped = weeklyRanking('2026-11-16', { previousLeaders: [free[0].sign, free[0].sign] });
+  assert.equal(capped[0].sign, free[1].sign);
+  assert.equal(capped[1].sign, free[0].sign);
+  assert.deepEqual(capped.slice(2).map((entry) => entry.sign), free.slice(2).map((entry) => entry.sign));
+  assert.deepEqual(capped.map((entry) => entry.rank), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+});
+
+test('one previous lead or a different leader does not trigger the cap', () => {
+  const free = weeklyRanking('2026-11-16');
+  assert.equal(weeklyRanking('2026-11-16', { previousLeaders: [free[0].sign] })[0].sign, free[0].sign);
+  assert.equal(weeklyRanking('2026-11-16', { previousLeaders: [free[0].sign, free[1].sign] })[0].sign, free[0].sign);
+});
+
+test('slow planets weigh less in the ranking than in daily readings', async () => {
+  const { RANKING_SLOW_BODY_FACTOR, rawScoresFor: score } = await import('./scoring.ts');
+  assert.equal(RANKING_SLOW_BODY_FACTOR, 0.25);
+  // Leo has Jupiter in its own sign in late 2026; reducing slow planets lowers its general score.
+  const sky = skyOn('2026-11-18');
+  assert.ok(score(sky, 'leo', { slowBodyFactor: 0.25 }).general < score(sky, 'leo').general);
+});

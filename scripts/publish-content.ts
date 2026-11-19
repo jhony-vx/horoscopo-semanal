@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { addDays, isValidIsoDate, monthEndOf, monthStartOf, todayInLima, weekStartOf, type IsoDate } from '../src/zodiac/calendar.ts';
-import { monthRawScores, periodRawScores, rawScoresFor, toScores, weeklyRanking, type RawScores } from '../src/zodiac/scoring.ts';
+import { MAX_CONSECUTIVE_LEADS, monthRawScores, rawScoresFor, toScores, weeklyRanking, type RawScores } from '../src/zodiac/scoring.ts';
 import { SIGN_SLUGS, type SignSlug } from '../src/zodiac/signs.ts';
 import { skyOn } from '../src/zodiac/sky.ts';
 import { composeDailyForecast, composeMonthlyForecast, composeWeekEdition, composeWeeklyHoroscope } from '../src/zodiac/texts.ts';
@@ -200,13 +200,30 @@ function assertWeek(start: IsoDate, end: IsoDate): Status {
   return singleStatus(statuses, `la semana ${start}`);
 }
 
+/** Signs published at rank 1 in the weeks before `start`, most recent first; stops at the first missing week. */
+function publishedLeadersBefore(start: IsoDate, weeks: number): SignSlug[] {
+  const leaders: SignSlug[] = [];
+  for (let offset = 1; offset <= weeks; offset++) {
+    const previous = addDays(start, -7 * offset);
+    const leader = SIGN_SLUGS.find((sign) => {
+      const file = join(horoscopesDir, `${sign}-${previous}.md`);
+      if (!existsSync(file)) return false;
+      const source = readFileSync(file, 'utf8');
+      return frontmatterValue(source, 'status') === 'published' && frontmatterValue(source, 'rank') === '1';
+    });
+    if (!leader) break;
+    leaders.push(leader);
+  }
+  return leaders;
+}
+
 function prepareWeek(date: IsoDate): void {
   const start = weekStartOf(date);
   const end = addDays(start, 6);
   const files = weekFiles(start);
   mkdirSync(weeksDir, { recursive: true });
   mkdirSync(horoscopesDir, { recursive: true });
-  const ranking = weeklyRanking(start);
+  const ranking = weeklyRanking(start, { previousLeaders: publishedLeadersBefore(start, MAX_CONSECUTIVE_LEADS) });
 
   writeIfMissing(files.week, () => {
     const edition = composeWeekEdition(start, end, ranking, formatDay);
@@ -225,7 +242,8 @@ ${edition.body}`;
   SIGN_SLUGS.forEach((sign, index) => {
     writeIfMissing(files.horoscopes[index], () => {
       const entry = ranking.find((item) => item.sign === sign)!;
-      const raw = periodRawScores(sign, start, end);
+      // Weekly scores use the ranking weights so a higher rank never shows weaker scores by model.
+      const raw = entry.raw;
       const reading = composeWeeklyHoroscope(sign, start, raw);
       return `---
 weekStart: '${start}'

@@ -87,11 +87,29 @@ function bodyValue(sky: Sky, body: BodyKey, readerSignIndex: number): number {
   return position.retrograde ? (value > 0 ? value / 2 : value - 0.5) : value;
 }
 
-export function rawScoresFor(sky: Sky, sign: SignSlug): RawScores {
+const SLOW_BODIES: readonly BodyKey[] = ['jupiter', 'saturn'];
+
+/**
+ * Jupiter and Saturn stay about a year in each sign. In the weekly ranking they weigh less,
+ * so the leader follows what changes during the week instead of the same background for months.
+ */
+export const RANKING_SLOW_BODY_FACTOR = 0.25;
+
+/** A sign leads the weekly ranking at most this many consecutive weeks. */
+export const MAX_CONSECUTIVE_LEADS = 2;
+
+interface ScoringOptions {
+  /** Multiplier for Jupiter and Saturn weights (1 for daily and monthly readings). */
+  slowBodyFactor?: number;
+}
+
+export function rawScoresFor(sky: Sky, sign: SignSlug, { slowBodyFactor = 1 }: ScoringOptions = {}): RawScores {
   const readerSignIndex = SIGN_SLUGS.indexOf(sign);
   return Object.fromEntries(
     DOMAINS.map((domain) => {
-      const weights = Object.entries(DOMAIN_WEIGHTS[domain]) as [BodyKey, number][];
+      const weights = (Object.entries(DOMAIN_WEIGHTS[domain]) as [BodyKey, number][]).map(
+        ([body, weight]): [BodyKey, number] => [body, SLOW_BODIES.includes(body) ? weight * slowBodyFactor : weight],
+      );
       const total = weights.reduce((sum, [body, weight]) => sum + weight * bodyValue(sky, body, readerSignIndex), 0);
       const max = weights.reduce((sum, [, weight]) => sum + weight * MAX_ASPECT_VALUE, 0);
       return [domain, total / max];
@@ -130,8 +148,8 @@ export function datesBetween(start: IsoDate, end: IsoDate): IsoDate[] {
   return dates;
 }
 
-export function periodRawScores(sign: SignSlug, start: IsoDate, end: IsoDate): RawScores {
-  return averageRawScores(datesBetween(start, end).map((date) => rawScoresFor(skyOn(date), sign)));
+export function periodRawScores(sign: SignSlug, start: IsoDate, end: IsoDate, options: ScoringOptions = {}): RawScores {
+  return averageRawScores(datesBetween(start, end).map((date) => rawScoresFor(skyOn(date), sign, options)));
 }
 
 export function monthRawScores(sign: SignSlug, date: IsoDate): RawScores {
@@ -148,10 +166,23 @@ export interface RankedSign {
   raw: RawScores;
 }
 
-/** Weekly ranking: the general domain counts twice; ties keep the zodiac order. */
-export function weeklyRanking(weekStart: IsoDate): RankedSign[] {
+interface RankingOptions {
+  /** Published leaders of the previous weeks, most recent first. */
+  previousLeaders?: readonly SignSlug[];
+}
+
+/**
+ * Weekly ranking: the general domain counts twice; ties keep the zodiac order.
+ * Editorial rule: when the sky would crown a sign that already led the last
+ * MAX_CONSECUTIVE_LEADS published weeks, the runner-up takes first place.
+ */
+export function weeklyRanking(weekStart: IsoDate, { previousLeaders = [] }: RankingOptions = {}): RankedSign[] {
   const weekEnd = addDays(weekStart, 6);
-  return SIGN_SLUGS.map((sign, order) => ({ sign, order, raw: periodRawScores(sign, weekStart, weekEnd) }))
-    .sort((a, b) => overall(b.raw) - overall(a.raw) || a.order - b.order)
-    .map(({ sign, raw }, index) => ({ sign, raw, rank: index + 1 }));
+  const ordered = SIGN_SLUGS.map((sign, order) => ({ sign, order, raw: periodRawScores(sign, weekStart, weekEnd, { slowBodyFactor: RANKING_SLOW_BODY_FACTOR }) }))
+    .sort((a, b) => overall(b.raw) - overall(a.raw) || a.order - b.order);
+  const recent = previousLeaders.slice(0, MAX_CONSECUTIVE_LEADS);
+  if (recent.length === MAX_CONSECUTIVE_LEADS && recent.every((leader) => leader === ordered[0].sign)) {
+    [ordered[0], ordered[1]] = [ordered[1], ordered[0]];
+  }
+  return ordered.map(({ sign, raw }, index) => ({ sign, raw, rank: index + 1 }));
 }
