@@ -115,12 +115,12 @@ export function averageRawScores(samples: readonly RawScores[]): RawScores {
 }
 
 /** The body aspects that shape the reading, strongest first. */
-export function influencesFor(sky: Sky, sign: SignSlug): Influence[] {
+export function influencesFor(sky: Sky, sign: SignSlug, domain: Domain = 'general'): Influence[] {
   const readerSignIndex = SIGN_SLUGS.indexOf(sign);
   return BODIES.flatMap((body) => {
     const aspect = aspectBetween(sky.bodies[body].signIndex, readerSignIndex);
-    const weight = (DOMAIN_WEIGHTS.general[body] ?? 0) * bodyValue(sky, body, readerSignIndex);
-    return aspect ? [{ body, aspect, weight }] : [];
+    const weight = (DOMAIN_WEIGHTS[domain][body] ?? 0) * bodyValue(sky, body, readerSignIndex);
+    return aspect && weight !== 0 ? [{ body, aspect, weight }] : [];
   }).sort((a, b) => Math.abs(b.weight) - Math.abs(a.weight) || BODIES.indexOf(a.body) - BODIES.indexOf(b.body));
 }
 
