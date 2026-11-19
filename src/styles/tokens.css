@@ -1,0 +1,63 @@
+:root {
+  color-scheme: dark;
+
+  --night-950: #05070f;
+  --night-900: #090c1a;
+  --night-850: #0d1124;
+  --night-800: #121831;
+  --night-700: #1a2244;
+  --night-600: #263160;
+
+  --gold-200: #f6e6bf;
+  --gold-300: #efd394;
+  --gold-400: #e2b865;
+  --gold-500: #c79a45;
+
+  --ink: #eeeaf7;
+  --ink-soft: #bdb9d3;
+  --ink-faint: #8f8cab;
+
+  --line: rgb(226 184 101 / 0.16);
+  --line-strong: rgb(226 184 101 / 0.34);
+  --line-quiet: rgb(238 234 247 / 0.08);
+
+  /* Surfaces are mostly opaque: the wheel turns behind them and blur would repaint every frame. */
+  --surface: rgb(13 17 36 / 0.82);
+  --surface-strong: rgb(16 21 44 / 0.94);
+  --surface-raised: rgb(26 34 68 / 0.72);
+
+  --element-fire: #ff9466;
+  --element-earth: #c3d98c;
+  --element-air: #8fd3ff;
+  --element-water: #a99cff;
+
+  --sign-accent: var(--gold-400);
+
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-symbol: 'Segoe UI Symbol', 'Noto Sans Symbols 2', 'Noto Sans Symbols', 'Apple Symbols', 'DejaVu Sans', serif;
+
+  --radius-card: 18px;
+  --radius-panel: 26px;
+  --radius-control: 999px;
+
+  --shadow-panel: 0 24px 60px rgb(0 0 0 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.04);
+  --shadow-glow: 0 0 0 1px var(--line), 0 18px 50px rgb(0 0 0 / 0.4);
+  --text-shadow: 0 1px 2px rgb(0 0 0 / 0.65), 0 0 24px rgb(5 7 15 / 0.8);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 180ms;
+  --duration-base: 280ms;
+
+  --z-sky: 0;
+  --z-header: 10;
+  --z-floating: 20;
+  --z-progress: 25;
+
+  --wheel-period: 420s;
+}
+
+[data-element='fire'] { --element-color: var(--element-fire); }
+[data-element='earth'] { --element-color: var(--element-earth); }
+[data-element='air'] { --element-color: var(--element-air); }
+[data-element='water'] { --element-color: var(--element-water); }

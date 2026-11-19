@@ -1,0 +1,39 @@
+<button class="back-to-top" type="button" data-back-to-top hidden aria-label="Volver al inicio">
+  <span aria-hidden="true">↑</span>
+  <span class="back-to-top-label">Arriba</span>
+</button>
+
+<style>
+  .back-to-top {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
+    z-index: var(--z-floating);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-control);
+    background: var(--surface-strong);
+    box-shadow: var(--shadow-glow);
+    color: var(--gold-200);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .back-to-top[hidden] {
+    display: none;
+  }
+
+  .back-to-top:hover {
+    border-color: var(--gold-300);
+  }
+
+  @media (max-width: 560px) {
+    .back-to-top-label {
+      display: none;
+    }
+  }
+</style>

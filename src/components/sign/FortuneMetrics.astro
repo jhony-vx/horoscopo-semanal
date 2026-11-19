@@ -1,0 +1,128 @@
+---
+export interface ScoreData {
+  generalScore?: number;
+  loveScore?: number;
+  professionalScore?: number;
+  financialScore?: number;
+  wellbeingScore?: number;
+}
+
+interface Props {
+  data?: ScoreData;
+}
+
+const { data } = Astro.props;
+const secondaryMetrics = [
+  { key: 'loveScore' as const, label: 'Suerte amorosa' },
+  { key: 'professionalScore' as const, label: 'Suerte profesional' },
+  { key: 'financialScore' as const, label: 'Suerte económica' },
+  { key: 'wellbeingScore' as const, label: 'Energía y bienestar' },
+];
+
+function scoreLabel(score = 0) {
+  return score > 0 ? score + ' de 5' : 'En preparación';
+}
+
+const scale = [1, 2, 3, 4, 5];
+---
+
+<div class="fortune-metrics" aria-label="Indicadores de la lectura">
+  <div class="fortune-metric fortune-metric-general">
+    <span class="metric-label">Suerte general</span>
+    <strong class="metric-score">{scoreLabel(data?.generalScore)}</strong>
+    <span class="metric-stars" aria-hidden="true">
+      {scale.map((step) => <span class:list={['metric-star', step <= (data?.generalScore ?? 0) && 'is-on']}>★</span>)}
+    </span>
+    <span class="sr-only">Suerte general: {scoreLabel(data?.generalScore)}</span>
+  </div>
+
+  <div class="fortune-secondary-metrics">
+    {secondaryMetrics.map((metric) => {
+      const value = data?.[metric.key] ?? 0;
+      return (
+        <div class="fortune-metric fortune-metric-secondary">
+          <span class="metric-label">{metric.label}</span>
+          <span class="metric-bar" aria-hidden="true" style={`--metric-value: ${value / 5}`}></span>
+          <span class="metric-stars" aria-hidden="true">
+            {scale.map((step) => <span class:list={['metric-star', step <= value && 'is-on']}>★</span>)}
+          </span>
+          <span class="sr-only">{metric.label}: {scoreLabel(value)}</span>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+<style>
+  .fortune-metrics {
+    display: grid;
+    gap: 12px;
+  }
+
+  @media (min-width: 820px) {
+    .fortune-metrics {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr);
+    }
+  }
+
+  .fortune-metric {
+    display: grid;
+    gap: 8px;
+    padding: 16px 18px;
+    border: 1px solid var(--line-quiet);
+    border-radius: var(--radius-card);
+    background: rgb(255 255 255 / 0.025);
+  }
+
+  .fortune-metric-general {
+    align-content: center;
+    border-color: color-mix(in srgb, var(--sign-accent) 35%, transparent);
+    background: radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--sign-accent) 16%, transparent), transparent 70%);
+  }
+
+  .fortune-secondary-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .metric-label {
+    color: var(--ink-faint);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .metric-score {
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    font-weight: 600;
+  }
+
+  .metric-stars {
+    display: flex;
+    gap: 3px;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .metric-star {
+    color: rgb(255 255 255 / 0.14);
+  }
+
+  .metric-star.is-on {
+    color: var(--sign-accent);
+    text-shadow: 0 0 10px color-mix(in srgb, var(--sign-accent) 55%, transparent);
+  }
+
+  .fortune-metric-general .metric-stars {
+    font-size: 1.3rem;
+  }
+
+  .metric-bar {
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--sign-accent) calc(var(--metric-value) * 100%), rgb(255 255 255 / 0.08) 0);
+  }
+</style>

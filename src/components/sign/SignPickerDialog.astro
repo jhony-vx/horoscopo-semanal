@@ -1,0 +1,170 @@
+---
+import type { SignSlug } from '../../zodiac/signs';
+import SignGrid from '../shared/SignGrid.astro';
+
+interface Props {
+  currentSlug: SignSlug;
+}
+
+const { currentSlug } = Astro.props;
+const dialogId = 'sign-dialog-' + currentSlug;
+---
+
+<div class="sign-picker">
+  <button
+    class="button button-secondary"
+    type="button"
+    data-open-sign-dialog
+    data-dialog-target={dialogId}
+    aria-haspopup="dialog"
+    aria-controls={dialogId}
+  >
+    Cambiar de signo <span aria-hidden="true">↗</span>
+  </button>
+
+  <dialog class="sign-dialog" id={dialogId} data-sign-dialog aria-labelledby={dialogId + '-title'}>
+    <div class="sign-dialog-panel" data-dialog-panel>
+      <header class="sign-dialog-header">
+        <div>
+          <span class="eyebrow">Elige otra lectura</span>
+          <h2 id={dialogId + '-title'}>¿Cuál es tu signo?</h2>
+          <p>Selecciona un signo para abrir su página y guardar tu preferencia.</p>
+        </div>
+        <button class="dialog-close" type="button" data-close-sign-dialog aria-label="Cerrar selector">×</button>
+      </header>
+      <SignGrid currentSlug={currentSlug} compact />
+    </div>
+  </dialog>
+</div>
+
+<style>
+  .sign-dialog {
+    width: min(760px, 100% - 24px);
+    max-height: min(88vh, 860px);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    overflow: visible;
+  }
+
+  .sign-dialog::backdrop {
+    background: rgb(3 4 10 / 0.72);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+
+  .sign-dialog.is-open::backdrop {
+    opacity: 1;
+  }
+
+  .sign-dialog-panel {
+    display: grid;
+    gap: 22px;
+    max-height: min(88vh, 860px);
+    padding: clamp(20px, 4vw, 32px);
+    overflow-y: auto;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-panel);
+    background:
+      radial-gradient(circle at 50% -20%, color-mix(in srgb, var(--sign-accent) 20%, transparent), transparent 60%),
+      var(--night-900);
+    box-shadow: 0 40px 120px rgb(0 0 0 / 0.6);
+  }
+
+  .sign-dialog-header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .sign-dialog-header > div {
+    display: grid;
+    gap: 8px;
+  }
+
+  .sign-dialog-header h2 {
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+  }
+
+  .sign-dialog-header p {
+    color: var(--ink-soft);
+  }
+
+  .dialog-close {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    background: transparent;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .dialog-close:hover {
+    border-color: var(--gold-300);
+    color: var(--gold-200);
+  }
+</style>
+
+<script>
+  import { animate, stagger } from 'motion';
+  import { prefersReducedMotion } from '../../scripts/motion-preference';
+
+  document.querySelectorAll<HTMLButtonElement>('[data-open-sign-dialog]').forEach((opener) => {
+    const dialog = document.getElementById(opener.dataset.dialogTarget ?? '') as HTMLDialogElement | null;
+    if (!dialog || typeof dialog.showModal !== 'function') return;
+    const panel = dialog.querySelector<HTMLElement>('[data-dialog-panel]')!;
+    let closing = false;
+
+    const open = () => {
+      dialog.showModal();
+      dialog.classList.add('is-open');
+      document.body.classList.add('dialog-open');
+      dialog.querySelector<HTMLElement>('[data-close-sign-dialog]')?.focus();
+      if (prefersReducedMotion()) return;
+      animate(panel, { opacity: [0, 1], y: [28, 0], scale: [0.97, 1] }, { type: 'spring', bounce: 0.2, visualDuration: 0.4 });
+      animate(
+        panel.querySelectorAll('[data-sign-choice]'),
+        { opacity: [0, 1], y: [10, 0] },
+        { duration: 0.3, delay: stagger(0.025, { startDelay: 0.08 }), ease: [0.22, 1, 0.36, 1] },
+      );
+    };
+
+    // The exit plays before the native close, so the panel does not vanish abruptly.
+    const close = async () => {
+      if (!dialog.open || closing) return;
+      closing = true;
+      dialog.classList.remove('is-open');
+      if (!prefersReducedMotion()) {
+        await animate(panel, { opacity: 0, y: 16, scale: 0.98 }, { duration: 0.18, ease: [0.4, 0, 1, 1] });
+      }
+      dialog.close();
+      closing = false;
+    };
+
+    opener.addEventListener('click', open);
+    dialog.querySelector('[data-close-sign-dialog]')?.addEventListener('click', close);
+    dialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      close();
+    });
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) close();
+    });
+    dialog.addEventListener('close', () => {
+      document.body.classList.remove('dialog-open');
+      panel.style.removeProperty('opacity');
+      panel.style.removeProperty('transform');
+      opener.focus();
+    });
+  });
+</script>

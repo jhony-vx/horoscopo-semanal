@@ -1,0 +1,265 @@
+---
+import type { ForecastEntry, HoroscopeEntry } from '../../lib/horoscopes';
+import { formatPeriodRange } from '../../lib/horoscopes';
+import ForecastPanel from './ForecastPanel.astro';
+
+interface Props {
+  weeklyEntry?: HoroscopeEntry;
+  today?: ForecastEntry;
+  tomorrow?: ForecastEntry;
+  month?: ForecastEntry;
+  weekRange: string;
+  todayDate: string;
+  tomorrowDate: string;
+}
+
+const { weeklyEntry, today, tomorrow, month, weekRange, todayDate, tomorrowDate } = Astro.props;
+const panels = [
+  {
+    key: 'today',
+    hash: 'hoy',
+    label: 'Hoy',
+    summary: today?.data.summary,
+    data: today?.data,
+    contentHtml: today?.rendered?.html ?? '',
+    startDate: today?.data.periodStart ?? todayDate,
+    endDate: today?.data.periodEnd ?? todayDate,
+  },
+  {
+    key: 'tomorrow',
+    hash: 'manana',
+    label: 'Mañana',
+    summary: tomorrow?.data.summary,
+    data: tomorrow?.data,
+    contentHtml: tomorrow?.rendered?.html ?? '',
+    startDate: tomorrow?.data.periodStart ?? tomorrowDate,
+    endDate: tomorrow?.data.periodEnd ?? tomorrowDate,
+  },
+  {
+    key: 'week',
+    hash: 'esta-semana',
+    label: 'Esta semana',
+    summary: weeklyEntry?.data.summary,
+    data: weeklyEntry?.data,
+    contentHtml: weeklyEntry?.rendered?.html ?? '',
+    startDate: weeklyEntry?.data.weekStart,
+    endDate: weeklyEntry?.data.weekEnd,
+  },
+  {
+    key: 'month',
+    hash: 'este-mes',
+    label: 'Este mes',
+    summary: month?.data.summary,
+    data: month?.data,
+    contentHtml: month?.rendered?.html ?? '',
+    startDate: month?.data.periodStart,
+    endDate: month?.data.periodEnd,
+  },
+];
+---
+
+<section class="forecast-tabs panel" data-forecast-tabs aria-label="Pronósticos por periodo">
+  <div class="forecast-tabs-heading">
+    <div>
+      <span class="eyebrow">Tu lectura</span>
+      <h2>Horóscopo diario, semanal y mensual.</h2>
+      <p class="forecast-tabs-intro">Consulta tu lectura de hoy, mañana, esta semana y este mes desde una sola página.</p>
+    </div>
+    <span class="forecast-week-range">{weekRange}</span>
+  </div>
+
+  <div class="tab-list" role="tablist" aria-label="Selecciona un periodo">
+    <span class="tab-indicator" data-tab-indicator aria-hidden="true"></span>
+    {panels.map((panel, index) => (
+      <button
+        id={'tab-' + panel.key}
+        class:list={['period-tab', index === 0 && 'is-active']}
+        type="button"
+        role="tab"
+        aria-selected={index === 0 ? 'true' : 'false'}
+        aria-controls={'panel-' + panel.key}
+        tabindex={index === 0 ? undefined : '-1'}
+        data-period-tab={panel.key}
+        data-period-hash={panel.hash}
+      >
+        {panel.label}
+      </button>
+    ))}
+  </div>
+
+  <div class="forecast-panels">
+    {panels.map((panel, index) => (
+      <section
+        id={'panel-' + panel.key}
+        class="forecast-panel"
+        role="tabpanel"
+        tabindex="0"
+        aria-labelledby={'tab-' + panel.key}
+        data-period-panel={panel.key}
+        hidden={index !== 0}
+      >
+        <ForecastPanel
+          label={panel.label}
+          dateRange={formatPeriodRange(panel.startDate, panel.endDate)}
+          dateStart={panel.startDate}
+          summary={panel.summary}
+          data={panel.data}
+          contentHtml={panel.contentHtml}
+        />
+      </section>
+    ))}
+  </div>
+</section>
+
+<style>
+  .forecast-tabs {
+    display: grid;
+    gap: 28px;
+    padding: clamp(22px, 4vw, 44px);
+  }
+
+  .forecast-tabs-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .forecast-tabs-heading > div {
+    display: grid;
+    gap: 10px;
+  }
+
+  .forecast-tabs-heading h2 {
+    font-size: clamp(1.7rem, 3.6vw, 2.4rem);
+  }
+
+  .forecast-tabs-intro,
+  .forecast-week-range {
+    color: var(--ink-soft);
+  }
+
+  .forecast-week-range {
+    padding: 6px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    font-size: 0.86rem;
+  }
+
+  .tab-list {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 5px;
+    border: 1px solid var(--line-quiet);
+    border-radius: var(--radius-control);
+    background: rgb(5 7 15 / 0.6);
+  }
+
+  .tab-indicator {
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    left: 0;
+    width: 100px;
+    border-radius: var(--radius-control);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--sign-accent) 85%, white), var(--sign-accent));
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--sign-accent) 35%, transparent);
+    transform-origin: left center;
+    opacity: 0;
+  }
+
+  .period-tab {
+    position: relative;
+    min-height: 44px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--ink-soft);
+    font-weight: 600;
+    cursor: pointer;
+    transition: color var(--duration-base) var(--ease-out);
+  }
+
+  .period-tab:hover {
+    color: var(--ink);
+  }
+
+  .period-tab.is-active {
+    color: var(--night-950);
+  }
+
+  /* Without the script the active tab still reads as selected. */
+  .tab-list:not(.has-indicator) .period-tab.is-active {
+    background: var(--sign-accent);
+  }
+
+  .forecast-panel:focus-visible {
+    outline-offset: 8px;
+  }
+
+  @media (max-width: 560px) {
+    .period-tab {
+      font-size: 0.86rem;
+    }
+  }
+</style>
+
+<script>
+  import { animate } from 'motion';
+  import { prefersReducedMotion } from '../../scripts/motion-preference';
+
+  document.querySelectorAll<HTMLElement>('[data-forecast-tabs]').forEach((root) => {
+    const tabList = root.querySelector<HTMLElement>('[role="tablist"]')!;
+    const indicator = root.querySelector<HTMLElement>('[data-tab-indicator]')!;
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-period-tab]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-period-panel]'));
+
+    // The indicator is 100px wide; scaleX stretches it to the tab, so only transforms animate.
+    const moveIndicator = (tab: HTMLElement, instant: boolean) => {
+      const target = { x: tab.offsetLeft, scaleX: tab.offsetWidth / 100, opacity: 1 };
+      animate(indicator, target, instant || prefersReducedMotion() ? { duration: 0 } : { type: 'spring', bounce: 0.18, visualDuration: 0.35 });
+    };
+
+    const activate = (period: string, { updateHash = true, instant = false } = {}) => {
+      const selected = tabs.find((tab) => tab.dataset.periodTab === period) ?? tabs[0];
+      tabs.forEach((tab) => {
+        const active = tab === selected;
+        tab.classList.toggle('is-active', active);
+        tab.setAttribute('aria-selected', String(active));
+        if (active) tab.removeAttribute('tabindex');
+        else tab.setAttribute('tabindex', '-1');
+      });
+      panels.forEach((panel) => {
+        const active = panel.dataset.periodPanel === selected.dataset.periodTab;
+        const wasHidden = panel.hidden;
+        panel.hidden = !active;
+        if (active && wasHidden && !instant && !prefersReducedMotion()) {
+          animate(panel, { opacity: [0, 1], y: [10, 0] }, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
+        }
+      });
+      moveIndicator(selected, instant);
+      const hash = selected.dataset.periodHash;
+      if (updateHash && hash && window.location.hash !== '#' + hash) window.history.replaceState(null, '', '#' + hash);
+    };
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => activate(tab.dataset.periodTab!));
+      tab.addEventListener('keydown', (event) => {
+        const last = tabs.length - 1;
+        const next = { ArrowRight: index === last ? 0 : index + 1, ArrowLeft: index === 0 ? last : index - 1, Home: 0, End: last }[event.key];
+        if (next === undefined) return;
+        event.preventDefault();
+        tabs[next].focus();
+        activate(tabs[next].dataset.periodTab!);
+      });
+    });
+
+    tabList.classList.add('has-indicator');
+    const fromHash = tabs.find((tab) => tab.dataset.periodHash === window.location.hash.slice(1));
+    activate(fromHash?.dataset.periodTab ?? 'today', { updateHash: false, instant: true });
+    new ResizeObserver(() => moveIndicator(tabs.find((tab) => tab.classList.contains('is-active'))!, true)).observe(tabList);
+  });
+</script>

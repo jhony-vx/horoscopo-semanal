@@ -1,12 +1,15 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
-import SignGrid from '../components/SignGrid.astro';
-import WeeklyEditorial from '../components/WeeklyEditorial.astro';
-import WeeklyRanking from '../components/WeeklyRanking.astro';
+import HomeHero from '../components/home/HomeHero.astro';
+import WeeklyEditorial from '../components/home/WeeklyEditorial.astro';
+import WeeklyRanking from '../components/home/WeeklyRanking.astro';
+import SignGrid from '../components/shared/SignGrid.astro';
 import { formatWeekRange, getCurrentEdition } from '../lib/horoscopes';
+import { getSign } from '../zodiac/signs';
 
 const edition = await getCurrentEdition();
 const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition.week.data.weekEnd) : '';
+const leader = edition ? getSign(edition.entries[0].data.sign) : undefined;
 ---
 
 <SiteLayout
@@ -15,50 +18,35 @@ const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition
 >
   {edition ? (
     <>
-      <section class="hero" data-reveal>
-        <div class="container hero-grid">
-          <div class="hero-copy">
-            <span class="eyebrow">Edición semanal</span>
-            <h1>Tu semana,<br /><em>en perspectiva.</em></h1>
-            <p class="hero-description">Una guía breve para saber qué energía acompaña a cada signo. Explora el ranking y encuentra tu lectura.</p>
-            <div class="hero-actions">
-              <a class="button button-primary" href="#ranking">Ver el ranking <span aria-hidden="true">↓</span></a>
-              <a class="button button-ghost" href="#tu-signo">Elegir mi signo <span aria-hidden="true">→</span></a>
-            </div>
-          </div>
-          <aside class="hero-aside" data-spotlight aria-label="Información de la edición">
-            <span class="aside-label">Semana editorial</span>
-            <strong class="week-range">{weekRange}</strong>
-            <p class="week-theme">{edition.week.data.theme}</p>
-          </aside>
-        </div>
-      </section>
+      <HomeHero weekRange={weekRange} theme={edition.week.data.theme} leader={leader} />
 
-      <section class="section ranking-section" id="ranking" data-reveal>
+      <section class="section" id="ranking">
         <div class="container">
-          <div class="section-heading">
+          <div class="section-heading" data-reveal>
             <div>
               <span class="eyebrow">El pulso de los astros</span>
               <h2>Ranking semanal</h2>
             </div>
-            <p>Consulta el ranking del horóscopo semanal y explora las tendencias de cada signo con curiosidad y criterio.</p>
+            <p>Del puesto 1 al 12, según cómo el cielo de esta semana acompaña a cada signo. Toca uno para leer su horóscopo completo.</p>
           </div>
 
-          <WeeklyRanking entries={edition.entries} />
-          <WeeklyEditorial
-            week={edition.week}
-            weekRange={weekRange}
-            bodyHtml={edition.week.rendered?.html ?? ''}
-          />
+          <div class="ranking-layout">
+            <WeeklyRanking entries={edition.entries} />
+            <aside class="ranking-aside">
+              <WeeklyEditorial week={edition.week} weekRange={weekRange} bodyHtml={edition.week.rendered?.html ?? ''} />
+            </aside>
+          </div>
         </div>
       </section>
 
-      <section class="selector-section" id="tu-signo" data-reveal>
+      <section class="section" id="tu-signo">
         <div class="container">
-          <div class="selector-heading">
-            <span class="eyebrow">Tu lectura personal</span>
-            <h2>Encuentra tu signo.</h2>
-            <p>Elige un signo para consultar su horóscopo diario, semanal y mensual, y guardar la preferencia en este dispositivo.</p>
+          <div class="section-heading" data-reveal>
+            <div>
+              <span class="eyebrow">Tu lectura personal</span>
+              <h2>Encuentra tu signo.</h2>
+            </div>
+            <p>Elige un signo para consultar su horóscopo diario, semanal y mensual. Lo recordaremos en este dispositivo.</p>
           </div>
           <SignGrid />
         </div>
@@ -66,10 +54,30 @@ const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition
     </>
   ) : (
     <div class="container">
-      <section class="empty-state">
+      <section class="empty-state panel">
         <h1>La próxima lectura está tomando forma.</h1>
         <p>Estamos preparando una nueva edición semanal. Vuelve pronto para descubrir el ranking de los doce signos.</p>
       </section>
     </div>
   )}
 </SiteLayout>
+
+<style>
+  .ranking-layout {
+    display: grid;
+    gap: 24px;
+  }
+
+  @media (min-width: 1000px) {
+    .ranking-layout {
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+      align-items: start;
+      gap: 32px;
+    }
+
+    .ranking-aside {
+      position: sticky;
+      top: 96px;
+    }
+  }
+</style>

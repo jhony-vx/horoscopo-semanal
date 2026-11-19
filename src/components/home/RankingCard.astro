@@ -1,0 +1,146 @@
+---
+import { getSign } from '../../zodiac/signs';
+import type { HoroscopeEntry } from '../../lib/horoscopes';
+import SignLogo from '../ui/SignLogo.astro';
+
+interface Props {
+  entry: HoroscopeEntry;
+}
+
+const { entry } = Astro.props;
+const sign = getSign(entry.data.sign);
+if (!sign) throw new Error('Signo no encontrado: ' + entry.data.sign);
+const rank = entry.data.rank;
+---
+
+<a
+  class:list={['ranking-card', rank <= 3 && 'is-podium']}
+  href={'/horoscopo/' + sign.slug + '/'}
+  data-element={sign.elementKey}
+  style={`--orb-accent: ${sign.accent}`}
+>
+  <span class="ranking-position" aria-label={'Puesto ' + rank}>{String(rank).padStart(2, '0')}</span>
+  <SignLogo sign={sign} size="small" decorative transitionName={'sign-' + sign.slug} />
+  <span class="ranking-content">
+    <span class="ranking-heading">
+      <span class="ranking-name">{sign.name}</span>
+      <span class="ranking-element">{sign.element}</span>
+    </span>
+    <span class="ranking-summary">{entry.data.summary}</span>
+  </span>
+  <span class="ranking-arrow" aria-hidden="true">→</span>
+</a>
+
+<style>
+  .ranking-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 1px solid var(--line-quiet);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    text-decoration: none;
+    overflow: hidden;
+    transition:
+      border-color var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .ranking-card::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--orb-accent);
+    opacity: 0.5;
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+
+  .ranking-card:hover,
+  .ranking-card:focus-visible {
+    border-color: color-mix(in srgb, var(--orb-accent) 45%, transparent);
+    box-shadow: 0 18px 44px rgb(0 0 0 / 0.38);
+  }
+
+  .ranking-card:hover::after {
+    opacity: 1;
+  }
+
+  .ranking-position {
+    min-width: 2.2ch;
+    color: var(--ink-faint);
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .is-podium .ranking-position {
+    color: var(--gold-300);
+  }
+
+  .ranking-content {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .ranking-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+  }
+
+  .ranking-name {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .ranking-element {
+    color: var(--element-color);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .ranking-summary {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--ink-soft);
+    font-size: 0.94rem;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .ranking-arrow {
+    color: var(--gold-300);
+    font-size: 1.2rem;
+    transition: translate var(--duration-base) var(--ease-out);
+  }
+
+  .ranking-card:hover .ranking-arrow {
+    translate: 4px 0;
+  }
+
+  @media (max-width: 560px) {
+    .ranking-card {
+      grid-template-columns: auto auto minmax(0, 1fr);
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .ranking-arrow {
+      display: none;
+    }
+
+    .ranking-position {
+      font-size: 1.35rem;
+    }
+  }
+</style>

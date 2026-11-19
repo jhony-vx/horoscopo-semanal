@@ -90,25 +90,35 @@ test('cada periodo muestra su fecha editorial exacta', async ({ page }) => {
   expect(dates[3]).toMatch(/^Del \d{1,2} al \d{1,2} de .+ de \d{4}$/);
 });
 
-test('las páginas de signo aplican paletas propias', async ({ page }) => {
+test('las páginas de signo aplican su color de acento', async ({ page }) => {
   const themes = [
-    ['/horoscopo/aries/', '#c85c48', '#762d24'],
-    ['/horoscopo/virgo/', '#9b7a65', '#5a4b42'],
-    ['/horoscopo/acuario/', '#2d9ca6', '#155b64'],
+    ['/horoscopo/aries/', '#ff7a5c'],
+    ['/horoscopo/virgo/', '#c9b79c'],
+    ['/horoscopo/acuario/', '#5fd3e0'],
   ] as const;
 
-  for (const [path, accent, deep] of themes) {
+  for (const [path, accent] of themes) {
     await page.goto(path);
-    const colors = await page.locator('html').evaluate((element) => {
-      const styles = getComputedStyle(element);
-      return {
-        accent: styles.getPropertyValue('--green-400').trim(),
-        deep: styles.getPropertyValue('--green-900').trim(),
-      };
-    });
-
-    expect(colors).toEqual({ accent, deep });
+    const value = await page.locator('html').evaluate((element) => getComputedStyle(element).getPropertyValue('--sign-accent').trim());
+    expect(value).toBe(accent);
   }
+});
+
+test('el fondo muestra la rueda zodiacal en español', async ({ page }) => {
+  await page.goto('/');
+
+  const wheel = page.locator('.sky-wheel');
+  await expect(wheel).toBeAttached();
+  const labels = await wheel.locator('textPath').allTextContents();
+  expect(labels).toHaveLength(12);
+  expect(labels).toEqual(expect.arrayContaining(['ARIES', 'GÉMINIS', 'CÁNCER', 'ESCORPIO', 'CAPRICORNIO', 'PISCIS']));
+  await expect(page.locator('.sky')).toHaveAttribute('aria-hidden', 'true');
+});
+
+test('la rueda resalta el signo de la página', async ({ page }) => {
+  await page.goto('/horoscopo/leo/');
+
+  await expect(page.locator('.wheel-label.is-current textPath')).toHaveText('LEO');
 });
 
 test('el modal cambia de signo y se cierra con Escape', async ({ page }) => {
