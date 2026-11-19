@@ -36,7 +36,7 @@ jobs:
         run: npm ci
 
       - name: Prepare daily drafts
-        run: node scripts/publish-daily-forecasts.mjs prepare
+        run: npm run content -- prepare-day
 
       - name: Validate drafts
         run: |
@@ -44,7 +44,7 @@ jobs:
           npm run build
 
       - name: Publish complete daily groups
-        run: node scripts/publish-daily-forecasts.mjs publish
+        run: npm run content -- publish-day
 
       - name: Prune expired daily forecasts
         run: npm run content:prune

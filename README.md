@@ -63,9 +63,9 @@ src/
 ├── lib/                    # Consultas y reglas de contenido
 ├── pages/                  # Rutas públicas de Astro
 ├── styles/                 # Estilos globales y tokens visuales
-└── data-signs.ts           # Datos y temas de los 12 signos
+└── zodiac/                 # Signos, calendario y motor astronómico
 
-scripts/                    # Automatizaciones editoriales
+scripts/                    # Publicación y poda del contenido
 tests/                      # Pruebas end-to-end
 .pages.yml                  # Configuración de Pages CMS
 ```
@@ -122,6 +122,22 @@ Los workflows de GitHub Actions preparan y publican contenido de forma programad
 | `publish-weekly.yml` | Lunes, 5:00 a. m. | Ranking y lectura semanal |
 | `publish-monthly.yml` | Día 1 de cada mes, 5:00 a. m. | Pronósticos mensuales |
 | `validate.yml` | Cada push y pull request | Type check, build y pruebas E2E |
+
+### Cómo se genera el contenido
+
+El ranking, los puntajes y los textos salen de las posiciones astronómicas reales del Sol, la Luna, Mercurio, Venus, Marte, Júpiter y Saturno, calculadas con [`astronomy-engine`](https://github.com/cosinekitty/astronomy) al mediodía de Lima (`src/zodiac/`):
+
+- `sky.ts`: signo de cada astro, retrógrados y fase lunar.
+- `scoring.ts`: compara cada astro con el signo del lector por distancia entre signos (conjunción, sextil, cuadratura, trígono, oposición) y pondera cada área con sus astros tradicionales. El ranking semanal promedia los siete días.
+- `texts.ts`: redacta cada sección con frases elegidas según el puntaje y nombra el tránsito que la explica. La elección es determinista: la misma fecha produce el mismo texto, y dos días seguidos se leen distinto.
+
+Los workflows usan un solo script:
+
+```bash
+npm run content -- <prepare-day|publish-day|prepare-week|publish-week|prepare-month|publish-month> [--date=AAAA-MM-DD]
+```
+
+`prepare-*` crea solo los borradores que faltan (nunca sobrescribe) y `publish-*` valida el grupo completo antes de publicarlo. `--date` permite recuperar un día, una semana o un mes que no se publicó.
 
 El workflow diario conserva solo los últimos 30 días de pronósticos diarios (`npm run content:prune`); los anteriores siguen disponibles en el historial de git.
 
