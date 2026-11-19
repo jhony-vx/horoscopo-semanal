@@ -30,3 +30,7 @@ pnpm-debug.log*
 .agents/
 .codex/
 skills-lock.json
+
+# Lighthouse CI
+.lighthouseci/
+lighthouse-reports/

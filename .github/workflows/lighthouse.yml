@@ -1,0 +1,35 @@
+name: Lighthouse
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build static site
+        run: npm run build
+      # Budgets live in lighthouserc.json; reports stay in the run as an artifact (nothing is uploaded publicly).
+      - name: Run Lighthouse
+        run: npx --yes @lhci/cli@0.15.1 autorun
+      - name: Keep the reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: lighthouse-reports
+          retention-days: 14

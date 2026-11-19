@@ -12,6 +12,7 @@ Static Astro 7 site with weekly, daily and monthly horoscopes. Content is Markdo
 | Build | `npm run build` |
 | E2E (Chromium desktop and mobile) | `npm run test:e2e`; first time: `npx playwright install chromium` |
 | Everything, before a PR | `npm run test` |
+| Lighthouse budgets | `npx @lhci/cli@0.15.1 autorun` after `npm run build` (CI runs it on every PR; budgets in `lighthouserc.json`) |
 | Generate content | `npm run content -- prepare-day --date=AAAA-MM-DD` (also `publish-*`, `-week`, `-month`) |
 | Social cards | `npm run social:cards` after changing the wheel, colors or sign data |
 
