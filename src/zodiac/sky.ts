@@ -1,5 +1,5 @@
-import { Ecliptic, EclipticGeoMoon, GeoVector, MoonPhase, SunPosition, Body as AstronomyBody } from 'astronomy-engine';
-import { addDays, type IsoDate } from './calendar.ts';
+import { Ecliptic, EclipticGeoMoon, GeoVector, MoonPhase, SearchMoonPhase, SunPosition, Body as AstronomyBody } from 'astronomy-engine';
+import { addDays, todayInLima, type IsoDate } from './calendar.ts';
 
 /** Bodies used by the editorial model, in display order. */
 export const BODIES = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'] as const;
@@ -70,4 +70,30 @@ export function skyOn(date: IsoDate): Sky {
   const moonPhaseAngle = normalize(MoonPhase(instant));
 
   return { date, bodies, moonPhaseAngle, moonPhase: moonPhaseFromAngle(moonPhaseAngle) };
+}
+
+export interface Lunation {
+  phase: 'new' | 'full';
+  /** Lima day of the exact event. */
+  date: IsoDate;
+  /** Sign the Moon occupies at the exact instant. */
+  signIndex: number;
+}
+
+/** Exact new and full moons whose Lima day falls between start and end (inclusive). */
+export function lunationsBetween(start: IsoDate, end: IsoDate): Lunation[] {
+  // Search from the previous noon so an event early on the first Lima day is not missed.
+  const from = new Date(addDays(start, -1) + 'T17:00:00Z');
+  const lunations: Lunation[] = [];
+  for (const [phase, angle] of [['new', 0], ['full', 180]] as const) {
+    for (let cursor = from; ; ) {
+      const event = SearchMoonPhase(angle, cursor, 40);
+      if (!event) break;
+      const date = todayInLima(event.date);
+      if (date > end) break;
+      if (date >= start) lunations.push({ phase, date, signIndex: Math.floor(normalize(EclipticGeoMoon(event.date).lon) / 30) });
+      cursor = new Date(event.date.getTime() + 86_400_000);
+    }
+  }
+  return lunations.sort((a, b) => a.date.localeCompare(b.date));
 }
