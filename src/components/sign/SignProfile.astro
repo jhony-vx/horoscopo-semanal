@@ -172,17 +172,25 @@ const facts = [
 
   .sign-traits ul {
     display: grid;
-    gap: 6px;
+    gap: 10px;
     margin: 0;
     padding: 0;
     list-style: none;
     color: var(--ink-soft);
   }
 
+  /* The star sits in its own column, so wrapped lines align with the text, not under the star. */
+  .sign-traits li {
+    display: grid;
+    grid-template-columns: 14px minmax(0, 1fr);
+    column-gap: 10px;
+    line-height: 1.5;
+  }
+
   .sign-traits li::before {
     content: '✦';
-    margin-right: 8px;
     color: var(--sign-accent);
-    font-size: 0.8em;
+    font-size: 0.75em;
+    line-height: 2;
   }
 </style>

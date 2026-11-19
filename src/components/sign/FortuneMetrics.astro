@@ -120,6 +120,46 @@ const scale = [1, 2, 3, 4, 5];
     font-size: 1.3rem;
   }
 
+  /* Mobile: one row per metric, so labels never break into two lines. */
+  @media (max-width: 560px) {
+    .fortune-secondary-metrics {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      padding: 6px 16px;
+      border: 1px solid var(--line-quiet);
+      border-radius: var(--radius-card);
+      background: rgb(255 255 255 / 0.025);
+    }
+
+    .fortune-metric-secondary {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px 12px;
+      padding: 12px 0;
+      border: 0;
+      border-radius: 0;
+      background: none;
+    }
+
+    .fortune-metric-secondary + .fortune-metric-secondary {
+      border-top: 1px solid var(--line-quiet);
+    }
+
+    .fortune-metric-secondary .metric-bar {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
+    .fortune-metric-general {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
+    .fortune-metric-general .metric-label {
+      grid-column: 1 / -1;
+    }
+  }
+
   .metric-bar {
     height: 3px;
     border-radius: 3px;
