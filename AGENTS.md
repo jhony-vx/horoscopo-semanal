@@ -29,6 +29,12 @@ Static Astro 7 site with weekly, daily and monthly horoscopes. Content is Markdo
 - Node runs TypeScript with `--experimental-strip-types`: relative imports in `src/zodiac/` and `scripts/` need the `.ts` extension, and only erasable syntax is allowed (no enums, no parameter properties).
 - Generated content is never overwritten: `prepare-*` only writes missing files. Do not hand-edit generated Markdown unless asked.
 
+## UI rules
+
+- No text arrow glyphs (→ ↗ ↓ ↩) in buttons or cards: the owner finds them generic. When an icon is really needed, draw it as an inline SVG.
+- Sign pickers use `ui/SignSelect.astro` (accessible listbox), never a native `<select>`. Listen to its `sign-change` event and set it with a `sign-set` event.
+- Check every change at 375 px wide: labels stay on one line, lists use a hanging indent, and nothing relies on hover.
+
 ## Animation rules
 
 - Never hide content with CSS waiting for JavaScript. Scripts prepare only elements below the fold (`isBelowFold`) and restore them when done.
