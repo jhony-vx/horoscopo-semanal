@@ -1,0 +1,123 @@
+---
+import { affinitiesFor, relationBetween } from '../../zodiac/compatibility';
+import { getSign, type ZodiacSign } from '../../zodiac/signs';
+import SignLogo from '../ui/SignLogo.astro';
+
+interface Props {
+  sign: ZodiacSign;
+}
+
+const { sign } = Astro.props;
+const affinities = affinitiesFor(sign.slug);
+const groups = [
+  { title: 'Fluyen contigo', slugs: affinities.best },
+  { title: 'Tu complemento', slugs: [affinities.complement] },
+  { title: 'Te desafían', slugs: affinities.challenging },
+];
+---
+
+<section class="sign-compatibility panel" data-reveal aria-labelledby="sign-compatibility-title">
+  <header>
+    <span class="eyebrow">Compatibilidad</span>
+    <h2 id="sign-compatibility-title">Con quién conecta {sign.name}</h2>
+  </header>
+
+  {groups.map((group) => (
+    <div class="compatibility-group">
+      <h3>{group.title}</h3>
+      <ul>
+        {group.slugs.map((slug) => {
+          const other = getSign(slug) as ZodiacSign;
+          const relation = relationBetween(sign.slug, slug);
+          return (
+            <li>
+              <a href={'/horoscopo/' + other.slug + '/'} style={`--orb-accent: ${other.accent}`}>
+                <SignLogo sign={other} size="small" decorative />
+                <span class="compatibility-name">{other.name}</span>
+                <span class="compatibility-score">{relation.score} %</span>
+                <span class="compatibility-label">{relation.label}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  ))}
+</section>
+
+<style>
+  .sign-compatibility {
+    display: grid;
+    gap: 18px;
+    padding: 24px;
+  }
+
+  header {
+    display: grid;
+    gap: 6px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .compatibility-group {
+    display: grid;
+    gap: 8px;
+  }
+
+  h3 {
+    color: var(--ink-faint);
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  ul {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 12px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    text-decoration: none;
+    transition: border-color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
+  }
+
+  a:hover {
+    border-color: color-mix(in srgb, var(--orb-accent) 40%, transparent);
+    background: rgb(255 255 255 / 0.03);
+  }
+
+  a > :global(.sign-logo) {
+    grid-row: span 2;
+  }
+
+  .compatibility-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+
+  .compatibility-score {
+    grid-row: span 2;
+    color: var(--orb-accent);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .compatibility-label {
+    color: var(--ink-faint);
+    font-size: 0.82rem;
+  }
+</style>

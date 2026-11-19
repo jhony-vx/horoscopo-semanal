@@ -1,15 +1,19 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
+import CompatibilityTool from '../components/home/CompatibilityTool.astro';
 import HomeHero from '../components/home/HomeHero.astro';
 import WeeklyEditorial from '../components/home/WeeklyEditorial.astro';
 import WeeklyRanking from '../components/home/WeeklyRanking.astro';
 import SignGrid from '../components/shared/SignGrid.astro';
-import { formatWeekRange, getCurrentEdition } from '../lib/horoscopes';
+import SkyToday from '../components/shared/SkyToday.astro';
+import { currentDateInLima, formatWeekRange, getCurrentEdition } from '../lib/horoscopes';
 import { getSign } from '../zodiac/signs';
+import { skySummary } from '../zodiac/sky-summary';
 
 const edition = await getCurrentEdition();
 const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition.week.data.weekEnd) : '';
 const leader = edition ? getSign(edition.entries[0].data.sign) : undefined;
+const sky = skySummary(currentDateInLima());
 ---
 
 <SiteLayout
@@ -33,9 +37,16 @@ const leader = edition ? getSign(edition.entries[0].data.sign) : undefined;
           <div class="ranking-layout">
             <WeeklyRanking entries={edition.entries} />
             <aside class="ranking-aside">
+              <SkyToday summary={sky} />
               <WeeklyEditorial week={edition.week} weekRange={weekRange} bodyHtml={edition.week.rendered?.html ?? ''} />
             </aside>
           </div>
+        </div>
+      </section>
+
+      <section class="section compatibility-section" id="compatibilidad">
+        <div class="container">
+          <CompatibilityTool />
         </div>
       </section>
 
@@ -74,10 +85,14 @@ const leader = edition ? getSign(edition.entries[0].data.sign) : undefined;
       align-items: start;
       gap: 32px;
     }
+  }
 
-    .ranking-aside {
-      position: sticky;
-      top: 96px;
-    }
+  .ranking-aside {
+    display: grid;
+    gap: 20px;
+  }
+
+  .compatibility-section {
+    padding-block: 0;
   }
 </style>

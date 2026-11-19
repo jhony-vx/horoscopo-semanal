@@ -57,7 +57,7 @@ test('el selector guarda el signo y navega a su página', async ({ page }) => {
   await piscis.click();
 
   await expect(page).toHaveURL(/\/horoscopo\/piscis\/$/);
-  await expect(page.getByRole('heading', { name: 'Piscis' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Piscis', exact: true })).toBeVisible();
 
   await page.goto('/');
   await expect(page.locator('[data-sign-choice][data-sign-slug="piscis"]').first()).toHaveClass(/is-saved/);
@@ -66,7 +66,7 @@ test('el selector guarda el signo y navega a su página', async ({ page }) => {
 test('cada página de signo tiene logo, cuatro periodos y contenido semanal', async ({ page }) => {
   await page.goto('/horoscopo/aries/');
 
-  await expect(page.getByRole('heading', { name: 'Aries' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Aries', exact: true })).toBeVisible();
   await expect(page.locator('[data-sign-logo]').first()).toBeVisible();
   await expect(page.locator('.sign-logo-glyph').first()).toHaveText('♈');
   await expect(page.locator('html')).toHaveAttribute('data-page-theme', 'aries');
@@ -132,6 +132,12 @@ test('el modal cambia de signo y se cierra con Escape', async ({ page }) => {
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole('link', { name: /Libra/ })).toBeVisible();
 
+  // The panel and its choices animate in; measure once they settle.
+  await page.waitForFunction(() =>
+    Array.from(document.querySelectorAll('dialog, dialog *')).every((element) =>
+      element.getAnimations().every((animation) => animation.playState !== 'running'),
+    ),
+  );
   const currentSign = dialog.locator('[data-sign-choice][data-sign-slug="virgo"]');
   const savedBadge = currentSign.locator('.sign-choice-saved');
   await expect(savedBadge).toHaveCSS('position', 'absolute');
@@ -190,4 +196,45 @@ test('una ruta inválida muestra la página 404', async ({ page }) => {
 
   expect(response?.status()).toBe(404);
   await expect(page.getByRole('heading', { name: /Esta estrella se salió de la órbita/ })).toBeVisible();
+});
+
+test('la portada muestra el cielo de hoy con la fase lunar', async ({ page }) => {
+  await page.goto('/');
+
+  const sky = page.locator('[data-sky-today]');
+  await expect(sky.getByText('El cielo de hoy')).toBeVisible();
+  await expect(sky.getByText(/La Luna transita/)).toBeVisible();
+  await expect(sky.locator('.moon-lit')).toHaveAttribute('d', /^M /);
+  await expect(sky.getByText(/^Próxima luna (llena|nueva)$/)).toBeVisible();
+});
+
+test('la herramienta de compatibilidad responde al cambiar de signo', async ({ page }) => {
+  await page.goto('/');
+
+  const tool = page.locator('[data-compatibility-tool]');
+  await expect(tool.locator('[data-label]')).toHaveText('Sintonía natural');
+  await tool.getByLabel('Su signo').selectOption('cancer');
+  await expect(tool.locator('[data-label]')).toHaveText('Fricción creativa');
+  await expect(tool.locator('[data-score]')).toHaveText('46');
+});
+
+test('la compatibilidad parte del signo guardado', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('ranking-zodiacal-sign', 'libra'));
+  await page.goto('/');
+
+  await expect(page.locator('[data-compatibility-tool]').getByLabel('Tu signo')).toHaveValue('libra');
+});
+
+test('cada signo tiene su perfil, su constelación y su compatibilidad', async ({ page }) => {
+  await page.goto('/horoscopo/escorpio/');
+
+  await expect(page.getByRole('heading', { name: 'Así se mueve Escorpio.' })).toBeVisible();
+  await expect(page.getByRole('img', { name: 'Constelación de Escorpio' })).toBeVisible();
+  await expect(page.getByText('Plutón (clásico: Marte)')).toBeVisible();
+  await expect(page.getByText('El escorpión', { exact: true })).toBeVisible();
+
+  const compatibility = page.locator('.sign-compatibility');
+  await expect(compatibility.getByRole('link', { name: /Cáncer/ })).toBeVisible();
+  await expect(compatibility.getByRole('link', { name: /Tauro/ })).toBeVisible();
+  await expect(page.locator('.sky-today-note')).toHaveText(/La Luna/);
 });

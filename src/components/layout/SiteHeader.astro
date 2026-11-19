@@ -7,6 +7,7 @@ import BrandMark from './BrandMark.astro';
     <BrandMark label="Ranking Zodiacal, inicio" tagline />
     <nav class="main-nav" aria-label="Navegación principal">
       <a href="/#ranking">Ranking</a>
+      <a class="nav-optional" href="/#compatibilidad">Compatibilidad</a>
       <a href="/#tu-signo">Tu signo</a>
       <a class="saved-sign-link" href="/#tu-signo" data-saved-sign-link hidden>
         <span class="symbol" data-saved-sign-symbol aria-hidden="true"></span>
@@ -83,7 +84,8 @@ import BrandMark from './BrandMark.astro';
       padding-inline: 10px;
     }
 
-    .main-nav a[href='/#ranking'] {
+    .main-nav a[href='/#ranking'],
+    .main-nav .nav-optional {
       display: none;
     }
 

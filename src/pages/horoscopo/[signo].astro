@@ -1,7 +1,11 @@
 ---
 import { ZODIAC_SIGNS, getSign, type ZodiacSign } from '../../zodiac/signs';
+import { skySummary } from '../../zodiac/sky-summary';
 import ForecastTabs from '../../components/sign/ForecastTabs.astro';
+import SignCompatibility from '../../components/sign/SignCompatibility.astro';
 import SignPickerDialog from '../../components/sign/SignPickerDialog.astro';
+import SignProfile from '../../components/sign/SignProfile.astro';
+import SkyToday from '../../components/shared/SkyToday.astro';
 import SignLogo from '../../components/ui/SignLogo.astro';
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import { currentDateInLima, dateInLima, formatWeekRange, getCurrentEdition, getForecastsForSign, type HoroscopeEntry } from '../../lib/horoscopes';
@@ -32,6 +36,7 @@ const { sign, edition, entry, forecasts } = Astro.props;
 const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition.week.data.weekEnd) : '';
 const todayDate = currentDateInLima();
 const tomorrowDate = dateInLima(1);
+const sky = skySummary(todayDate);
 const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.slug).slice(0, 4) ?? [];
 ---
 
@@ -74,9 +79,16 @@ const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.
       </div>
     </section>
 
+    <section class="section sign-profile-section">
+      <div class="container">
+        <SignProfile sign={sign} />
+      </div>
+    </section>
+
     <section class="section sign-reading-section">
-      <div class="container" data-reveal>
-        <ForecastTabs
+      <div class="container sign-reading-layout">
+        <div data-reveal>
+          <ForecastTabs
           weeklyEntry={entry}
           today={forecasts.today}
           tomorrow={forecasts.tomorrow}
@@ -84,7 +96,12 @@ const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.
           weekRange={weekRange}
           todayDate={todayDate}
           tomorrowDate={tomorrowDate}
-        />
+          />
+        </div>
+        <aside class="sign-reading-aside" aria-label="Más sobre tu signo">
+          <SkyToday summary={sky} sign={sign.slug} />
+          <SignCompatibility sign={sign} />
+        </aside>
       </div>
     </section>
 
@@ -206,6 +223,33 @@ const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.
 
     .sign-hero-copy {
       justify-items: start;
+    }
+  }
+
+  .sign-profile-section {
+    padding-block: 24px 0;
+  }
+
+  .sign-reading-layout {
+    display: grid;
+    gap: 20px;
+  }
+
+  .sign-reading-aside {
+    display: grid;
+    align-content: start;
+    gap: 20px;
+  }
+
+  @media (min-width: 1100px) {
+    .sign-reading-layout {
+      grid-template-columns: minmax(0, 1fr) 340px;
+      align-items: start;
+    }
+
+    .sign-reading-aside {
+      position: sticky;
+      top: 96px;
     }
   }
 

@@ -1,0 +1,127 @@
+---
+import { formatDayMonth } from '../../lib/horoscopes';
+import type { SignSlug } from '../../zodiac/signs';
+import { moonNoteFor, type SkySummary } from '../../zodiac/sky-summary';
+import MoonPhaseIcon from '../ui/MoonPhaseIcon.astro';
+
+interface Props {
+  summary: SkySummary;
+  /** Adds a line on how the Moon relates to this sign. */
+  sign?: SignSlug;
+}
+
+const { summary, sign } = Astro.props;
+const { moon, sun, retrogrades, nextLunation } = summary;
+---
+
+<section class="sky-today panel" data-reveal aria-labelledby="sky-today-title" data-sky-today>
+  <header class="sky-today-header">
+    <span class="eyebrow">El cielo de hoy</span>
+    <h2 id="sky-today-title">{formatDayMonth(summary.date)}</h2>
+  </header>
+
+  <div class="sky-today-moon">
+    <MoonPhaseIcon phaseAngle={moon.phaseAngle} size={72} />
+    <div>
+      <p class="sky-today-phase">{moon.phaseName[0].toUpperCase() + moon.phaseName.slice(1)}</p>
+      <p class="sky-today-detail">
+        La Luna transita <strong><span class="symbol" aria-hidden="true">{moon.sign.symbol}</span> {moon.sign.name}</strong> · {moon.illumination}&nbsp;% iluminada
+      </p>
+    </div>
+  </div>
+
+  {sign && <p class="sky-today-note">{moonNoteFor(summary, sign)}</p>}
+
+  <dl class="sky-today-facts">
+    <div>
+      <dt>Sol</dt>
+      <dd><span class="symbol" aria-hidden="true">{sun.symbol}</span> {sun.name}</dd>
+    </div>
+    <div>
+      <dt>Retrógrados</dt>
+      <dd>{retrogrades.length > 0 ? retrogrades.join(', ') : 'Ninguno'}</dd>
+    </div>
+    {nextLunation && (
+      <div class="sky-today-wide">
+        <dt>Próxima {nextLunation.phase === 'full' ? 'luna llena' : 'luna nueva'}</dt>
+        <dd>{formatDayMonth(nextLunation.date)}, en {nextLunation.sign.name}</dd>
+      </div>
+    )}
+  </dl>
+</section>
+
+<style>
+  .sky-today {
+    display: grid;
+    gap: 18px;
+    padding: 24px;
+  }
+
+  .sky-today-header {
+    display: grid;
+    gap: 6px;
+  }
+
+  .sky-today-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .sky-today-moon {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .sky-today-phase {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  .sky-today-detail {
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+  }
+
+  .sky-today-detail strong {
+    color: var(--ink);
+  }
+
+  .sky-today-note {
+    padding: 12px 14px;
+    border-left: 2px solid var(--sign-accent);
+    border-radius: 0 12px 12px 0;
+    background: rgb(255 255 255 / 0.03);
+    font-size: 0.94rem;
+  }
+
+  .sky-today-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--line-quiet);
+  }
+
+  .sky-today-wide {
+    grid-column: 1 / -1;
+  }
+
+  .sky-today-facts dt {
+    color: var(--ink-faint);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .sky-today-facts dd {
+    margin: 2px 0 0;
+    font-weight: 600;
+  }
+
+  .sky-today-facts .symbol {
+    color: var(--gold-300);
+  }
+</style>
