@@ -1,0 +1,94 @@
+---
+import BrandMark from './BrandMark.astro';
+---
+
+<header class="site-header" data-site-header>
+  <div class="container header-inner">
+    <BrandMark label="Ranking Zodiacal, inicio" tagline />
+    <nav class="main-nav" aria-label="Navegación principal">
+      <a href="/#ranking">Ranking</a>
+      <a href="/#tu-signo">Tu signo</a>
+      <a class="saved-sign-link" href="/#tu-signo" data-saved-sign-link hidden>
+        <span class="symbol" data-saved-sign-symbol aria-hidden="true"></span>
+        <span data-saved-sign-name></span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out);
+  }
+
+  .site-header.is-scrolled {
+    border-color: var(--line-quiet);
+    background: rgb(5 7 15 / 0.78);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 72px;
+  }
+
+  .main-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .main-nav a {
+    padding: 8px 14px;
+    border-radius: var(--radius-control);
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .main-nav a:hover {
+    background: rgb(255 255 255 / 0.05);
+    color: var(--ink);
+  }
+
+  .saved-sign-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--line-strong);
+  }
+
+  .saved-sign-link[hidden] {
+    display: none;
+  }
+
+  .saved-sign-link .symbol {
+    color: var(--gold-300);
+  }
+
+  @media (max-width: 560px) {
+    .main-nav a:not(.saved-sign-link) {
+      padding-inline: 10px;
+    }
+
+    .main-nav a[href='/#ranking'] {
+      display: none;
+    }
+
+    .site-header :global(.brand-tagline) {
+      display: none;
+    }
+  }
+</style>

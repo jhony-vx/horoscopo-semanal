@@ -1,8 +1,8 @@
 ---
 import { ZODIAC_SIGNS, getSign, type ZodiacSign } from '../../zodiac/signs';
-import ForecastTabs from '../../components/ForecastTabs.astro';
-import SignLogo from '../../components/SignLogo.astro';
-import SignPickerDialog from '../../components/SignPickerDialog.astro';
+import ForecastTabs from '../../components/sign/ForecastTabs.astro';
+import SignPickerDialog from '../../components/sign/SignPickerDialog.astro';
+import SignLogo from '../../components/ui/SignLogo.astro';
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import { currentDateInLima, dateInLima, formatWeekRange, getCurrentEdition, getForecastsForSign, type HoroscopeEntry } from '../../lib/horoscopes';
 
@@ -38,7 +38,7 @@ const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.
 <SiteLayout
   title={'Horóscopo diario y semanal de ' + sign.name}
   pageTheme={sign.slug}
-  themeColor={sign.themeColor}
+  accent={sign.accent}
   pageType="article"
   publishedTime={edition?.week.data.weekStart}
   modifiedTime={edition?.week.data.weekEnd}
@@ -46,36 +46,36 @@ const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.
   description={'Lee el horóscopo diario, semanal y mensual de ' + sign.name + ', su posición en el ranking y una lectura por periodo.'}
 >
   <div class="sign-page" data-sign={sign.slug} data-element={sign.elementKey}>
-    <section class="sign-hero" data-reveal>
+    <section class="sign-hero">
       <div class="container">
         <nav class="breadcrumb" aria-label="Migas de pan">
           <a href="/">Ranking semanal</a>
           <span aria-hidden="true">/</span>
-          <span>{sign.name}</span>
+          <span aria-current="page">{sign.name}</span>
         </nav>
 
         <div class="sign-hero-grid">
           <div class="sign-hero-logo">
-            <SignLogo sign={sign} size="large" />
+            <SignLogo sign={sign} size="large" transitionName={'sign-' + sign.slug} />
           </div>
           <div class="sign-hero-copy">
-            <span class="eyebrow">Lectura de {sign.element.toLowerCase()}</span>
+            <span class="eyebrow">Signo de {sign.element.toLowerCase()}</span>
             <h1>{sign.name}</h1>
-            <p class="sign-hero-meta">{sign.element} / {sign.dateRange}</p>
+            <p class="sign-hero-meta">{sign.dateRange}</p>
             <p class="sign-hero-description">Una lectura de entretenimiento para observar tus decisiones, tus vínculos y el ritmo de tus próximos días.</p>
             <SignPickerDialog currentSlug={sign.slug} />
           </div>
-          <aside class="sign-rank-card" data-reveal data-spotlight aria-label="Posición semanal">
+          <aside class="sign-rank-card panel" aria-label="Posición semanal">
             <span class="rank-card-label">Ranking semanal</span>
             <strong>{entry ? String(entry.data.rank).padStart(2, '0') : 'N/D'}</strong>
-            <span>{entry ? 'puesto de ' + sign.name : 'lectura en preparación'}</span>
+            <span>{entry ? 'puesto de ' + sign.name + ' esta semana' : 'lectura en preparación'}</span>
           </aside>
         </div>
       </div>
     </section>
 
-    <section class="section sign-reading-section" data-reveal>
-      <div class="container">
+    <section class="section sign-reading-section">
+      <div class="container" data-reveal>
         <ForecastTabs
           weeklyEntry={entry}
           today={forecasts.today}
@@ -88,26 +88,187 @@ const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.
       </div>
     </section>
 
-    <section class="section sign-discovery-section" data-reveal>
-      <div class="container sign-discovery-grid">
-        <div>
+    <section class="section sign-discovery-section">
+      <div class="container sign-discovery-grid" data-reveal>
+        <div class="sign-discovery-copy">
           <span class="eyebrow">Sigue explorando</span>
           <h2>Otros signos también tienen algo que decir.</h2>
           <p>Compara lecturas y vuelve al ranking general cuando quieras.</p>
+          <a class="button button-ghost" href="/">Volver al ranking <span aria-hidden="true">↩</span></a>
         </div>
         <div class="sidebar-signs">
           {nearbyEntries.map((item) => {
             const nearbySign = getSign(item.data.sign);
             return nearbySign && (
-              <a href={'/horoscopo/' + nearbySign.slug + '/'} data-element={nearbySign.elementKey}>
+              <a href={'/horoscopo/' + nearbySign.slug + '/'} data-element={nearbySign.elementKey} style={`--orb-accent: ${nearbySign.accent}`}>
                 <SignLogo sign={nearbySign} size="small" decorative />
-                <span>{nearbySign.name}</span>
+                <span class="sidebar-sign-name">{nearbySign.name}</span>
+                <span class="sidebar-sign-rank">Puesto {item.data.rank}</span>
               </a>
             );
           })}
         </div>
-        <a class="button button-ghost discovery-return" href="/">Volver al ranking <span aria-hidden="true">↩</span></a>
       </div>
     </section>
   </div>
 </SiteLayout>
+
+<style>
+  .sign-hero {
+    padding-block: 32px 8px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    gap: 10px;
+    color: var(--ink-faint);
+    font-size: 0.88rem;
+  }
+
+  .breadcrumb a {
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--gold-200);
+  }
+
+  .sign-hero-grid {
+    display: grid;
+    justify-items: center;
+    gap: 28px;
+    padding-block: clamp(40px, 7vw, 88px) 24px;
+    text-align: center;
+  }
+
+  .sign-hero-copy {
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+  }
+
+  .sign-hero-copy h1 {
+    font-size: clamp(3.2rem, 10vw, 6.4rem);
+    font-weight: 700;
+    line-height: 1;
+    text-shadow: var(--text-shadow), 0 0 60px color-mix(in srgb, var(--sign-accent) 35%, transparent);
+  }
+
+  .sign-hero-meta {
+    color: var(--sign-accent);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  .sign-hero-description {
+    max-width: 48ch;
+    color: var(--ink-soft);
+    text-shadow: var(--text-shadow);
+  }
+
+  .sign-rank-card {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    min-width: 200px;
+    padding: 20px 28px;
+  }
+
+  .rank-card-label {
+    color: var(--ink-faint);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .sign-rank-card strong {
+    color: var(--sign-accent);
+    font-family: var(--font-display);
+    font-size: 3.2rem;
+    line-height: 1.1;
+  }
+
+  .sign-rank-card span:last-child {
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+  }
+
+  @media (min-width: 960px) {
+    .sign-hero-grid {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      justify-items: start;
+      gap: 48px;
+      text-align: left;
+    }
+
+    .sign-hero-copy {
+      justify-items: start;
+    }
+  }
+
+  .sign-discovery-grid {
+    display: grid;
+    gap: 28px;
+  }
+
+  .sign-discovery-copy {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+  }
+
+  .sign-discovery-copy h2 {
+    font-size: clamp(1.7rem, 3.6vw, 2.4rem);
+  }
+
+  .sign-discovery-copy p {
+    color: var(--ink-soft);
+  }
+
+  .sidebar-signs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .sidebar-signs a {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--line-quiet);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    text-decoration: none;
+    transition: border-color var(--duration-base) var(--ease-out);
+  }
+
+  .sidebar-signs a:hover {
+    border-color: color-mix(in srgb, var(--orb-accent) 50%, transparent);
+  }
+
+  .sidebar-signs a > :global(.sign-logo) {
+    grid-row: span 2;
+  }
+
+  .sidebar-sign-name {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+  }
+
+  .sidebar-sign-rank {
+    color: var(--ink-faint);
+    font-size: 0.82rem;
+  }
+
+  @media (min-width: 960px) {
+    .sign-discovery-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+      align-items: center;
+    }
+  }
+</style>

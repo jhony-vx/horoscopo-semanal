@@ -1,0 +1,49 @@
+---
+import RankingCard from './RankingCard.astro';
+import type { HoroscopeEntry } from '../../lib/horoscopes';
+
+interface Props {
+  entries: HoroscopeEntry[];
+}
+
+const { entries } = Astro.props;
+---
+
+<ol class="weekly-ranking" aria-label="Ranking semanal de los doce signos" data-weekly-ranking>
+  {entries.map((entry) => (
+    <li class="weekly-ranking-item">
+      <RankingCard entry={entry} />
+    </li>
+  ))}
+</ol>
+
+<style>
+  .weekly-ranking {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { isBelowFold } from '../../scripts/motion-preference';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // The cards slide in by batches as they reach the viewport; the ones already on screen stay put.
+  gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+    const items = gsap.utils.toArray<HTMLElement>('[data-weekly-ranking] > li').filter(isBelowFold);
+    if (items.length === 0) return;
+    gsap.set(items, { opacity: 0, x: -24 });
+    ScrollTrigger.batch(items, {
+      start: 'top 92%',
+      once: true,
+      onEnter: (batch) => gsap.to(batch, { opacity: 1, x: 0, duration: 0.55, ease: 'power3.out', stagger: 0.06, overwrite: true }),
+    });
+  });
+</script>

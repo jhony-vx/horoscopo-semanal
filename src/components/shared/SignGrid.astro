@@ -1,0 +1,154 @@
+---
+import { ZODIAC_SIGNS, type SignSlug } from '../../zodiac/signs';
+import SignLogo from '../ui/SignLogo.astro';
+
+interface Props {
+  currentSlug?: SignSlug;
+  compact?: boolean;
+}
+
+const { currentSlug, compact = false } = Astro.props;
+---
+
+<div class:list={['sign-grid', compact && 'sign-grid-compact']} data-sign-selector data-current-sign={currentSlug ?? ''}>
+  {ZODIAC_SIGNS.map((sign, index) => (
+    <a
+      class:list={['sign-choice', currentSlug === sign.slug && 'is-current']}
+      href={'/horoscopo/' + sign.slug + '/'}
+      data-sign-choice
+      data-sign-slug={sign.slug}
+      data-element={sign.elementKey}
+      data-reveal={compact ? undefined : true}
+      data-reveal-order={index}
+      style={`--orb-accent: ${sign.accent}`}
+      aria-current={currentSlug === sign.slug ? 'page' : undefined}
+      aria-label={'Leer el horóscopo de ' + sign.name + ', ' + sign.dateRange}
+    >
+      <SignLogo sign={sign} size={compact ? 'small' : 'medium'} decorative />
+      <span class="sign-choice-name">{sign.name}</span>
+      <span class="sign-choice-dates">{sign.dateRange}</span>
+      <span class="sign-choice-element">{sign.element}</span>
+      <span class="sign-choice-saved" aria-hidden="true">Tu signo</span>
+    </a>
+  ))}
+</div>
+
+<style>
+  .sign-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .sign-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .sign-grid:not(.sign-grid-compact) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+  }
+
+  .sign-choice {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    padding: 24px 12px 20px;
+    border: 1px solid var(--line-quiet);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    text-align: center;
+    text-decoration: none;
+    transition:
+      border-color var(--duration-base) var(--ease-out),
+      background-color var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .sign-choice::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--orb-accent) 18%, transparent), transparent 70%);
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out);
+    pointer-events: none;
+  }
+
+  .sign-choice:hover,
+  .sign-choice:focus-visible {
+    border-color: color-mix(in srgb, var(--orb-accent) 55%, transparent);
+    box-shadow: 0 16px 40px rgb(0 0 0 / 0.35);
+  }
+
+  .sign-choice:hover::before,
+  .sign-choice:focus-visible::before {
+    opacity: 1;
+  }
+
+  .sign-choice-name {
+    margin-top: 8px;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  .sign-choice-dates {
+    color: var(--ink-soft);
+    font-size: 0.84rem;
+  }
+
+  .sign-choice-element {
+    color: var(--element-color);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .sign-choice.is-current {
+    border-color: color-mix(in srgb, var(--orb-accent) 70%, transparent);
+    background: var(--surface-raised);
+  }
+
+  .sign-choice-saved {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 2px 8px;
+    border-radius: var(--radius-control);
+    background: var(--gold-300);
+    color: var(--night-950);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0;
+    scale: 0.8;
+    transition: opacity var(--duration-fast) var(--ease-out), scale var(--duration-fast) var(--ease-out);
+  }
+
+  .sign-choice.is-saved .sign-choice-saved {
+    opacity: 1;
+    scale: 1;
+  }
+
+  .sign-grid-compact .sign-choice {
+    padding: 16px 8px 14px;
+  }
+
+  .sign-grid-compact .sign-choice-name {
+    margin-top: 4px;
+    font-size: 1.02rem;
+  }
+
+  .sign-grid-compact .sign-choice-element {
+    display: none;
+  }
+</style>

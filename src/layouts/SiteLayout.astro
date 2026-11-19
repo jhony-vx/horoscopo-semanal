@@ -8,8 +8,9 @@ interface Props {
   title: string;
   description: string;
   noindex?: boolean;
+  /** Sign slug of the page: highlights its sector and sets its accent color. */
   pageTheme?: string;
-  themeColor?: string;
+  accent?: string;
   pageType?: 'website' | 'article';
   image?: string;
   publishedTime?: string;
@@ -23,16 +24,20 @@ import '@fontsource/dm-sans/600.css';
 import '@fontsource/dm-sans/700.css';
 import '@fontsource/playfair-display/600.css';
 import '@fontsource/playfair-display/700.css';
-import '../styles/global.css';
-import ReadingProgress from '../components/ReadingProgress.astro';
-import ScrollToTop from '../components/ScrollToTop.astro';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import ReadingProgress from '../components/layout/ReadingProgress.astro';
+import ScrollToTop from '../components/layout/ScrollToTop.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import SkyBackground from '../components/layout/SkyBackground.astro';
 
 const {
   title,
   description,
   noindex = false,
   pageTheme,
-  themeColor = '#1B5E20',
+  accent,
   pageType = 'website',
   image = '/social-card.svg',
   publishedTime,
@@ -100,12 +105,12 @@ const structuredData = JSON.stringify({
 });
 ---
 <!doctype html>
-<html lang="es-PE" data-page-theme={pageTheme}>
+<html lang="es-PE" data-page-theme={pageTheme} style={accent ? `--sign-accent: ${accent}` : undefined}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content={themeColor} />
+    <meta name="theme-color" content="#05070f" />
     <meta name="description" content={description} />
     <meta name="author" content="Ranking Zodiacal" />
     <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
@@ -132,266 +137,59 @@ const structuredData = JSON.stringify({
     <meta name="twitter:image:alt" content="Ranking Zodiacal: horóscopo semanal, diario y mensual" />
     <script is:inline type="application/ld+json" set:html={structuredData}></script>
     <title>{fullTitle}</title>
+    <script is:inline>
+      // Keeps the wheel at the same angle across page loads: 420 s per turn, as --wheel-period.
+      document.documentElement.style.setProperty('--wheel-delay', -((Date.now() / 1000) % 420).toFixed(2) + 's');
+    </script>
     {analyticsToken && <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: analyticsToken })}></script>}
   </head>
   <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <SkyBackground currentSlug={pageTheme} />
+    <ReadingProgress />
     <div class="site-shell">
-      <ReadingProgress />
-      <header class="site-header">
-        <div class="container header-inner">
-          <a class="brand" href="/" aria-label="Ranking Zodiacal, inicio">
-            <span class="brand-orbit" aria-hidden="true"><span></span></span>
-            <span class="brand-copy">
-              <span class="brand-name">Ranking Zodiacal</span>
-              <span class="brand-tagline">Tu semana, en perspectiva</span>
-            </span>
-          </a>
-          <nav class="main-nav" aria-label="Navegación principal">
-            <a href="/#ranking">Ranking</a>
-            <a href="/#tu-signo">Tu signo</a>
-          </nav>
-        </div>
-      </header>
-
+      <SiteHeader />
       <div class="top-sentinel" data-top-sentinel aria-hidden="true"></div>
-
-      <main>
+      <main id="contenido">
         <slot />
       </main>
-
-      <ScrollToTop />
-
-      <footer class="site-footer">
-        <div class="container footer-grid">
-          <div>
-            <a class="brand footer-brand" href="/" aria-label="Ranking Zodiacal, volver al inicio">
-              <span class="brand-orbit" aria-hidden="true"><span></span></span>
-              <span class="brand-copy">
-                <span class="brand-name">Ranking Zodiacal</span>
-              </span>
-            </a>
-            <p class="footer-note">Una lectura semanal para mirar tus días con curiosidad y buena energía.</p>
-          </div>
-          <div class="footer-links">
-            <a href="/#ranking">Ver ranking</a>
-            <a href="/#tu-signo">Elegir mi signo</a>
-            <span class="footer-disclaimer">Contenido de entretenimiento. No reemplaza asesoría profesional.</span>
-            <span class="footer-credit">Símbolos zodiacales propios de Ranking Zodiacal</span>
-          </div>
-        </div>
-        <div class="container footer-bottom">
-          <span>© 2026 Ranking Zodiacal</span>
-          <span>Hecho con calma, intención y un poco de cosmos.</span>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
+    <ScrollToTop />
 
-    <script is:inline>
-      document.documentElement.classList.add('js');
-      const SIGN_STORAGE_KEY = 'ranking-zodiacal-sign';
+    <script>
+      import { initReveal } from '../scripts/reveal';
+      import { initScrollState } from '../scripts/scroll-state';
+      import { initShare } from '../scripts/share';
+      import { initSignPreference } from '../scripts/sign-preference';
+      import { initSkyMotion } from '../scripts/sky-motion';
 
-      const readSavedSign = () => {
-        try {
-          return window.localStorage.getItem(SIGN_STORAGE_KEY);
-        } catch {
-          return null;
-        }
-      };
-
-      const saveSign = (slug) => {
-        try {
-          window.localStorage.setItem(SIGN_STORAGE_KEY, slug);
-        } catch {
-          // La preferencia local es opcional y no debe bloquear la navegación.
-        }
-      };
-
-      const markSavedSigns = () => {
-        const savedSign = readSavedSign();
-        document.querySelectorAll('[data-sign-choice]').forEach((choice) => {
-          const isSaved = savedSign === choice.getAttribute('data-sign-slug');
-          choice.classList.toggle('is-saved', isSaved);
-          choice.setAttribute('data-saved', String(isSaved));
-          const label = choice.querySelector('.sign-choice-saved');
-          if (label) label.textContent = isSaved ? 'Tu signo' : '';
-        });
-      };
-
-      document.querySelectorAll('[data-sign-choice]').forEach((choice) => {
-        choice.addEventListener('click', () => {
-          const slug = choice.getAttribute('data-sign-slug');
-          if (slug) saveSign(slug);
-        });
-      });
-
-      document.querySelectorAll('[data-sign-selector] select').forEach((select) => {
-        const link = select.parentElement?.querySelector('[data-sign-link]');
-        const updateLink = () => {
-          const slug = select.value || select.options[0]?.value;
-          if (slug && link) link.setAttribute('href', '/horoscopo/' + slug + '/');
-        };
-        const savedSign = readSavedSign();
-        if (savedSign && Array.from(select.options).some((option) => option.value === savedSign)) {
-          select.value = savedSign;
-        }
-        updateLink();
-        select.addEventListener('change', () => {
-          saveSign(select.value);
-          updateLink();
-        });
-      });
-
-      markSavedSigns();
-
-      const revealElements = document.querySelectorAll('[data-reveal]');
-      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      if (reducedMotion || !('IntersectionObserver' in window)) {
-        revealElements.forEach((element) => element.classList.add('is-visible'));
-      } else {
-        const revealObserver = new IntersectionObserver((entries, observer) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target);
-          });
-        }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-
-        revealElements.forEach((element) => revealObserver.observe(element));
-      }
-
-      document.querySelectorAll('[data-spotlight]').forEach((element) => {
-        element.addEventListener('pointermove', (event) => {
-          if (event.pointerType === 'touch') return;
-          const bounds = element.getBoundingClientRect();
-          element.style.setProperty('--spotlight-x', `${event.clientX - bounds.left}px`);
-          element.style.setProperty('--spotlight-y', `${event.clientY - bounds.top}px`);
-        }, { passive: true });
-
-        element.addEventListener('pointerleave', () => {
-          element.style.removeProperty('--spotlight-x');
-          element.style.removeProperty('--spotlight-y');
-        }, { passive: true });
-      });
-
-      const topSentinel = document.querySelector('[data-top-sentinel]');
-      const backToTop = document.querySelector('[data-back-to-top]');
-      const showBackToTop = (visible) => {
-        if (!backToTop) return;
-        backToTop.hidden = !visible;
-        backToTop.classList.toggle('is-visible', visible);
-      };
-
-      if (topSentinel && backToTop && 'IntersectionObserver' in window) {
-        const topObserver = new IntersectionObserver(([entry]) => showBackToTop(!entry.isIntersecting), { threshold: 0 });
-        topObserver.observe(topSentinel);
-      }
-
-      backToTop?.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
-      });
-
-      document.querySelectorAll('[data-open-sign-dialog]').forEach((opener) => {
-        const dialogId = opener.getAttribute('data-dialog-target');
-        const dialog = dialogId ? document.getElementById(dialogId) : null;
-        if (!dialog || typeof dialog.showModal !== 'function') return;
-
-        const closeDialog = () => {
-          if (dialog.open) dialog.close();
-        };
-
-        opener.addEventListener('click', () => {
-          dialog.showModal();
-          document.body.classList.add('dialog-open');
-          dialog.querySelector('[data-close-sign-dialog]')?.focus();
-        });
-
-        dialog.querySelector('[data-close-sign-dialog]')?.addEventListener('click', closeDialog);
-        dialog.addEventListener('click', (event) => {
-          if (event.target === dialog) closeDialog();
-        });
-        dialog.addEventListener('close', () => {
-          document.body.classList.remove('dialog-open');
-          opener.focus();
-        });
-      });
-
-      document.querySelectorAll('[data-forecast-tabs]').forEach((tabsRoot) => {
-        const tabs = Array.from(tabsRoot.querySelectorAll('[data-period-tab]'));
-        const panels = Array.from(tabsRoot.querySelectorAll('[data-period-panel]'));
-
-        const activatePeriod = (period, updateHash = true) => {
-          const selectedTab = tabs.find((tab) => tab.getAttribute('data-period-tab') === period) ?? tabs[0];
-          if (!selectedTab) return;
-          const selectedPeriod = selectedTab.getAttribute('data-period-tab');
-          const hash = selectedTab.getAttribute('data-period-hash');
-
-          tabs.forEach((tab) => {
-            const isActive = tab === selectedTab;
-            tab.classList.toggle('is-active', isActive);
-            tab.setAttribute('aria-selected', String(isActive));
-            tab.setAttribute('tabindex', isActive ? '0' : '-1');
-          });
-
-          panels.forEach((panel) => {
-            const isActive = panel.getAttribute('data-period-panel') === selectedPeriod;
-            panel.setAttribute('data-active', String(isActive));
-            panel.toggleAttribute('hidden', !isActive);
-          });
-
-          if (updateHash && hash && window.location.hash !== '#' + hash) {
-            window.history.replaceState(null, '', '#' + hash);
-          }
-        };
-
-        tabs.forEach((tab, index) => {
-          tab.addEventListener('click', () => activatePeriod(tab.getAttribute('data-period-tab') ?? 'today'));
-          tab.addEventListener('keydown', (event) => {
-            if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
-            event.preventDefault();
-            const nextIndex = event.key === 'ArrowRight'
-              ? (index + 1) % tabs.length
-              : (index - 1 + tabs.length) % tabs.length;
-            tabs[nextIndex]?.focus();
-            activatePeriod(tabs[nextIndex]?.getAttribute('data-period-tab') ?? 'today');
-          });
-        });
-
-        const initialHash = window.location.hash.replace('#', '');
-        const hashTab = tabs.find((tab) => tab.getAttribute('data-period-hash') === initialHash);
-        activatePeriod(hashTab?.getAttribute('data-period-tab') ?? 'today', false);
-      });
-
-      document.querySelectorAll('[data-share]').forEach((button) => {
-        button.addEventListener('click', async () => {
-          const shareUrl = window.location.href;
-          const shareData = {
-            title: document.title,
-            text: 'Mira este horóscopo semanal en Ranking Zodiacal',
-            url: shareUrl,
-          };
-          const status = button.parentElement?.querySelector('[data-share-status]');
-          const confirmShare = (message) => {
-            button.classList.add('is-confirmed');
-            if (status) status.textContent = message;
-            window.setTimeout(() => button.classList.remove('is-confirmed'), 1800);
-          };
-
-          try {
-            if (navigator.share) {
-              await navigator.share(shareData);
-              confirmShare('Compartido');
-            } else if (navigator.clipboard) {
-              await navigator.clipboard.writeText(shareUrl);
-              confirmShare('Enlace copiado');
-            } else if (status) {
-              status.textContent = 'Copia el enlace desde tu navegador';
-            }
-          } catch {
-            if (status) status.textContent = 'Puedes copiar el enlace desde tu navegador';
-          }
-        });
-      });
+      initSignPreference();
+      initShare();
+      initScrollState();
+      initReveal();
+      initSkyMotion();
     </script>
   </body>
 </html>
+
+<style>
+  .site-shell {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  main {
+    flex: 1;
+  }
+
+  .top-sentinel {
+    position: absolute;
+    top: 0;
+    height: 120px;
+    width: 1px;
+  }
+</style>

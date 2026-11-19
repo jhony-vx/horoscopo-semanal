@@ -1,0 +1,187 @@
+---
+import { circlePath, spokesPath, ticksPath, trinePaths, WHEEL_CENTER, WHEEL_RADII, WHEEL_SIZE, wheelSectors } from '../../zodiac/wheel';
+
+interface Props {
+  /** Sign whose sector is highlighted, on the sign pages. */
+  currentSlug?: string;
+}
+
+const { currentSlug } = Astro.props;
+const sectors = wheelSectors();
+const rings = [WHEEL_RADII.outer, WHEEL_RADII.ticks, WHEEL_RADII.labelsInner, WHEEL_RADII.glyphsInner, WHEEL_RADII.hub, WHEEL_RADII.core];
+const labelPath = circlePath(WHEEL_RADII.labels - 8);
+---
+
+<div class="sky" aria-hidden="true">
+  <div class="sky-stars"></div>
+  <div class="sky-wheel-track" data-sky-wheel>
+    <svg class="sky-wheel" viewBox={`0 0 ${WHEEL_SIZE} ${WHEEL_SIZE}`} focusable="false">
+      <defs>
+        <path id="wheel-label-path" d={labelPath} />
+        <radialGradient id="wheel-glow">
+          <stop offset="0%" stop-color="var(--sign-accent)" stop-opacity="0.24" />
+          <stop offset="55%" stop-color="var(--sign-accent)" stop-opacity="0.05" />
+          <stop offset="100%" stop-color="var(--sign-accent)" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+
+      <circle cx={WHEEL_CENTER} cy={WHEEL_CENTER} r={WHEEL_RADII.outer} fill="url(#wheel-glow)" />
+
+      <g class="wheel-lines">
+        {rings.map((radius) => <circle cx={WHEEL_CENTER} cy={WHEEL_CENTER} r={radius} />)}
+        <path d={ticksPath()} class="wheel-ticks" />
+        <path d={spokesPath()} class="wheel-spokes" />
+      </g>
+
+      <g class="wheel-trines">
+        {trinePaths().map((trine) => <path d={trine.d} data-element={trine.elementKey} />)}
+      </g>
+
+      <g class="wheel-labels">
+        {sectors.map((sector) => (
+          <text class:list={['wheel-label', sector.slug === currentSlug && 'is-current']} text-anchor="middle">
+            <textPath href="#wheel-label-path" startOffset={sector.labelOffset + '%'}>{sector.name.toUpperCase()}</textPath>
+          </text>
+        ))}
+      </g>
+
+      <g class="wheel-glyphs">
+        {sectors.map((sector) => (
+          <text
+            class:list={['wheel-glyph', 'symbol', sector.slug === currentSlug && 'is-current']}
+            x={sector.glyph.x}
+            y={sector.glyph.y}
+            transform={`rotate(${sector.glyph.rotate} ${sector.glyph.x} ${sector.glyph.y})`}
+            text-anchor="middle"
+            dominant-baseline="central"
+            data-element={sector.elementKey}
+          >{sector.symbol}</text>
+        ))}
+      </g>
+
+      <g class="wheel-core">
+        <path d="M500 452 L508 492 L548 500 L508 508 L500 548 L492 508 L452 500 L492 492 Z" />
+        <circle cx={WHEEL_CENTER} cy={WHEEL_CENTER} r="6" />
+      </g>
+    </svg>
+  </div>
+  <div class="sky-veil"></div>
+</div>
+
+<style>
+  .sky {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-sky);
+    overflow: hidden;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgb(38 49 96 / 0.55), transparent 70%),
+      radial-gradient(ellipse 60% 50% at 85% 90%, rgb(80 40 110 / 0.28), transparent 70%),
+      var(--night-950);
+    view-transition-name: sky;
+  }
+
+  .sky-stars {
+    position: absolute;
+    inset: -10%;
+    opacity: 0.7;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 72% 12%, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 38% 62%, var(--gold-200) 50%, transparent 51%),
+      radial-gradient(1px 1px at 86% 44%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 22% 84%, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 60% 34%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 94% 78%, var(--gold-200) 50%, transparent 51%),
+      radial-gradient(1px 1px at 48% 92%, #fff 50%, transparent 51%);
+    background-size: 380px 380px;
+  }
+
+  .sky-wheel-track {
+    position: absolute;
+    top: clamp(40px, 46vh, 520px);
+    left: 50%;
+    width: min(165vw, 1240px);
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    opacity: 0.62;
+  }
+
+  .sky-wheel {
+    width: 100%;
+    height: 100%;
+    animation: wheel-spin var(--wheel-period) linear infinite;
+    animation-delay: var(--wheel-delay, 0s);
+    will-change: transform;
+  }
+
+  @keyframes wheel-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  .wheel-lines {
+    fill: none;
+    stroke: color-mix(in srgb, var(--sign-accent) 55%, var(--gold-300));
+    stroke-opacity: 0.55;
+    stroke-width: 1.2;
+  }
+
+  .wheel-ticks {
+    stroke-opacity: 0.75;
+  }
+
+  .wheel-spokes {
+    stroke-opacity: 0.4;
+  }
+
+  .wheel-trines path {
+    fill: none;
+    stroke: var(--element-color);
+    stroke-opacity: 0.28;
+    stroke-width: 1;
+  }
+
+  .wheel-label {
+    fill: var(--gold-300);
+    fill-opacity: 0.8;
+    font-family: var(--font-display);
+    font-size: 25px;
+    font-weight: 600;
+    letter-spacing: 5px;
+  }
+
+  .wheel-glyph {
+    fill: var(--element-color);
+    fill-opacity: 0.85;
+    font-size: 46px;
+  }
+
+  .wheel-label.is-current,
+  .wheel-glyph.is-current {
+    fill: var(--sign-accent);
+    fill-opacity: 1;
+  }
+
+  .wheel-core {
+    fill: var(--gold-300);
+    fill-opacity: 0.3;
+  }
+
+  /* Readability veil: darkens the edges and everything under the content column. */
+  .sky-veil {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 42%, rgb(5 7 15 / 0.2), rgb(5 7 15 / 0.72) 70%, rgb(5 7 15 / 0.92)),
+      linear-gradient(to bottom, transparent 55%, rgb(5 7 15 / 0.65));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sky-wheel {
+      animation: none;
+    }
+  }
+</style>

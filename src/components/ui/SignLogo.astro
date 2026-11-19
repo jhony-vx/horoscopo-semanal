@@ -1,0 +1,79 @@
+---
+import type { ZodiacSign } from '../../zodiac/signs';
+
+interface Props {
+  sign: ZodiacSign;
+  size?: 'small' | 'medium' | 'large';
+  decorative?: boolean;
+  /** Shares the glyph between pages during a view transition; must be unique per page. */
+  transitionName?: string;
+}
+
+const { sign, size = 'medium', decorative = false, transitionName } = Astro.props;
+const style = [`--orb-accent: ${sign.accent}`, transitionName && `view-transition-name: ${transitionName}`].filter(Boolean).join('; ');
+---
+
+<span
+  class:list={['sign-logo', 'sign-logo-' + size]}
+  data-sign-logo
+  data-element={sign.elementKey}
+  style={style}
+  role={decorative ? undefined : 'img'}
+  aria-label={decorative ? undefined : 'Símbolo de ' + sign.name}
+  aria-hidden={decorative ? 'true' : undefined}
+>
+  <span class="sign-logo-ring" aria-hidden="true"></span>
+  <span class="sign-logo-glyph symbol" aria-hidden="true">{sign.symbol}</span>
+</span>
+
+<style>
+  .sign-logo {
+    --orb-size: 56px;
+    position: relative;
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: var(--orb-size);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--orb-accent) 30%, transparent), transparent 62%),
+      var(--night-850);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--orb-accent) 45%, transparent),
+      0 0 28px color-mix(in srgb, var(--orb-accent) 22%, transparent);
+  }
+
+  .sign-logo-small {
+    --orb-size: 44px;
+  }
+
+  .sign-logo-large {
+    --orb-size: clamp(132px, 22vw, 200px);
+  }
+
+  .sign-logo-ring {
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 1px dashed color-mix(in srgb, var(--orb-accent) 40%, transparent);
+  }
+
+  .sign-logo-large .sign-logo-ring {
+    inset: -14px;
+    animation: orb-turn 60s linear infinite;
+  }
+
+  .sign-logo-glyph {
+    color: var(--orb-accent);
+    font-size: calc(var(--orb-size) * 0.5);
+    line-height: 1;
+    text-shadow: 0 0 18px color-mix(in srgb, var(--orb-accent) 60%, transparent);
+  }
+
+  @keyframes orb-turn {
+    to {
+      rotate: 360deg;
+    }
+  }
+</style>
