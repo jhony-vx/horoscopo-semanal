@@ -17,11 +17,35 @@ test('la portada expone identidad y metadatos SEO propios', async ({ page }) => 
 
   await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute('href', /^\/favicon\.svg(?:\?v=\d+)?$/);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /horóscopo semanal/);
-  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /social-card\.svg/);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/social\/ranking-zodiacal\.jpg$/);
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute('href', '/site.webmanifest');
+  await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveCount(1);
 
   const jsonLd = await page.locator('script[type="application/ld+json"]').textContent();
   expect(jsonLd).toContain('"@type":"WebSite"');
   expect(jsonLd).toContain('"@type":"Organization"');
+  const graph = JSON.parse(jsonLd!)['@graph'];
+  const ranking = graph.find((node: { '@type': string }) => node['@type'] === 'ItemList');
+  expect(ranking.itemListElement).toHaveLength(12);
+  expect(ranking.itemListElement[0]).toMatchObject({ position: 1, url: expect.stringMatching(/\/horoscopo\/[a-z]+\/$/) });
+});
+
+test('cada signo comparte su propia tarjeta y la lectura de hoy', async ({ page }) => {
+  await page.goto('/horoscopo/leo/');
+
+  await expect(page).toHaveTitle('Horóscopo de Leo: hoy, semana y mes | Ranking Zodiacal');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/social\/leo\.jpg$/);
+  const summary = (await page.locator('[data-period-panel="today"] .forecast-summary p').textContent())!;
+  const description = await page.locator('meta[name="description"]').getAttribute('content');
+  expect(description?.startsWith(summary.slice(0, 40))).toBe(true);
+});
+
+test('el sitemap lista los signos y no la página 404', async ({ request }) => {
+  const sitemap = await (await request.get('/sitemap-0.xml')).text();
+
+  expect(sitemap.match(/<loc>[^<]+\/horoscopo\/[a-z]+\/<\/loc>/g)).toHaveLength(12);
+  expect(sitemap).not.toContain('404');
+  expect(sitemap).toContain('<changefreq>daily</changefreq>');
 });
 
 test('el ranking se muestra ordenado del puesto 1 al 12', async ({ page }) => {
@@ -237,4 +261,16 @@ test('cada signo tiene su perfil, su constelación y su compatibilidad', async (
   await expect(compatibility.getByRole('link', { name: /Cáncer/ })).toBeVisible();
   await expect(compatibility.getByRole('link', { name: /Tauro/ })).toBeVisible();
   await expect(page.locator('.sky-today-note')).toHaveText(/La Luna/);
+});
+
+test('la rueda y la barra de lectura avanzan con el scroll', async ({ page }) => {
+  await page.goto('/');
+
+  const styles = () => page.evaluate(() => ({
+    wheel: getComputedStyle(document.querySelector('.sky-wheel-track')!).rotate,
+    progress: getComputedStyle(document.querySelector('.reading-progress-bar')!).animationName,
+  }));
+  expect((await styles()).progress).toBe('reading-progress');
+  await page.evaluate(() => window.scrollTo(0, 600));
+  await expect.poll(async () => (await styles()).wheel).not.toBe('none');
 });

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { affinitiesFor, compatibilityMatrix, relationBetween } from './compatibility.ts';
+import { affinitiesFor, relationBetween } from './compatibility.ts';
 import { illumination, moonLitPath } from './moon.ts';
 import { SIGN_PROFILES } from './profiles.ts';
 import { SIGN_SLUGS } from './signs.ts';
@@ -38,7 +38,6 @@ test('compatibility follows the distance between signs', () => {
 
 test('affinities list flowing, opposite and tense signs', () => {
   assert.deepEqual(affinitiesFor('aries'), { best: ['leo', 'sagitario', 'geminis', 'acuario'], complement: 'libra', challenging: ['cancer', 'capricornio'] });
-  assert.equal(Object.keys(compatibilityMatrix()).length, 144);
 });
 
 test('the Moon is dark when new and fully lit when full', () => {

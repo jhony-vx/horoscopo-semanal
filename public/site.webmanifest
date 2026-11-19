@@ -1,0 +1,14 @@
+{
+  "name": "Ranking Zodiacal",
+  "short_name": "Ranking Zodiacal",
+  "description": "Horóscopo semanal, diario y mensual de los 12 signos.",
+  "lang": "es-PE",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05070f",
+  "theme_color": "#05070f",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "/apple-touch-icon.png", "type": "image/png", "sizes": "180x180" }
+  ]
+}

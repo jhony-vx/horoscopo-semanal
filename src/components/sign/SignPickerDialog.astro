@@ -116,8 +116,8 @@ const dialogId = 'sign-dialog-' + currentSlug;
 </style>
 
 <script>
-  import { animate, stagger } from 'motion';
-  import { prefersReducedMotion } from '../../scripts/motion-preference';
+  import { animate } from 'motion/mini';
+  import { EASE_OUT, prefersReducedMotion, SPRING_EASE } from '../../scripts/motion-preference';
 
   document.querySelectorAll<HTMLButtonElement>('[data-open-sign-dialog]').forEach((opener) => {
     const dialog = document.getElementById(opener.dataset.dialogTarget ?? '') as HTMLDialogElement | null;
@@ -131,12 +131,10 @@ const dialogId = 'sign-dialog-' + currentSlug;
       document.body.classList.add('dialog-open');
       dialog.querySelector<HTMLElement>('[data-close-sign-dialog]')?.focus();
       if (prefersReducedMotion()) return;
-      animate(panel, { opacity: [0, 1], y: [28, 0], scale: [0.97, 1] }, { type: 'spring', bounce: 0.2, visualDuration: 0.4 });
-      animate(
-        panel.querySelectorAll('[data-sign-choice]'),
-        { opacity: [0, 1], y: [10, 0] },
-        { duration: 0.3, delay: stagger(0.025, { startDelay: 0.08 }), ease: [0.22, 1, 0.36, 1] },
-      );
+      animate(panel, { opacity: [0, 1], translate: ['0 28px', '0 0'], scale: [0.97, 1] }, { duration: 0.42, ease: SPRING_EASE });
+      panel.querySelectorAll('[data-sign-choice]').forEach((choice, index) => {
+        animate(choice, { opacity: [0, 1], translate: ['0 10px', '0 0'] }, { duration: 0.3, delay: 0.08 + index * 0.025, ease: EASE_OUT });
+      });
     };
 
     // The exit plays before the native close, so the panel does not vanish abruptly.
@@ -145,7 +143,7 @@ const dialogId = 'sign-dialog-' + currentSlug;
       closing = true;
       dialog.classList.remove('is-open');
       if (!prefersReducedMotion()) {
-        await animate(panel, { opacity: 0, y: 16, scale: 0.98 }, { duration: 0.18, ease: [0.4, 0, 1, 1] });
+        await animate(panel, { opacity: [1, 0], translate: ['0 0', '0 16px'], scale: [1, 0.98] }, { duration: 0.18, ease: [0.4, 0, 1, 1] });
       }
       dialog.close();
       closing = false;
@@ -162,8 +160,7 @@ const dialogId = 'sign-dialog-' + currentSlug;
     });
     dialog.addEventListener('close', () => {
       document.body.classList.remove('dialog-open');
-      panel.style.removeProperty('opacity');
-      panel.style.removeProperty('transform');
+      for (const property of ['opacity', 'translate', 'scale']) panel.style.removeProperty(property);
       opener.focus();
     });
   });

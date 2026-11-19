@@ -14,11 +14,27 @@ const edition = await getCurrentEdition();
 const weekRange = edition ? formatWeekRange(edition.week.data.weekStart, edition.week.data.weekEnd) : '';
 const leader = edition ? getSign(edition.entries[0].data.sign) : undefined;
 const sky = skySummary(currentDateInLima());
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? '';
+const rankingSchema = edition
+  ? [{
+      '@type': 'ItemList',
+      name: 'Ranking semanal del horóscopo: ' + weekRange,
+      itemListOrder: 'https://schema.org/ItemListOrderAscending',
+      numberOfItems: edition.entries.length,
+      itemListElement: edition.entries.map((entry) => ({
+        '@type': 'ListItem',
+        position: entry.data.rank,
+        name: getSign(entry.data.sign)?.name,
+        url: siteUrl + '/horoscopo/' + entry.data.sign + '/',
+      })),
+    }]
+  : [];
 ---
 
 <SiteLayout
   title="Horóscopo semanal, diario y ranking zodiacal"
   description="Descubre el ranking del horóscopo semanal y consulta las lecturas diarias, semanales y mensuales de los 12 signos."
+  schema={rankingSchema}
 >
   {edition ? (
     <>

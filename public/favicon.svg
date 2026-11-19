@@ -1,9 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
   <title id="title">Ranking Zodiacal</title>
-  <desc id="desc">Órbita verde alrededor de una estrella.</desc>
-  <rect width="128" height="128" rx="28" fill="#E8F5E9"/>
-  <ellipse cx="64" cy="64" rx="48" ry="22" fill="none" stroke="#1B5E20" stroke-width="5" transform="rotate(-32 64 64)"/>
-  <circle cx="64" cy="64" r="31" fill="none" stroke="#1B5E20" stroke-width="4"/>
-  <path d="M64 30 70.5 52.5 93 59l-22.5 6.5L64 88l-6.5-22.5L35 59l22.5-6.5Z" fill="#66BB6A"/>
-  <circle cx="104" cy="34" r="7" fill="#1B5E20"/>
+  <rect width="64" height="64" rx="14" fill="#090c1a"/>
+  <g fill="none" stroke="#efd394" stroke-width="2">
+    <circle cx="32" cy="32" r="24"/>
+    <circle cx="32" cy="32" r="16"/>
+    <path d="M32 8v6M32 50v6M8 32h6M50 32h6M15 15l4.2 4.2M44.8 44.8l4.2 4.2M15 49l4.2-4.2M44.8 19.2l4.2-4.2"/>
+  </g>
+  <path d="M32 22l2.6 7.4L42 32l-7.4 2.6L32 42l-2.6-7.4L22 32l7.4-2.6z" fill="#efd394"/>
 </svg>

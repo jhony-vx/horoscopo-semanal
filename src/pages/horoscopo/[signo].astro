@@ -38,17 +38,27 @@ const todayDate = currentDateInLima();
 const tomorrowDate = dateInLima(1);
 const sky = skySummary(todayDate);
 const nearbyEntries = edition?.entries.filter((item) => item.data.sign !== sign.slug).slice(0, 4) ?? [];
+// The description changes with each daily reading, so search results show today's summary.
+const todaySummary = forecasts.today?.data.summary;
+const description = todaySummary
+  ? clip(todaySummary, 120) + ' Lee también su semana, su mes y su lugar en el ranking.'
+  : 'Lee el horóscopo diario, semanal y mensual de ' + sign.name + ', su posición en el ranking y una lectura por periodo.';
+
+function clip(text: string, max: number): string {
+  return text.length <= max ? text : text.slice(0, text.lastIndexOf(' ', max)) + '…';
+}
 ---
 
 <SiteLayout
-  title={'Horóscopo diario y semanal de ' + sign.name}
+  title={'Horóscopo de ' + sign.name + ': hoy, semana y mes'}
   pageTheme={sign.slug}
   accent={sign.accent}
   pageType="article"
   publishedTime={edition?.week.data.weekStart}
-  modifiedTime={edition?.week.data.weekEnd}
+  modifiedTime={todayDate}
+  image={'/social/' + sign.slug + '.jpg'}
   breadcrumbs={[{ name: 'Inicio', href: '/' }, { name: sign.name, href: '/horoscopo/' + sign.slug + '/' }]}
-  description={'Lee el horóscopo diario, semanal y mensual de ' + sign.name + ', su posición en el ranking y una lectura por periodo.'}
+  description={description}
 >
   <div class="sign-page" data-sign={sign.slug} data-element={sign.elementKey}>
     <section class="sign-hero">
