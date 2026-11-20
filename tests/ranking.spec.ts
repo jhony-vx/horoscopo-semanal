@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('la portada muestra el ranking, la editorial y el selector', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page).toHaveTitle(/Horóscopo semanal/);
+  await expect(page).toHaveTitle(/^Ranking Zodiacal: horóscopo semanal/);
   await expect(page.getByRole('heading', { name: /Tu semana/ })).toBeVisible();
   await expect(page.getByRole('link', { name: /Aries/ }).first()).toBeVisible();
   await expect(page.locator('.ranking-card')).toHaveCount(12);
