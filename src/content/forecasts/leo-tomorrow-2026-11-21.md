@@ -1,0 +1,34 @@
+---
+sign: leo
+period: tomorrow
+periodStart: '2026-11-21'
+periodEnd: '2026-11-21'
+status: published
+generalScore: 4
+loveScore: 5
+professionalScore: 2
+financialScore: 5
+wellbeingScore: 4
+summary: 'Mañana, Leo: con la Luna en Aries, en trígono con tu signo, es buen momento para mostrar tu talento sin forzar el ritmo.'
+---
+## Suerte general
+
+Mañana, con la Luna en Aries, en trígono con tu signo, la energía fluye con facilidad, así que es buen momento para mostrar lo que sabes hacer.
+
+## Suerte amorosa
+
+Mañana, con Venus en Libra, en sextil con tu signo, es un buen momento para expresar lo que sientes sin rodeos y con ternura.
+
+## Suerte profesional
+
+Mañana, con Mercurio en Escorpio, en cuadratura con tu signo, no es el mejor momento para decisiones apresuradas: revisa, consulta y luego actúa.
+
+## Suerte económica
+
+Mañana, con Júpiter en Leo, en tu propio signo, una decisión económica pensada con calma puede darte buenos resultados.
+
+## Energía y bienestar
+
+Mañana, el descanso y la actividad encuentran un buen equilibrio natural.
+
+> La Luna transita Aries en fase de luna gibosa creciente.
