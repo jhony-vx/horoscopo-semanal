@@ -1,0 +1,34 @@
+---
+sign: leo
+period: tomorrow
+periodStart: '2026-11-24'
+periodEnd: '2026-11-24'
+status: published
+generalScore: 4
+loveScore: 4
+professionalScore: 3
+financialScore: 5
+wellbeingScore: 4
+summary: 'Mañana, Leo: con el Sol en Sagitario, en trígono con tu signo, es buen momento para mostrar tu talento sin forzar el ritmo.'
+---
+## Suerte general
+
+Mañana, con el Sol en Sagitario, en trígono con tu signo, el ambiente acompaña tus planes y conviene aprovecharlo para dar un paso que venías postergando.
+
+## Suerte amorosa
+
+Mañana, con Venus en Libra, en sextil con tu signo, es un buen momento para expresar lo que sientes sin rodeos y con ternura.
+
+## Suerte profesional
+
+Mañana, con Mercurio en Escorpio, en cuadratura con tu signo, una revisión cuidadosa de los detalles evitará repetir trabajo más adelante.
+
+## Suerte económica
+
+Mañana, con Júpiter en Leo, en tu propio signo, es buen momento para invertir en algo que te haga crecer a largo plazo.
+
+## Energía y bienestar
+
+Mañana, con la Luna en Géminis, en sextil con tu signo, tu energía está alta: mover el cuerpo te ayudará a canalizarla con alegría.
+
+> La Luna transita Géminis en fase de luna llena.
